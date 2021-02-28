@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:my_time_tracker/common_widgets/custom_raised_button.dart';
 
 class SocialSignInButton extends StatelessWidget {
   SocialSignInButton({
@@ -14,6 +13,7 @@ class SocialSignInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: press,
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 10.0),

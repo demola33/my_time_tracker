@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/sign_in/email_sign_up/email_sign_up_screen.dart';
 import 'package:my_time_tracker/blocs/email_sign_in/email_sign_in_bloc.dart';
 import 'package:my_time_tracker/blocs/email_sign_in/email_sign_in_model.dart';
+import 'package:my_time_tracker/common_widgets/custom_back_button.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:my_time_tracker/services/auth.dart';
@@ -73,6 +74,9 @@ class _EmailSignInFormBlocBasedState extends State<EmailSignInFormBlocBased> {
         isMember: false,
         press: _routeToSignUp,
       ),
+      Row(
+        children: [CustomBackButton()],
+      )
     ];
   }
 

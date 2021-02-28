@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/sign_in/email_sign_in/email_sign_in_screen.dart';
 import 'package:my_time_tracker/blocs/email_sign_up/email_sign_up_bloc.dart';
 import 'package:my_time_tracker/blocs/email_sign_up/email_sign_up_model.dart';
+import 'package:my_time_tracker/common_widgets/custom_back_button.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
 import 'package:my_time_tracker/services/auth.dart';
 import 'package:provider/provider.dart';
@@ -84,6 +85,10 @@ class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
       AlreadyHaveAnAccountCheck(
         isMember: true,
         press: _routeToSignIn,
+      ),
+      SizedBox(height: size.height * 0.03),
+      Row(
+        children: [CustomBackButton()],
       ),
     ];
   }

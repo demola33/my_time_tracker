@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_time_tracker/app/sign_in/components/social_sign_in_button.dart';
 import 'package:my_time_tracker/app/sign_in/components/sign_in_button.dart';
-import 'package:my_time_tracker/blocs/sign_in/loading_cubit.dart';
+import 'package:my_time_tracker/blocs/sign_in/sign-in-manager.dart';
 import 'package:my_time_tracker/common_widgets/or_divider.dart';
 import 'package:my_time_tracker/services/auth.dart';
 import 'package:provider/provider.dart';
@@ -13,23 +12,32 @@ import 'package:firebase_auth_platform_interface/firebase_auth_platform_interfac
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
 
 class SignInPage extends StatelessWidget {
-  final LoadingCubit bloc;
+  final SignInManager manager;
+  final bool isLoading;
 
-  const SignInPage({Key key, @required this.bloc}) : super(key: key);
+  const SignInPage({Key key, @required this.isLoading, @required this.manager})
+      : super(key: key);
+
   static Widget create(BuildContext context) {
     final auth = Provider.of<AuthBase>(context);
-    return BlocProvider(
-      create: (_) => LoadingCubit(auth: auth),
-      child: Consumer<LoadingCubit>(
-        builder: (context, bloc, _) => SignInPage(
-          bloc: bloc,
+    return ChangeNotifierProvider<ValueNotifier<bool>>(
+      create: (BuildContext context) => ValueNotifier<bool>(false),
+      child: Consumer<ValueNotifier<bool>>(
+        builder: (_, isLoading, __) => Provider(
+          create: (_) => SignInManager(auth: auth, isLoading: isLoading),
+          child: Consumer<SignInManager>(
+            builder: (context, bloc, _) => SignInPage(
+              manager: bloc,
+              isLoading: isLoading.value,
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget showSpinner(BuildContext context, LoadingState state) {
-    if (state.isLoading == true) {
+  Widget showSpinner() {
+    if (isLoading == true) {
       return Center(
         child: CircularProgressIndicator(),
       );
@@ -48,7 +56,7 @@ class SignInPage extends StatelessWidget {
 
   Future<void> _signInAnonymously(BuildContext context) async {
     try {
-      await bloc.signInAnonymously();
+      await manager.signInAnonymously();
     } on FirebaseAuthException catch (e) {
       _showSignInError(context, e);
     }
@@ -56,7 +64,7 @@ class SignInPage extends StatelessWidget {
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
-      await bloc.signInWithGoogle();
+      await manager.signInWithGoogle();
     } on FirebaseAuthException catch (e) {
       _showSignInError(context, e);
     }
@@ -64,22 +72,34 @@ class SignInPage extends StatelessWidget {
 
   Future<void> _signInWithFacebook(BuildContext context) async {
     try {
-      await bloc.signInWithFacebook();
+      await manager.signInWithFacebook();
     } on FirebaseAuthException catch (e) {
       _showSignInError(context, e);
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Background(
-        child: _buildContent(context),
+  void _signInWithEmail(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (context) {
+          return EmailSignInPage();
+        },
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
+    final isLoading = Provider.of<ValueNotifier<bool>>(context);
+    return Scaffold(
+      body: Background(
+        child: _buildContent(context, isLoading.value),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, bool isLoading) {
     Size size = MediaQuery.of(context).size;
     return Padding(
       padding: EdgeInsets.all(16.0),
@@ -98,11 +118,7 @@ class SignInPage extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           SizedBox(height: size.height * 0.05),
-          BlocBuilder<LoadingCubit, LoadingState>(
-            builder: (context, state) {
-              return showSpinner(context, state);
-            },
-          ),
+          showSpinner(),
           SizedBox(height: size.height * 0.10),
           SvgPicture.asset(
             'images/screen/center-welcome-icon.svg',
@@ -112,23 +128,14 @@ class SignInPage extends StatelessWidget {
             text: 'Sign in with Email',
             textColor: Colors.white,
             color: Colors.teal,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  fullscreenDialog: true,
-                  builder: (context) {
-                    return EmailSignInPage();
-                  },
-                ),
-              );
-            },
+            onPressed: isLoading ? null : () => _signInWithEmail(context),
           ),
           SizedBox(height: size.height * 0.01),
           SignInButton(
             text: 'Go Anonymously',
             textColor: Colors.black,
             color: Colors.lime[300],
-            onPressed: () => _signInAnonymously(context),
+            onPressed: isLoading ? null : () => _signInAnonymously(context),
           ),
           SizedBox(height: size.height * 0.01),
           OrDivider(),
@@ -138,11 +145,12 @@ class SignInPage extends StatelessWidget {
             children: [
               SocialSignInButton(
                 assetName: 'images/5.svg',
-                press: () => _signInWithGoogle(context),
+                press: () =>
+                    isLoading ? null : () => _signInWithGoogle(context),
               ),
               SocialSignInButton(
                 assetName: 'images/4.svg',
-                press: () => _signInWithFacebook(context),
+                press: () => isLoading ? null : _signInWithFacebook(context),
               ),
             ],
           )
