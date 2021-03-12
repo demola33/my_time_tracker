@@ -17,7 +17,7 @@ class EmailAndPasswordValidator {
   final StringValidator lastNameValidator = NonEmptyStringValidator();
   final String invalidEmailErrorText = "Email can't be empty";
   final String invalidPasswordErrorText = "Password can't be empty";
-  final String invalidFirstNameErrorText = "FirstName can't be empty";
-  final String invalidLastNameErrorText = "LastName can't be empty";
+  final String invalidFirstNameErrorText = "First Name can't be empty";
+  final String invalidLastNameErrorText = "Last Name can't be empty";
   final String invalidConfirmPasswordErrorText = "Password do not match";
 }

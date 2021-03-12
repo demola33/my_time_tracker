@@ -17,5 +17,6 @@ class FormSubmitButton extends CustomRaisedButton {
           color: Colors.teal[700],
           height: 40.0,
           onPressed: onPressed,
+          disabledColor: Colors.grey,
         );
 }
