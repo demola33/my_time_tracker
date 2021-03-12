@@ -1,20 +1,24 @@
+import 'package:flutter/foundation.dart';
 import 'package:my_time_tracker/app/sign_in/components/validators.dart';
+import 'package:my_time_tracker/services/auth.dart';
 
-class EmailSignInModel with EmailAndPasswordValidator {
+class EmailSignInModel with EmailAndPasswordValidator, ChangeNotifier {
   EmailSignInModel({
     this.email: '',
     this.password: '',
     this.isLoading: false,
     this.submitted: false,
+    @required this.auth,
   });
-  final String email;
-  final String password;
-  final bool isLoading;
-  final bool submitted;
+  String email;
+  String password;
+  bool isLoading;
+  bool submitted;
+  final AuthBase auth;
 
   bool get canSubmit {
     return emailValidator.isValid(email) &&
-        emailValidator.isValid(password) &&
+        passwordValidator.isValid(password) &&
         !isLoading;
   }
 
@@ -28,17 +32,34 @@ class EmailSignInModel with EmailAndPasswordValidator {
     return showErrorText ? invalidPasswordErrorText : null;
   }
 
-  EmailSignInModel copyWith({
+  Future<void> submit() async {
+    updateWith(
+      isLoading: true,
+      submitted: true,
+    );
+
+    try {
+      await Future.delayed(Duration(seconds: 5));
+      await auth.signInWithEmailAndPassword(email, password);
+    } catch (e) {
+      rethrow;
+    } finally {
+      updateWith(
+        isLoading: false,
+      );
+    }
+  }
+
+  void updateWith({
     String email,
     String password,
     bool isLoading,
     bool submitted,
   }) {
-    return EmailSignInModel(
-      email: email ?? this.email,
-      password: password ?? this.password,
-      isLoading: isLoading ?? this.isLoading,
-      submitted: submitted ?? this.submitted,
-    );
+    this.email = email ?? this.email;
+    this.password = password ?? this.password;
+    this.isLoading = isLoading ?? this.isLoading;
+    this.submitted = submitted ?? this.submitted;
+    notifyListeners();
   }
 }

@@ -4,6 +4,7 @@ class CustomRaisedButton extends StatelessWidget {
   CustomRaisedButton({
     this.child,
     this.color,
+    this.disabledColor,
     this.borderRadius: 20.0,
     this.height: 40.0,
     this.onPressed,
@@ -11,6 +12,7 @@ class CustomRaisedButton extends StatelessWidget {
         assert(height != null);
   final Widget child;
   final Color color;
+  final Color disabledColor;
   final double height;
   final double borderRadius;
   final VoidCallback onPressed;
@@ -27,7 +29,7 @@ class CustomRaisedButton extends StatelessWidget {
             Radius.circular(borderRadius),
           ),
         ),
-        disabledColor: color,
+        disabledColor: disabledColor,
         onPressed: onPressed,
       ),
     );

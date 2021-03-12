@@ -27,7 +27,7 @@ class EmailSignUpBloc {
   }
 
   Future<void> submit() async {
-    _signUpModel.copyWith(
+    updateWith(
       isLoading: true,
       submitted: true,
     );
@@ -44,7 +44,7 @@ class EmailSignUpBloc {
     } catch (e) {
       rethrow;
     } finally {
-      _signUpModel.copyWith(
+      updateWith(
         isLoading: false,
       );
     }
