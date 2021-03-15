@@ -18,14 +18,6 @@ class EmailSignUpBloc {
     _modelSignUpController.close();
   }
 
-  bool isMatched() {
-    if (_signUpModel.password == _signUpModel.confirmPassword) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   Future<void> submit() async {
     updateWith(
       isLoading: true,
@@ -33,14 +25,9 @@ class EmailSignUpBloc {
     );
 
     try {
-      print('isMatched: ${isMatched()}');
-      if (isMatched()) {
-        await Future.delayed(Duration(seconds: 5));
-        await auth.createUserWithEmailAndPassword(
-            _signUpModel.email, _signUpModel.password);
-      } else {
-        print("Password do not Match");
-      }
+      await Future.delayed(Duration(seconds: 5));
+      await auth.createUserWithEmailAndPassword(
+          _signUpModel.email, _signUpModel.password);
     } catch (e) {
       rethrow;
     } finally {

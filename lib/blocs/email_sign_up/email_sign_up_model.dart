@@ -11,16 +11,17 @@ class EmailSignUpModel with EmailAndPasswordValidator {
   final bool agree;
   final bool isMatched;
 
-  EmailSignUpModel(
-      {this.email: '',
-      this.firstName: '',
-      this.lastName: '',
-      this.password: '',
-      this.confirmPassword: '',
-      this.submitted: false,
-      this.isLoading: false,
-      this.agree: false,
-      this.isMatched: false});
+  EmailSignUpModel({
+    this.email: '',
+    this.firstName: '',
+    this.lastName: '',
+    this.password: '',
+    this.confirmPassword: '',
+    this.submitted: false,
+    this.isLoading: false,
+    this.agree: false,
+    this.isMatched: false,
+  });
 
   bool get isPasswordMatch {
     if (password != confirmPassword) {

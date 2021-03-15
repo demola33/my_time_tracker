@@ -79,7 +79,7 @@ class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
       _checkboxListTile(model),
       FormSubmitButton(
         text: 'Sign Up',
-        onPressed: model.canSubmit && model.agree ? () => _submit(model) : null,
+        onPressed: model.canSubmit && model.agree ? _submit : null,
       ),
       SizedBox(height: size.height * 0.03),
       AlreadyHaveAnAccountCheck(
@@ -185,7 +185,7 @@ class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
     );
   }
 
-  Future<void> _submit(EmailSignUpModel model) async {
+  Future<void> _submit() async {
     try {
       await widget.bloc.submit();
 
@@ -196,7 +196,6 @@ class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
         exception: e,
       ).show(context);
     }
-    print('submit:${model.submitted}');
   }
 
   InputDecoration _buildInputDecoration(
