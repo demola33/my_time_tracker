@@ -1,15 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:my_time_tracker/app/sign_in/components/validators.dart';
+import 'package:my_time_tracker/services/auth.dart';
 
-class EmailSignUpModel with EmailAndPasswordValidator {
-  final String email;
-  final String firstName;
-  final String lastName;
-  final String password;
-  final String confirmPassword;
-  final bool submitted;
-  final bool isLoading;
-  final bool agree;
-  final bool isMatched;
+class EmailSignUpModel with EmailAndPasswordValidator, ChangeNotifier {
+  String email;
+  String firstName;
+  String lastName;
+  String password;
+  String confirmPassword;
+  bool submitted;
+  bool isLoading;
+  bool agree;
+  bool isMatched;
+  final AuthBase auth;
 
   EmailSignUpModel({
     this.email: '',
@@ -21,7 +24,26 @@ class EmailSignUpModel with EmailAndPasswordValidator {
     this.isLoading: false,
     this.agree: false,
     this.isMatched: false,
+    @required this.auth,
   });
+
+  Future<void> submit() async {
+    updateWith(
+      isLoading: true,
+      submitted: true,
+    );
+
+    try {
+      await Future.delayed(Duration(seconds: 5));
+      await auth.createUserWithEmailAndPassword(email, password);
+    } catch (e) {
+      rethrow;
+    } finally {
+      updateWith(
+        isLoading: false,
+      );
+    }
+  }
 
   bool get isPasswordMatch {
     if (password != confirmPassword) {
@@ -68,7 +90,7 @@ class EmailSignUpModel with EmailAndPasswordValidator {
     return showErrorText ? invalidConfirmPasswordErrorText : null;
   }
 
-  EmailSignUpModel copyWith({
+  void updateWith({
     String email,
     String firstName,
     String lastName,
@@ -79,16 +101,15 @@ class EmailSignUpModel with EmailAndPasswordValidator {
     bool agree,
     bool isMatched,
   }) {
-    return EmailSignUpModel(
-      email: email ?? this.email,
-      password: password ?? this.password,
-      confirmPassword: confirmPassword ?? this.confirmPassword,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      submitted: submitted ?? this.submitted,
-      isLoading: isLoading ?? this.isLoading,
-      agree: agree ?? this.agree,
-      isMatched: isMatched ?? this.isMatched,
-    );
+    this.email = email ?? this.email;
+    this.password = password ?? this.password;
+    this.confirmPassword = confirmPassword ?? this.confirmPassword;
+    this.firstName = firstName ?? this.firstName;
+    this.lastName = lastName ?? this.lastName;
+    this.submitted = submitted ?? this.submitted;
+    this.isLoading = isLoading ?? this.isLoading;
+    this.agree = agree ?? this.agree;
+    this.isMatched = isMatched ?? this.isMatched;
+    notifyListeners();
   }
 }

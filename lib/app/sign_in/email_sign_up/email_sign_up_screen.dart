@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/sign_in/background.dart';
-import 'email_sign_up_form_bloc_based.dart';
+import 'email_sign_up_form_change_notifier_based.dart';
 
 class EmailSignUpPage extends StatelessWidget {
   @override
@@ -9,7 +9,7 @@ class EmailSignUpPage extends StatelessWidget {
       body: Background(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: EmailSignUpFormBlocBased.create(context),
+          child: EmailSignUpFormChangeNotifierBased.create(context),
         ),
       ),
     );

@@ -17,7 +17,8 @@ class FirebaseAuthExceptionAlertDialog extends PlatformAlertDialog {
   }
 
   static Map<String, String> _errors = {
-    /// - **invalid-email**:
+    'invalid-email': "Please use a valid email address",
+
     ///  - Thrown if the email address is not valid.
     /// - **user-disabled**:
     ///  - Thrown if the user corresponding to the given email has been disabled.
@@ -27,8 +28,10 @@ class FirebaseAuthExceptionAlertDialog extends PlatformAlertDialog {
 
     ///  - Thrown if the password is invalid for the given email, or the account
     ///    corresponding to the email does not have a password set.
-    ///
-    /// - **email-already-in-use**:
+
+    'email-already-in-use':
+        "This Email address is already in use by another user.",
+
     ///  - Thrown if there already exists an account with the given email address.
     /// - **invalid-email**:
     ///  - Thrown if the email address is not valid.

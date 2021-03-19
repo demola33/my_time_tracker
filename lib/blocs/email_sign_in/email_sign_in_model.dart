@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:my_time_tracker/app/sign_in/components/validators.dart';
 import 'package:my_time_tracker/services/auth.dart';
@@ -39,9 +41,12 @@ class EmailSignInModel with EmailAndPasswordValidator, ChangeNotifier {
     );
 
     try {
-      await Future.delayed(Duration(seconds: 5));
-      await auth.signInWithEmailAndPassword(email, password);
-    } catch (e) {
+      final result = await InternetAddress.lookup('googleapis.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        await Future.delayed(Duration(seconds: 5));
+        await auth.signInWithEmailAndPassword(email, password);
+      }
+    } on SocketException {
       rethrow;
     } finally {
       updateWith(

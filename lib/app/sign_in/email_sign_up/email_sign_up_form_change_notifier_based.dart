@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/sign_in/email_sign_in/email_sign_in_screen.dart';
-import 'package:my_time_tracker/blocs/email_sign_up/email_sign_up_bloc.dart';
 import 'package:my_time_tracker/blocs/email_sign_up/email_sign_up_model.dart';
 import 'package:my_time_tracker/common_widgets/custom_back_button.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
@@ -10,29 +9,33 @@ import '../components/already_have_an_account_check.dart';
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
 
-class EmailSignUpFormBlocBased extends StatefulWidget {
-  final EmailSignUpBloc bloc;
+class EmailSignUpFormChangeNotifierBased extends StatefulWidget {
+  final EmailSignUpModel model;
 
-  EmailSignUpFormBlocBased({Key key, this.bloc}) : super(key: key);
+  EmailSignUpFormChangeNotifierBased({
+    Key key,
+    this.model,
+  }) : super(key: key);
 
   static Widget create(BuildContext context) {
     final auth = Provider.of<AuthBase>(context);
-    return Provider<EmailSignUpBloc>(
-      create: (_) => EmailSignUpBloc(auth: auth),
-      child: Consumer<EmailSignUpBloc>(
-        builder: (context, bloc, _) => EmailSignUpFormBlocBased(
-          bloc: bloc,
+    return ChangeNotifierProvider<EmailSignUpModel>(
+      create: (_) => EmailSignUpModel(auth: auth),
+      child: Consumer<EmailSignUpModel>(
+        builder: (context, model, _) => EmailSignUpFormChangeNotifierBased(
+          model: model,
         ),
       ),
     );
   }
 
   @override
-  _EmailSignUpFormBlocBasedState createState() =>
-      _EmailSignUpFormBlocBasedState();
+  _EmailSignUpFormChangeNotifierBasedState createState() =>
+      _EmailSignUpFormChangeNotifierBasedState();
 }
 
-class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
+class _EmailSignUpFormChangeNotifierBasedState
+    extends State<EmailSignUpFormChangeNotifierBased> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -40,43 +43,38 @@ class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  _EmailSignUpFormBlocBasedState({this.onChanged});
+  _EmailSignUpFormChangeNotifierBasedState({this.onChanged});
 
   final ValueChanged<bool> onChanged;
+  EmailSignUpModel get model => widget.model;
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: StreamBuilder<EmailSignUpModel>(
-          stream: widget.bloc.modelSignUpStream,
-          initialData: EmailSignUpModel(),
-          builder: (context, snapshot) {
-            EmailSignUpModel model = snapshot.data;
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: _buildChildren(context, model),
-              ),
-            );
-          }),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: _buildChildren(),
+        ),
+      ),
     );
   }
 
-  List<Widget> _buildChildren(context, EmailSignUpModel model) {
+  List<Widget> _buildChildren() {
     Size size = MediaQuery.of(context).size;
 
     return [
-      _buildFirstName(model),
+      _buildFirstName(),
       SizedBox(height: size.height * 0.01),
-      _buildLastName(model),
+      _buildLastName(),
       SizedBox(height: size.height * 0.01),
-      _buildEmail(model),
+      _buildEmail(),
       SizedBox(height: size.height * 0.01),
-      _buildPassword(model),
+      _buildPassword(),
       SizedBox(height: size.height * 0.02),
-      _buildConfirmPassword(model),
-      _checkboxListTile(model),
+      _buildConfirmPassword(),
+      _checkboxListTile(),
       FormSubmitButton(
         text: 'Sign Up',
         onPressed: model.canSubmit && model.agree ? _submit : null,
@@ -93,7 +91,7 @@ class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
     ];
   }
 
-  Widget _buildFirstName(EmailSignUpModel model) {
+  Widget _buildFirstName() {
     return TextFormField(
       controller: _firstNameController,
       decoration: _buildInputDecoration('First Name', 'Adam', Icons.person,
@@ -102,11 +100,11 @@ class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
       keyboardType: TextInputType.text,
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.next,
-      onChanged: (firstName) => widget.bloc.updateWith(firstName: firstName),
+      onChanged: (firstName) => model.updateWith(firstName: firstName),
     );
   }
 
-  Widget _buildLastName(EmailSignUpModel model) {
+  Widget _buildLastName() {
     return TextFormField(
       controller: _lastNameController,
       decoration: _buildInputDecoration('Last Name', 'Smith', Icons.person,
@@ -115,11 +113,11 @@ class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
       keyboardType: TextInputType.text,
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.next,
-      onChanged: (lastName) => widget.bloc.updateWith(lastName: lastName),
+      onChanged: (lastName) => model.updateWith(lastName: lastName),
     );
   }
 
-  Widget _buildEmail(EmailSignUpModel model) {
+  Widget _buildEmail() {
     return TextField(
       controller: _emailController,
       decoration: _buildInputDecoration('Email', 'adamsmith@email.com',
@@ -127,29 +125,28 @@ class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
       keyboardType: TextInputType.emailAddress,
       enableSuggestions: false,
       textInputAction: TextInputAction.next,
-      onChanged: (email) => widget.bloc.updateWith(email: email),
+      onChanged: (email) => model.updateWith(email: email),
     );
   }
 
-  Widget _buildPassword(EmailSignUpModel model) {
+  Widget _buildPassword() {
     return TextField(
       controller: _passwordController,
       decoration: _buildInputDecoration('Password', null, Icons.lock,
           Icons.visibility, model.passwordErrorText, model),
       obscureText: true,
       textInputAction: TextInputAction.next,
-      onChanged: (password) => widget.bloc.updateWith(password: password),
+      onChanged: (password) => model.updateWith(password: password),
     );
   }
 
-  Widget _buildConfirmPassword(EmailSignUpModel model) {
+  Widget _buildConfirmPassword() {
     return TextFormField(
       controller: _confirmPasswordController,
       decoration: _buildInputDecoration('Confirm Password', null, Icons.lock,
           Icons.visibility, model.confirmPasswordErrorText, model),
       obscureText: true,
-      onChanged: (password) =>
-          widget.bloc.updateWith(confirmPassword: password),
+      onChanged: (password) => model.updateWith(confirmPassword: password),
     );
   }
 
@@ -165,13 +162,13 @@ class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
     );
   }
 
-  CheckboxListTile _checkboxListTile(EmailSignUpModel model) {
+  CheckboxListTile _checkboxListTile() {
     Size size = MediaQuery.of(context).size;
     return CheckboxListTile(
       controlAffinity: ListTileControlAffinity.leading,
       value: model.agree,
       onChanged: (bool newValue) {
-        widget.bloc.updateWith(agree: newValue);
+        model.updateWith(agree: newValue);
       },
       title: Text(
         'Agree to terms and conditions',
@@ -187,7 +184,7 @@ class _EmailSignUpFormBlocBasedState extends State<EmailSignUpFormBlocBased> {
 
   Future<void> _submit() async {
     try {
-      await widget.bloc.submit();
+      await model.submit();
 
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
