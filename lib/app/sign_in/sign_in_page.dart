@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'background.dart';
 import 'email_sign_in/email_sign_in_screen.dart';
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
-import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
+import 'package:my_time_tracker/common_widgets/firebase_auth_exception_alert_dialog.dart';
 
 class SignInPage extends StatelessWidget {
   final SignInManager manager;

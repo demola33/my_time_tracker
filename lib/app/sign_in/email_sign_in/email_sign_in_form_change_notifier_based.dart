@@ -3,7 +3,7 @@ import 'package:my_time_tracker/app/sign_in/email_sign_up/email_sign_up_screen.d
 import 'package:my_time_tracker/blocs/email_sign_in/email_sign_in_model.dart';
 import 'package:my_time_tracker/common_widgets/custom_back_button.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
-import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
+import 'package:my_time_tracker/common_widgets/firebase_auth_exception_alert_dialog.dart';
 import 'package:my_time_tracker/services/auth.dart';
 import 'package:provider/provider.dart';
 import '../components/already_have_an_account_check.dart';

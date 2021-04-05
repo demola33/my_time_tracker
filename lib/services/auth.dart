@@ -53,18 +53,22 @@ class Auth implements AuthBase {
     facebookLogin.loginBehavior = FacebookLoginBehavior.webViewOnly;
     final FacebookLoginResult result =
         await facebookLogin.logIn(['public_profile']);
+    CustomUser customUser = CustomUser(uid: null);
+
     switch (result.status) {
       case FacebookLoginStatus.loggedIn:
         final token = result.accessToken.token;
         final userCredential = await _firebaseAuth.signInWithCredential(
           FacebookAuthProvider.credential(token),
         );
-        return _userFromFirebase(userCredential.user);
+        customUser = _userFromFirebase(userCredential.user);
+        break;
       case FacebookLoginStatus.cancelledByUser:
         throw FirebaseAuthException(
           code: "CANCELLED_BY_USER",
           message: 'Cancelled by user',
         );
+
         break;
       case FacebookLoginStatus.error:
         throw FirebaseAuthException(
@@ -73,6 +77,7 @@ class Auth implements AuthBase {
         );
         break;
     }
+    return customUser;
   }
 
   @override
