@@ -82,9 +82,7 @@ class SignInPage extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (context) {
-          return EmailSignInPage();
-        },
+        builder: (context) => EmailSignInPage(),
       ),
     );
   }
@@ -145,8 +143,7 @@ class SignInPage extends StatelessWidget {
             children: [
               SocialSignInButton(
                 assetName: 'images/5.svg',
-                press: () =>
-                    isLoading ? null : () => _signInWithGoogle(context),
+                press: () => isLoading ? null : _signInWithGoogle(context),
               ),
               SocialSignInButton(
                 assetName: 'images/4.svg',

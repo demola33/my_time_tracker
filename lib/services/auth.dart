@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -68,7 +67,6 @@ class Auth implements AuthBase {
           code: "CANCELLED_BY_USER",
           message: 'Cancelled by user',
         );
-
         break;
       case FacebookLoginStatus.error:
         throw FirebaseAuthException(
@@ -95,13 +93,13 @@ class Auth implements AuthBase {
         );
         return _userFromFirebase(userCredential.user);
       } else {
-        throw PlatformException(
+        throw FirebaseAuthException(
           code: "ERROR_MISSING_GOOGLE_AUTH TOKEN",
           message: 'Missing Google Auth Token',
         );
       }
     } else {
-      throw PlatformException(
+      throw FirebaseAuthException(
         code: "ERROR_ABORTED_BY_USER",
         message: 'sign in aborted by user',
       );

@@ -2,6 +2,17 @@ abstract class StringValidator {
   bool isValid(String value);
 }
 
+abstract class IntValidator {
+  bool isValid(int value);
+}
+
+class NonEmptyIntegerValidator implements IntValidator {
+  @override
+  bool isValid(int value) {
+    return value.isNaN;
+  }
+}
+
 class NonEmptyStringValidator implements StringValidator {
   @override
   bool isValid(String value) {
@@ -20,4 +31,11 @@ class EmailAndPasswordValidator {
   final String invalidFirstNameErrorText = "First Name can't be empty";
   final String invalidLastNameErrorText = "Last Name can't be empty";
   final String invalidConfirmPasswordErrorText = "Password do not match";
+}
+
+class TextFieldValidator {
+  final StringValidator jobNameValidator = NonEmptyStringValidator();
+  final IntValidator jobRateValidator = NonEmptyIntegerValidator();
+  final String invalidEmailErrorText = "Job name can't be empty";
+  final String invalidPasswordErrorText = "Job rate can't be empty";
 }

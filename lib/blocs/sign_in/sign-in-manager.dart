@@ -9,7 +9,6 @@ class SignInManager {
   Future<CustomUser> _signIn(Future<CustomUser> Function() signInMethod) async {
     try {
       isLoading.value = true;
-      await Future.delayed(Duration(seconds: 5));
       return await signInMethod();
     } catch (e) {
       rethrow;

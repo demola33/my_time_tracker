@@ -65,6 +65,7 @@ class _EmailSignUpFormChangeNotifierBasedState
     Size size = MediaQuery.of(context).size;
 
     return [
+      showSpinner(),
       _buildFirstName(),
       SizedBox(height: size.height * 0.01),
       _buildLastName(),
@@ -182,10 +183,19 @@ class _EmailSignUpFormChangeNotifierBasedState
     );
   }
 
+  Widget showSpinner() {
+    if (model.isLoading == true) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      return Container();
+    }
+  }
+
   Future<void> _submit() async {
     try {
       await model.submit();
-
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       FirebaseAuthExceptionAlertDialog(
