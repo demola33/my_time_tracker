@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:my_time_tracker/common_widgets/custom_text.dart';
+import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/platform_widget.dart';
-
-import 'custom_bold_text_style.dart';
 
 class PlatformAlertDialog extends PlatformWidget {
   final String title;
@@ -37,8 +37,14 @@ class PlatformAlertDialog extends PlatformWidget {
   @override
   Widget buildCupertinoWidget(BuildContext context) {
     return CupertinoAlertDialog(
-      title: Text(title),
-      content: Text(content),
+      title: Text(
+        title,
+        style: CustomTextStyles.textStyleTitle(color: Colors.redAccent),
+      ),
+      content: Text(
+        content,
+        style: CustomTextStyles.textStyleNormal(),
+      ),
       actions: _buildActions(context),
     );
   }
@@ -46,8 +52,14 @@ class PlatformAlertDialog extends PlatformWidget {
   @override
   Widget buildMaterialWidget(BuildContext context) {
     return AlertDialog(
-      title: Text(title),
-      content: Text(content),
+      title: Text(
+        title,
+        style: CustomTextStyles.textStyleTitle(color: Colors.redAccent),
+      ),
+      content: Text(
+        content,
+        style: CustomTextStyles.textStyleNormal(),
+      ),
       actions: _buildActions(context),
     );
   }
@@ -57,14 +69,14 @@ class PlatformAlertDialog extends PlatformWidget {
     if (cancelActionText != null) {
       actions.add(PlatformAlertDialogAction(
         press: () => Navigator.of(context).pop(false),
-        child: CustomBoldTextStyle(
+        child: CustomText(
           text: cancelActionText,
         ),
       ));
     }
     actions.add(PlatformAlertDialogAction(
       press: () => Navigator.of(context).pop(true),
-      child: CustomBoldTextStyle(
+      child: CustomText(
         text: defaultActionText,
       ),
     ));
@@ -91,7 +103,7 @@ class PlatformAlertDialogAction extends PlatformWidget {
 
   @override
   Widget buildMaterialWidget(BuildContext context) {
-    return FlatButton(
+    return TextButton(
       child: child,
       onPressed: press,
     );

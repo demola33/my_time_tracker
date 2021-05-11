@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class CustomRaisedButton extends StatelessWidget {
-  CustomRaisedButton({
+class CustomElevatedButton extends StatelessWidget {
+  CustomElevatedButton({
     this.child,
     this.color,
     this.disabledColor,
@@ -21,15 +21,30 @@ class CustomRaisedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: height,
-      child: RaisedButton(
-        child: child,
-        color: color,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(borderRadius),
+      child: ElevatedButton(
+        style: ButtonStyle(
+          elevation: MaterialStateProperty.resolveWith<double>(
+              (Set<MaterialState> states) => 10.0),
+          shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
+            (Set<MaterialState> states) => RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(20.0),
+              ),
+            ),
+          ),
+          overlayColor: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) => Colors.deepOrangeAccent),
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.pressed))
+                return color.withOpacity(0.5);
+              else if (states.contains(MaterialState.disabled))
+                return disabledColor;
+              return color;
+            },
           ),
         ),
-        disabledColor: disabledColor,
+        child: child,
         onPressed: onPressed,
       ),
     );

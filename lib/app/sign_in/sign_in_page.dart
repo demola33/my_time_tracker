@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:my_time_tracker/app/sign_in/components/time_tracker_logo.dart';
 import 'package:my_time_tracker/app/sign_in/components/social_sign_in_button.dart';
 import 'package:my_time_tracker/app/sign_in/components/sign_in_button.dart';
+import 'package:my_time_tracker/app/sign_in/components/time_tracker_sign_in_title.dart';
 import 'package:my_time_tracker/blocs/sign_in/sign-in-manager.dart';
 import 'package:my_time_tracker/common_widgets/or_divider.dart';
 import 'package:my_time_tracker/services/auth.dart';
 import 'package:provider/provider.dart';
-import 'background.dart';
 import 'email_sign_in/email_sign_in_screen.dart';
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:my_time_tracker/common_widgets/firebase_auth_exception_alert_dialog.dart';
@@ -36,10 +36,10 @@ class SignInPage extends StatelessWidget {
     );
   }
 
-  Widget showSpinner() {
+  Widget showProgressIndicator() {
     if (isLoading == true) {
       return Center(
-        child: CircularProgressIndicator(),
+        child: LinearProgressIndicator(),
       );
     } else {
       return Container();
@@ -91,8 +91,12 @@ class SignInPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLoading = Provider.of<ValueNotifier<bool>>(context);
     return Scaffold(
-      body: Background(
-        child: _buildContent(context, isLoading.value),
+      body: Stack(
+        children: [
+          TimeTrackerLogo(),
+          TimeTrackerSignInTitle(),
+          _buildContent(context, isLoading.value),
+        ],
       ),
     );
   }
@@ -102,26 +106,12 @@ class SignInPage extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.all(16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Text(
-            'Time Tracker',
-            style: TextStyle(
-              fontFamily: 'SourceSansPro',
-              color: Colors.deepOrangeAccent,
-              fontSize: 30.0,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
-          ),
           SizedBox(height: size.height * 0.05),
-          showSpinner(),
-          SizedBox(height: size.height * 0.10),
-          SvgPicture.asset(
-            'images/screen/center-welcome-icon.svg',
-            height: size.height * 0.35,
-          ),
+          showProgressIndicator(),
+          SizedBox(height: size.height * 0.015),
           SignInButton(
             text: 'Sign in with Email',
             textColor: Colors.white,

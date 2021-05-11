@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:my_time_tracker/app/home/job_entries/format.dart';
 import 'package:my_time_tracker/app/landing_page.dart';
 import 'package:my_time_tracker/services/auth.dart';
 import 'package:provider/provider.dart';
@@ -15,8 +16,11 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Provider<AuthBase>(
-      create: (BuildContext context) => Auth(),
+    return MultiProvider(
+      providers: [
+        Provider<AuthBase>(create: (BuildContext context) => Auth()),
+        Provider<Format>(create: (BuildContext context) => Format()),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Time Tracker',

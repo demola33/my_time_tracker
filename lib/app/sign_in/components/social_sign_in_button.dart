@@ -29,6 +29,7 @@ class SocialSignInButton extends StatelessWidget {
           assetName,
           height: 50.0,
           width: 50.0,
+          fit: BoxFit.cover,
         ),
       ),
     );

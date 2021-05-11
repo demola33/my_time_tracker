@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
+
+import 'package:my_time_tracker/app/sign_in/components/password_field.dart';
 import 'package:my_time_tracker/app/sign_in/email_sign_in/email_sign_in_screen.dart';
 import 'package:my_time_tracker/blocs/email_sign_up/email_sign_up_model.dart';
-import 'package:my_time_tracker/common_widgets/custom_back_button.dart';
-import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
+import 'package:my_time_tracker/common_widgets/cancel_and_next_button.dart';
 import 'package:my_time_tracker/services/auth.dart';
-import 'package:provider/provider.dart';
-import '../components/already_have_an_account_check.dart';
-import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:my_time_tracker/common_widgets/firebase_auth_exception_alert_dialog.dart';
+import 'package:my_time_tracker/app/sign_in/components/email_and_name_text_field.dart';
+import '../components/already_have_an_account_check.dart';
 
 class EmailSignUpFormChangeNotifierBased extends StatefulWidget {
   final EmailSignUpModel model;
@@ -45,8 +47,59 @@ class _EmailSignUpFormChangeNotifierBasedState
 
   _EmailSignUpFormChangeNotifierBasedState({this.onChanged});
 
+  final GlobalKey<FormFieldState<String>> _passwordFieldKey =
+      GlobalKey<FormFieldState<String>>();
+
   final ValueChanged<bool> onChanged;
   EmailSignUpModel get model => widget.model;
+
+  FocusNode _firstNameNode,
+      _lastNameNode,
+      _emailNode,
+      _passwordNode,
+      _retypePasswordNode,
+      _signUpButtonNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _firstNameNode = FocusNode();
+    _emailNode = FocusNode();
+    _lastNameNode = FocusNode();
+    _passwordNode = FocusNode();
+    _retypePasswordNode = FocusNode();
+    _signUpButtonNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _firstNameNode.dispose();
+    _emailNode.dispose();
+    _lastNameNode.dispose();
+    _passwordNode.dispose();
+    _retypePasswordNode.dispose();
+    super.dispose();
+  }
+
+  void _firstNameEditingComplete() {
+    FocusScope.of(context).requestFocus(_lastNameNode);
+  }
+
+  void _lastNameEditingComplete() {
+    FocusScope.of(context).requestFocus(_emailNode);
+  }
+
+  void _emailEditingComplete() {
+    FocusScope.of(context).requestFocus(_passwordNode);
+  }
+
+  _passwordEditingComplete() {
+    FocusScope.of(context).requestFocus(_retypePasswordNode);
+  }
+
+  _confirmPasswordEditingComplete() {
+    FocusScope.of(context).requestFocus(_signUpButtonNode);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +118,9 @@ class _EmailSignUpFormChangeNotifierBasedState
     Size size = MediaQuery.of(context).size;
 
     return [
-      showSpinner(),
+      SizedBox(height: size.height * 0.05),
+      showProgressIndicator(),
+      SizedBox(height: size.height * 0.05),
       _buildFirstName(),
       SizedBox(height: size.height * 0.01),
       _buildLastName(),
@@ -75,79 +130,97 @@ class _EmailSignUpFormChangeNotifierBasedState
       _buildPassword(),
       SizedBox(height: size.height * 0.02),
       _buildConfirmPassword(),
-      _checkboxListTile(),
-      FormSubmitButton(
-        text: 'Sign Up',
-        onPressed: model.canSubmit && model.agree ? _submit : null,
+      // _checkboxListTile(),
+      CancelAndSignInButtons(
+        focusNode: _signUpButtonNode,
+        text: 'SIGN UP',
+        onPressed: model.canSubmit ? _submit : null,
       ),
+
       SizedBox(height: size.height * 0.03),
       AlreadyHaveAnAccountCheck(
         isMember: true,
         press: _routeToSignIn,
       ),
-      SizedBox(height: size.height * 0.03),
-      Row(
-        children: [CustomBackButton()],
-      ),
     ];
   }
 
   Widget _buildFirstName() {
-    return TextFormField(
+    return EmailNameSignInTextField(
+      focusNode: _firstNameNode,
       controller: _firstNameController,
-      decoration: _buildInputDecoration('First Name', 'Adam', Icons.person,
-          null, model.firstNameErrorText, model),
-      enableSuggestions: false,
       keyboardType: TextInputType.text,
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.next,
       onChanged: (firstName) => model.updateWith(firstName: firstName),
+      onEditingComplete: _firstNameEditingComplete,
+      errorText: model.firstNameErrorText,
+      icon: Icons.person,
+      labelText: 'First Name',
+      enabled: model.isLoading == false,
+      hint: 'Adam',
     );
   }
 
   Widget _buildLastName() {
-    return TextFormField(
+    return EmailNameSignInTextField(
+      focusNode: _lastNameNode,
       controller: _lastNameController,
-      decoration: _buildInputDecoration('Last Name', 'Smith', Icons.person,
-          null, model.lastNameErrorText, model),
-      enableSuggestions: false,
       keyboardType: TextInputType.text,
       textCapitalization: TextCapitalization.words,
       textInputAction: TextInputAction.next,
       onChanged: (lastName) => model.updateWith(lastName: lastName),
+      onEditingComplete: _lastNameEditingComplete,
+      errorText: model.lastNameErrorText,
+      icon: Icons.person,
+      labelText: 'Last Name',
+      enabled: model.isLoading == false,
+      hint: 'Smith',
     );
   }
 
   Widget _buildEmail() {
-    return TextField(
+    return EmailNameSignInTextField(
+      focusNode: _emailNode,
       controller: _emailController,
-      decoration: _buildInputDecoration('Email', 'adamsmith@email.com',
-          Icons.email, null, model.emailErrorText, model),
       keyboardType: TextInputType.emailAddress,
-      enableSuggestions: false,
       textInputAction: TextInputAction.next,
       onChanged: (email) => model.updateWith(email: email),
+      onEditingComplete: _emailEditingComplete,
+      labelText: 'Email',
+      hint: 'adamsmith@email.com',
+      icon: Icons.email,
+      errorText: model.emailErrorText,
+      enabled: model.isLoading == false,
     );
   }
 
   Widget _buildPassword() {
-    return TextField(
-      controller: _passwordController,
-      decoration: _buildInputDecoration('Password', null, Icons.lock,
-          Icons.visibility, model.passwordErrorText, model),
-      obscureText: true,
-      textInputAction: TextInputAction.next,
+    return PasswordField(
+      focusNode: _passwordNode,
+      reTypePassword: false,
+      errorText: model.passwordErrorText,
+      helperText: 'No more than 10 characters',
+      passwordController: _passwordController,
       onChanged: (password) => model.updateWith(password: password),
+      fieldKey: _passwordFieldKey,
+      textInputAction: TextInputAction.next,
+      maxLength: 10,
+      enabled: model.isLoading == false,
+      onEditingComplete: _passwordEditingComplete,
     );
   }
 
   Widget _buildConfirmPassword() {
-    return TextFormField(
-      controller: _confirmPasswordController,
-      decoration: _buildInputDecoration('Confirm Password', null, Icons.lock,
-          Icons.visibility, model.confirmPasswordErrorText, model),
-      obscureText: true,
+    return PasswordField(
+      focusNode: _retypePasswordNode,
+      reTypePassword: true,
+      errorText: model.confirmPasswordErrorText,
+      passwordController: _confirmPasswordController,
+      textInputAction: TextInputAction.next,
       onChanged: (password) => model.updateWith(confirmPassword: password),
+      enabled: model.isLoading == false,
+      onEditingComplete: _confirmPasswordEditingComplete,
     );
   }
 
@@ -163,30 +236,22 @@ class _EmailSignUpFormChangeNotifierBasedState
     );
   }
 
-  CheckboxListTile _checkboxListTile() {
-    Size size = MediaQuery.of(context).size;
-    return CheckboxListTile(
-      controlAffinity: ListTileControlAffinity.leading,
-      value: model.agree,
-      onChanged: (bool newValue) {
-        model.updateWith(agree: newValue);
-      },
-      title: Text(
-        'Agree to terms and conditions',
-        style: TextStyle(
-          fontFamily: 'SourceSansPro',
-          fontSize: size.height * 0.025,
-          fontWeight: FontWeight.bold,
-          color: Colors.teal[900],
-        ),
-      ),
-    );
-  }
+  // CheckboxListTile _checkboxListTile() {
+  //   return CheckboxListTile(
+  //     controlAffinity: ListTileControlAffinity.leading,
+  //     value: model.agree,
+  //     onChanged: (bool newValue) {
+  //       model.updateWith(agree: newValue);
+  //     },
+  //     title: Text('Agree to terms and conditions',
+  //         style: CustomTextStyles.textStyleBold()),
+  //   );
+  // }
 
-  Widget showSpinner() {
+  Widget showProgressIndicator() {
     if (model.isLoading == true) {
       return Center(
-        child: CircularProgressIndicator(),
+        child: LinearProgressIndicator(),
       );
     } else {
       return Container();
@@ -203,36 +268,5 @@ class _EmailSignUpFormChangeNotifierBasedState
         exception: e,
       ).show(context);
     }
-  }
-
-  InputDecoration _buildInputDecoration(
-    String labelText,
-    String hint,
-    IconData icon,
-    IconData suffixIcon,
-    String errorText,
-    EmailSignUpModel model,
-  ) {
-    Size size = MediaQuery.of(context).size;
-    return InputDecoration(
-      labelText: labelText,
-      hintText: hint,
-      labelStyle: TextStyle(
-        fontFamily: 'SourceSansPro',
-        fontWeight: FontWeight.bold,
-        fontSize: size.height * 0.025,
-      ),
-      icon: Icon(
-        icon,
-        color: Colors.teal[700],
-        size: size.height * 0.05,
-      ),
-      suffixIcon: Icon(
-        suffixIcon,
-        color: Colors.teal[700],
-      ),
-      errorText: errorText,
-      enabled: model.isLoading == false,
-    );
   }
 }

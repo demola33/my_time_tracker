@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/firebase_exception_alert_dialog.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
 import 'package:my_time_tracker/common_widgets/platform_alert_dialog.dart';
 import 'package:my_time_tracker/services/database.dart';
 import 'package:provider/provider.dart';
 
-import 'job.dart';
+import '../models/job.dart';
 
 class EditJobPage extends StatefulWidget {
   final Database database;
@@ -56,16 +57,12 @@ class _EditJobPageState extends State<EditJobPage> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: Text(
           widget.job == null ? 'New Job' : 'Edit Job',
-          style: TextStyle(
-            fontSize: 20.0,
-            fontFamily: 'SourceSansPro',
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
+          style: CustomTextStyles.textStyleTitle(fontSize: size.height * 0.035),
         ),
         centerTitle: true,
       ),
@@ -82,11 +79,7 @@ class _EditJobPageState extends State<EditJobPage> {
     Size size = MediaQuery.of(context).size;
     return InputDecoration(
       labelText: labelText,
-      labelStyle: TextStyle(
-        fontFamily: 'SourceSansPro',
-        fontWeight: FontWeight.bold,
-        fontSize: size.height * 0.025,
-      ),
+      labelStyle: CustomTextStyles.textStyleBold(fontSize: size.height * 0.025),
       icon: Icon(
         icon,
         color: Colors.teal[700],
@@ -128,6 +121,7 @@ class _EditJobPageState extends State<EditJobPage> {
   Widget _buildForm() {
     return Form(
       key: _formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: _buildFormChildren(),
@@ -153,7 +147,8 @@ class _EditJobPageState extends State<EditJobPage> {
         isLoading == false,
       ),
       initialValue: _name,
-      validator: (value) => value.isNotEmpty ? null : 'Name can\'t be empty',
+      validator: (value) =>
+          value == null || value.isEmpty ? 'Name can\'t be empty' : null,
       textInputAction: TextInputAction.next,
       textCapitalization: TextCapitalization.words,
       onSaved: (value) => _name = value,
@@ -167,7 +162,7 @@ class _EditJobPageState extends State<EditJobPage> {
         Icons.attach_money,
         isLoading == false,
       ),
-      initialValue: _ratePerHour != null ? '$_ratePerHour' : '0',
+      initialValue: _ratePerHour != null ? '$_ratePerHour' : '',
       keyboardType:
           TextInputType.numberWithOptions(decimal: false, signed: false),
       onSaved: (value) => _ratePerHour = int.tryParse(value) ?? 0,
@@ -176,11 +171,11 @@ class _EditJobPageState extends State<EditJobPage> {
   }
 
   Future<void> _submit() async {
-    setState(() {
-      isLoading = true;
-    });
-    Future.delayed(Duration(seconds: 5));
+    //Future.delayed(Duration(seconds: 5));
     if (_validateAndSaveForm()) {
+      setState(() {
+        isLoading = true;
+      });
       try {
         final jobs = await widget.database.jobsStream().first;
         final allNames = jobs.map((job) => job.name).toList();
@@ -189,7 +184,7 @@ class _EditJobPageState extends State<EditJobPage> {
         }
         if (allNames.contains(_name)) {
           PlatformAlertDialog(
-            title: 'Job Already Exist',
+            title: 'Job already exist',
             content: 'Please use a different job name.',
             defaultActionText: 'Ok',
           ).show(context);
