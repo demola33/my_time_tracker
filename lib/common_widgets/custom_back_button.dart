@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 
 class CustomBackButton extends StatelessWidget {
   const CustomBackButton({
@@ -10,13 +11,15 @@ class CustomBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton(
       backgroundColor: Color(0xFFFF7043),
-      child: Icon(Icons.arrow_back),
+      child: Expanded(
+        child: Text(
+          'Back',
+          style: CustomTextStyles.textStyleBold(),
+        ),
+      ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(20.0),
-          topLeft: Radius.circular(
-            20.0,
-          ),
+        borderRadius: BorderRadius.all(
+          Radius.circular(20.0),
         ),
       ),
       onPressed: () {

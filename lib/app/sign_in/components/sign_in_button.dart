@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_time_tracker/common_widgets/custom_raised_button.dart';
+import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 
-class SignInButton extends CustomRaisedButton {
+class SignInButton extends CustomElevatedButton {
   SignInButton({
     @required String text,
     Color color,
@@ -11,10 +12,8 @@ class SignInButton extends CustomRaisedButton {
         super(
           child: Text(
             text,
-            style: TextStyle(
-              fontFamily: 'SourceSansPro',
+            style: CustomTextStyles.textStyleBold(
               color: textColor,
-              fontSize: 15.0,
             ),
           ),
           disabledColor: color,
