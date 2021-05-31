@@ -15,6 +15,7 @@ class Entry {
   DateTime end;
   String comment;
 
+  String toString() => 'id: $id, jobId : $jobId, start: $start, end : $end';
   double get durationInHours =>
       end.difference(start).inMinutes.toDouble() / 60.0;
 

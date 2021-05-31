@@ -4,6 +4,7 @@ import 'package:my_time_tracker/services/auth.dart';
 class SignInManager {
   final AuthBase auth;
   final ValueNotifier<bool> isLoading;
+
   SignInManager({@required this.isLoading, @required this.auth});
 
   Future<CustomUser> _signIn(Future<CustomUser> Function() signInMethod) async {

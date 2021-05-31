@@ -1,10 +1,12 @@
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
-import 'package:my_time_tracker/common_widgets/firebase_exception_alert_dialog.dart';
 import 'package:my_time_tracker/app/home/job_entries/entry_list_item.dart';
-import 'package:my_time_tracker/app/home/job_entries/entry_page.dart';
+import 'package:my_time_tracker/app/home/job_entries/edit_entry_page.dart';
 import 'package:my_time_tracker/app/home/jobs/list_items_builder.dart';
 import 'package:my_time_tracker/app/home/models/entry.dart';
 import 'package:my_time_tracker/app/home/models/job.dart';
+import 'package:my_time_tracker/common_widgets/platform_alert_dialog.dart';
+import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
+import 'package:my_time_tracker/common_widgets/show_snack_bar.dart';
 import 'package:my_time_tracker/services/database.dart';
 
 import 'dart:async';
@@ -29,11 +31,27 @@ class JobEntriesPage extends StatelessWidget {
     );
   }
 
+  Future<void> _confirmDelete(BuildContext context, Entry entry) async {
+    final didRequestDelete = await PlatformAlertDialog(
+      title: 'Delete',
+      content: 'Would you like to delete this entry?',
+      cancelActionText: 'Cancel',
+      defaultActionText: 'Delete',
+    ).show(context);
+    if (didRequestDelete == true) {
+      _deleteEntry(context, entry);
+      MyCustomSnackBar(
+        enabled: false,
+        text: 'Entry removed successfully.',
+      ).show(context);
+    }
+  }
+
   Future<void> _deleteEntry(BuildContext context, Entry entry) async {
     try {
       await database.deleteEntry(entry);
     } catch (e) {
-      FirebaseExceptionAlertDialog(
+      PlatformExceptionAlertDialog(
         title: 'Operation failed',
         exception: e,
       ).show(context);
@@ -44,18 +62,24 @@ class JobEntriesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 2.0,
+        iconTheme: IconThemeData(color: Colors.teal),
+        backgroundColor: Colors.white,
+        elevation: 0.0,
         title: Text(
           job.name,
-          style: CustomTextStyles.textStyleTitle(),
+          style: CustomTextStyles.textStyleTitle(color: Colors.teal),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            tooltip: 'Add Entry',
+            iconSize: 30.0,
+            onPressed: () => EditEntryPage.show(
+                context: context, database: database, job: job),
+          )
+        ],
       ),
       body: _buildContent(context, job),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () =>
-            EntryPage.show(context: context, database: database, job: job),
-      ),
     );
   }
 
@@ -80,7 +104,7 @@ class JobEntriesPage extends StatelessWidget {
                 caption: 'Edit',
                 color: Colors.black45,
                 icon: Icons.edit,
-                onTap: () => EntryPage.show(
+                onTap: () => EditEntryPage.show(
                   context: context,
                   database: database,
                   job: job,
@@ -91,7 +115,7 @@ class JobEntriesPage extends StatelessWidget {
                 caption: 'Delete',
                 color: Colors.red,
                 icon: Icons.delete,
-                onTap: () => _deleteEntry(context, entry),
+                onTap: () => _confirmDelete(context, entry),
               ),
             ],
             //   return DismissibleEntryListItem(

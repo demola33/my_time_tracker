@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'platform_alert_dialog.dart';
 import 'package:meta/meta.dart';
 
@@ -6,6 +7,7 @@ class FirebaseExceptionAlertDialog extends PlatformAlertDialog {
   FirebaseExceptionAlertDialog({
     @required String title,
     @required FirebaseException exception,
+    PlatformException platformException,
   }) : super(
           title: title,
           content: _message(exception),
@@ -24,6 +26,7 @@ class FirebaseExceptionAlertDialog extends PlatformAlertDialog {
 
   static Map<String, String> _errors = {
     'invalid-email': "Please use a valid email address",
+    'firebase_auth/admin-restricted-operation': 'Anonymous sign in not enabled',
 
     ///  - Thrown if the email address is not valid.
     /// - **user-disabled**:

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 
 import 'package:my_time_tracker/app/sign_in/components/password_field.dart';
-import 'package:my_time_tracker/app/sign_in/email_sign_in/email_sign_in_screen.dart';
+import 'package:my_time_tracker/app/screens/email_sign_in_screen.dart';
 import 'package:my_time_tracker/blocs/email_sign_up/email_sign_up_model.dart';
 import 'package:my_time_tracker/common_widgets/cancel_and_next_button.dart';
 import 'package:my_time_tracker/services/auth.dart';
-import 'package:my_time_tracker/common_widgets/firebase_auth_exception_alert_dialog.dart';
 import 'package:my_time_tracker/app/sign_in/components/email_and_name_text_field.dart';
 import '../components/already_have_an_account_check.dart';
 
@@ -130,14 +130,13 @@ class _EmailSignUpFormChangeNotifierBasedState
       _buildPassword(),
       SizedBox(height: size.height * 0.02),
       _buildConfirmPassword(),
-      // _checkboxListTile(),
+      SizedBox(height: size.height * 0.02),
       CancelAndSignInButtons(
         focusNode: _signUpButtonNode,
         text: 'SIGN UP',
         onPressed: model.canSubmit ? _submit : null,
       ),
-
-      SizedBox(height: size.height * 0.03),
+      SizedBox(height: size.height * 0.01),
       AlreadyHaveAnAccountCheck(
         isMember: true,
         press: _routeToSignIn,
@@ -262,8 +261,8 @@ class _EmailSignUpFormChangeNotifierBasedState
     try {
       await model.submit();
       Navigator.pop(context);
-    } on FirebaseAuthException catch (e) {
-      FirebaseAuthExceptionAlertDialog(
+    } on PlatformException catch (e) {
+      PlatformExceptionAlertDialog(
         title: 'Sign in Failed',
         exception: e,
       ).show(context);

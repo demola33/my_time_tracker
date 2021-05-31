@@ -48,24 +48,26 @@ class EntryListItem extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Row(children: <Widget>[
-          Text(
-            dayOfWeek,
-            style: CustomTextStyles.textStyleBold(color: Colors.grey),
-          ),
-          SizedBox(width: size.height * 0.025),
-          Text(
-            '$startDate - $endDate',
-            style: CustomTextStyles.textStyleBold(),
-          ),
-          if (job.ratePerHour > 0.0) ...<Widget>[
-            Expanded(child: Container()),
+        Row(
+          children: <Widget>[
             Text(
-              payFormatted,
-              style: CustomTextStyles.textStyleBold(color: Colors.green[700]),
+              dayOfWeek,
+              style: CustomTextStyles.textStyleBold(color: Colors.grey),
             ),
+            SizedBox(width: size.height * 0.025),
+            Text(
+              '$startDate - $endDate',
+              style: CustomTextStyles.textStyleBold(),
+            ),
+            if (job.ratePerHour > 0.0) ...<Widget>[
+              Expanded(child: Container()),
+              Text(
+                payFormatted,
+                style: CustomTextStyles.textStyleBold(color: Colors.green[700]),
+              ),
+            ],
           ],
-        ]),
+        ),
         Row(children: <Widget>[
           SizedBox(width: size.height * 0.06),
           Text(

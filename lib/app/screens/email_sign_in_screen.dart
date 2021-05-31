@@ -5,6 +5,7 @@ class EmailSignInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(237, 235, 173, 1),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
