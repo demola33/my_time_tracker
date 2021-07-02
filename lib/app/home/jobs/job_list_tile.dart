@@ -13,7 +13,7 @@ class JobListTile extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return ListTile(
       title: Text(
-        job.name,
+        job.name ?? 'Job name not found',
         style: CustomTextStyles.textStyleBold(fontSize: size.height * 0.025),
       ),
       trailing: Icon(Icons.chevron_right),

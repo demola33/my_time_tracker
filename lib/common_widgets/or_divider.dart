@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 
 class OrDivider extends StatelessWidget {
   @override
@@ -13,11 +14,7 @@ class OrDivider extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
               'OR',
-              style: TextStyle(
-                fontFamily: 'SourceSansPro',
-                color: Colors.black87,
-                fontSize: 14.0,
-              ),
+              style: CustomTextStyles.textStyleBold(color: Colors.white),
             ),
           ),
           buildDivider(),
@@ -29,8 +26,9 @@ class OrDivider extends StatelessWidget {
   Expanded buildDivider() {
     return Expanded(
       child: Divider(
-        color: Colors.deepOrangeAccent,
+        color: Colors.teal[600],
         height: 1.5,
+        thickness: 1.0,
       ),
     );
   }

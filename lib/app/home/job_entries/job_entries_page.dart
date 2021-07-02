@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 
 class JobEntriesPage extends StatelessWidget {
   const JobEntriesPage({@required this.database, @required this.job});
+
   final Database database;
   final Job job;
 
@@ -62,12 +63,12 @@ class JobEntriesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.teal),
-        backgroundColor: Colors.white,
-        elevation: 0.0,
+        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: Color.fromRGBO(0, 195, 111, 0.5),
+        elevation: 5.0,
         title: Text(
-          job.name,
-          style: CustomTextStyles.textStyleTitle(color: Colors.teal),
+          job.name ?? 'Job name not found',
+          style: CustomTextStyles.textStyleTitle(),
         ),
         actions: [
           IconButton(
@@ -79,7 +80,10 @@ class JobEntriesPage extends StatelessWidget {
           )
         ],
       ),
-      body: _buildContent(context, job),
+      body: Container(
+        color: Color.fromRGBO(0, 195, 111, 0.1),
+        child: _buildContent(context, job),
+      ),
     );
   }
 
@@ -87,51 +91,54 @@ class JobEntriesPage extends StatelessWidget {
     return StreamBuilder<List<Entry>>(
       stream: database.entriesStream(job: job),
       builder: (context, snapshot) {
-        return ListItemsBuilder<Entry>(
-          snapshot: snapshot,
-          itemBuilder: (context, entry) => Slidable(
-            key: Key('entry:${entry.id}'),
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.25,
-            child: Container(
-                color: Colors.white,
-                child: EntryListItem(
-                  entry: entry,
-                  job: job,
-                )),
-            secondaryActions: [
-              IconSlideAction(
-                caption: 'Edit',
-                color: Colors.black45,
-                icon: Icons.edit,
-                onTap: () => EditEntryPage.show(
-                  context: context,
-                  database: database,
-                  job: job,
-                  entry: entry,
+        return Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: ListItemsBuilder<Entry>(
+            snapshot: snapshot,
+            itemBuilder: (context, entry) => Slidable(
+              key: Key('entry:${entry.id}'),
+              actionPane: SlidableDrawerActionPane(),
+              actionExtentRatio: 0.25,
+              child: Container(
+                  color: Colors.white,
+                  child: EntryListItem(
+                    entry: entry,
+                    job: job,
+                  )),
+              secondaryActions: [
+                IconSlideAction(
+                  caption: 'Edit',
+                  color: Colors.black45,
+                  icon: Icons.edit,
+                  onTap: () => EditEntryPage.show(
+                    context: context,
+                    database: database,
+                    job: job,
+                    entry: entry,
+                  ),
                 ),
-              ),
-              IconSlideAction(
-                caption: 'Delete',
-                color: Colors.red,
-                icon: Icons.delete,
-                onTap: () => _confirmDelete(context, entry),
-              ),
-            ],
-            //   return DismissibleEntryListItem(
-            //     key: Key('entry-${entry.id}'),
-            //     entry: entry,
-            //     job: job,
-            //     onDelete: () => _deleteEntry(context, entry),
-            //     onEdit: () => print('entries'),
-            //     onTap: () => EntryPage.show(
-            //       context: context,
-            //       database: database,
-            //       job: job,
-            //       entry: entry,
-            //     ),
-            //   );
-            // }
+                IconSlideAction(
+                  caption: 'Delete',
+                  color: Colors.red,
+                  icon: Icons.delete,
+                  onTap: () => _confirmDelete(context, entry),
+                ),
+              ],
+              //   return DismissibleEntryListItem(
+              //     key: Key('entry-${entry.id}'),
+              //     entry: entry,
+              //     job: job,
+              //     onDelete: () => _deleteEntry(context, entry),
+              //     onEdit: () => print('entries'),
+              //     onTap: () => EntryPage.show(
+              //       context: context,
+              //       database: database,
+              //       job: job,
+              //       entry: entry,
+              //     ),
+              //   );
+              // }
+            ),
           ),
         );
       },

@@ -6,7 +6,7 @@ import 'package:my_time_tracker/app/sign_in/components/time_tracker_sign_in_titl
 import 'package:my_time_tracker/blocs/sign_in/sign-in-manager.dart';
 import 'package:my_time_tracker/common_widgets/or_divider.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
-import 'package:my_time_tracker/services/auth.dart';
+import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:my_time_tracker/services/connectivity_provider.dart';
 
 import 'package:provider/provider.dart';
@@ -18,7 +18,11 @@ class SignInPage extends StatefulWidget {
   final bool isLoading;
   final bool isConnected;
 
-  const SignInPage({Key key, @required this.isLoading, @required this.manager, @required this.isConnected})
+  const SignInPage(
+      {Key key,
+      @required this.isLoading,
+      @required this.manager,
+      @required this.isConnected})
       : super(key: key);
 
   static Widget create(BuildContext context) {
@@ -30,32 +34,30 @@ class SignInPage extends StatefulWidget {
       child: Consumer<ValueNotifier<bool>>(
         builder: (_, isLoading, __) => Provider(
           create: (_) => SignInManager(auth: auth, isLoading: isLoading),
-          child: Consumer<SignInManager>(builder:(context, bloc, _) => SignInPage(
-            manager: bloc,
-            isLoading: isLoading.value,
-            isConnected: connectivity,
-          ),),
+          child: Consumer<SignInManager>(
+            builder: (context, bloc, _) => SignInPage(
+              manager: bloc,
+              isLoading: isLoading.value,
+              isConnected: connectivity,
+            ),
           ),
         ),
-      );
+      ),
+    );
   }
 
   @override
   _SignInPageState createState() => _SignInPageState();
 }
 
-class _SignInPageState extends State<SignInPage> with SingleTickerProviderStateMixin{
-
+class _SignInPageState extends State<SignInPage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
-
   }
 
-  void _showSignInError(
-      BuildContext context, PlatformException exception) {
+  void _showSignInError(BuildContext context, PlatformException exception) {
     PlatformExceptionAlertDialog(
       title: 'Sign in failed',
       exception: exception,
@@ -74,7 +76,8 @@ class _SignInPageState extends State<SignInPage> with SingleTickerProviderStateM
     try {
       await widget.manager.signInWithGoogle();
     } on PlatformException catch (e) {
-      if (e.code != "ERROR_ABORTED_BY_USER"){
+      if (e.code != "ERROR_ABORTED_BY_USER") {
+        print(e.toString());
         _showSignInError(context, e);
       }
     }
@@ -84,7 +87,7 @@ class _SignInPageState extends State<SignInPage> with SingleTickerProviderStateM
     try {
       await widget.manager.signInWithFacebook();
     } catch (e) {
-      if (e.code != "CANCELLED_BY_USER"){
+      if (e.code != "CANCELLED_BY_USER") {
         _showSignInError(context, e);
       }
     }
@@ -103,14 +106,27 @@ class _SignInPageState extends State<SignInPage> with SingleTickerProviderStateM
     // final connect = Provider.of<ConnectivityProvider>(context).online;
     // print('connected: $connect');
     return Scaffold(
-      backgroundColor: Color.fromRGBO(237, 235, 173, 0.8),
+      backgroundColor: Color.fromRGBO(37, 165, 159, 0.6),
       body: Column(
         children: [
           Expanded(
             flex: 2,
             child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Color.fromRGBO(66, 150, 152, 0.8),
+                    Color.fromRGBO(255, 228, 115, 1),
+                  ],
+                ),
+              ),
               width: MediaQuery.of(context).size.width,
-              color: Color.fromRGBO(237, 235, 173, 1),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -140,12 +156,25 @@ class _SignInPageState extends State<SignInPage> with SingleTickerProviderStateM
 
   Scaffold landScapeScaffold(BuildContext context, bool isLoading) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(237, 235, 173, 0.8),
+      backgroundColor: Color.fromRGBO(37, 165, 159, 0.6),
       body: ListView(
         children: [
           Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  Color.fromRGBO(66, 150, 152, 0.8),
+                  Color.fromRGBO(255, 228, 115, 1),
+                ],
+              ),
+            ),
             width: MediaQuery.of(context).size.width,
-            color: Color.fromRGBO(237, 235, 173, 1),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -173,7 +202,6 @@ class _SignInPageState extends State<SignInPage> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-
     final isLoading = Provider.of<ValueNotifier<bool>>(context);
     print('initStatus: ${widget.isConnected}');
     if (MediaQuery.of(context).orientation == Orientation.portrait) {
@@ -197,7 +225,9 @@ class _SignInPageState extends State<SignInPage> with SingleTickerProviderStateM
   Widget showProgressIndicator() {
     if (widget.isLoading == true) {
       return Center(
-        child: LinearProgressIndicator(),
+        child: LinearProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        ),
       );
     } else {
       return Container();
@@ -218,13 +248,13 @@ class _SignInPageState extends State<SignInPage> with SingleTickerProviderStateM
       SignInButton(
         text: 'Sign in with Email',
         textColor: Colors.white,
-        color: Colors.teal,
+        color: Colors.teal[600],
         onPressed: isLoading ? null : () => _signInWithEmail(context),
       ),
       SizedBox(height: size.height * 0.01),
       SignInButton(
         text: 'Go Anonymously',
-        textColor: Colors.black,
+        textColor: Color.fromRGBO(19, 66, 76, 1.0),
         color: Colors.lime[300],
         onPressed: isLoading ? null : () => _signInAnonymously(context),
       ),

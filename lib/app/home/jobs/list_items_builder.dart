@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/home/jobs/empty_content.dart';
 
 typedef ItemWidgetBuilder<T> = Widget Function(BuildContext context, T item);
+
 const _horizontalPadding = 10.0;
 
 class ListItemsBuilder<T> extends StatefulWidget {
@@ -48,8 +49,10 @@ class _ListItemsBuilderState<T> extends State<ListItemsBuilder<T>> {
         ),
         physics: const ClampingScrollPhysics(),
         itemCount: items.length,
-        itemBuilder: (context, index) =>
-            Card(child: widget.itemBuilder(context, items[index])),
+        itemBuilder: (context, index) => Card(
+          elevation: 2.0,
+          child: widget.itemBuilder(context, items[index]),
+        ),
       ),
     );
   }

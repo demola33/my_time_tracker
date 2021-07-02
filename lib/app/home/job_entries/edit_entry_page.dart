@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_time_tracker/app/home/job_entries/date_time_picker.dart';
 import 'package:my_time_tracker/app/home/job_entries/format.dart';
 import 'package:my_time_tracker/app/home/models/entry.dart';
 import 'package:my_time_tracker/app/home/models/job.dart';
+import 'package:my_time_tracker/common_widgets/custom_text_field.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
@@ -47,6 +47,8 @@ class _EditEntryPageState extends State<EditEntryPage> {
   DateTime _endDate;
   TimeOfDay _endTime;
   String _comment;
+  bool isLoading = false;
+  FocusNode _commentFieldNode, _submitButtonNode;
 
   String get scaffoldContent {
     if (widget.entry != null) {
@@ -59,6 +61,8 @@ class _EditEntryPageState extends State<EditEntryPage> {
   @override
   void initState() {
     super.initState();
+    _commentFieldNode = FocusNode();
+    _submitButtonNode = FocusNode();
     final start = widget.entry?.start ?? DateTime.now();
     _startDate = DateTime(start.year, start.month, start.day);
     _startTime = TimeOfDay.fromDateTime(start);
@@ -68,6 +72,13 @@ class _EditEntryPageState extends State<EditEntryPage> {
     _endTime = TimeOfDay.fromDateTime(end);
 
     _comment = widget.entry?.comment ?? '';
+  }
+
+  @override
+  void dispose() {
+    _commentFieldNode.dispose();
+    _submitButtonNode.dispose();
+    super.dispose();
   }
 
   Entry _entryFromState() {
@@ -87,14 +98,21 @@ class _EditEntryPageState extends State<EditEntryPage> {
 
   Future<void> _setEntryAndDismiss(BuildContext context) async {
     try {
+      setState(() {
+        isLoading = true;
+      });
       final entry = _entryFromState();
       await widget.database.setEntry(entry);
+      print('PASSED22222!!!!');
       Navigator.of(context).pop();
       MyCustomSnackBar(
           enabled: widget.entry == null ? true : false,
           text: scaffoldContent,
           onPressed: () => widget.database.deleteEntry(entry)).show(context);
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       PlatformExceptionAlertDialog(
         title: 'Operation failed',
         exception: e,
@@ -102,32 +120,24 @@ class _EditEntryPageState extends State<EditEntryPage> {
     }
   }
 
+  void _commentEditingComplete() {
+    FocusScope.of(context).requestFocus(_submitButtonNode);
+  }
+
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    double height = size.height;
+    //Size size = MediaQuery.of(context).size;
+    //double height = size.height;
 
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.teal),
         elevation: 0.0,
         title: Text(
-          widget.job.name,
+          widget.job.name ?? 'Job name not found',
           style: CustomTextStyles.textStyleTitle(color: Colors.teal),
         ),
         backgroundColor: Colors.white,
-        // actions: <Widget>[
-        //   TextButton(
-        //     child: Text(
-        //       widget.entry != null ? 'Update' : 'Create',
-        //       style: CustomTextStyles.textStyleTitle(
-        //         fontSize: height * 0.028,
-        //         color: Colors.teal,
-        //       ),
-        //     ),
-        //     onPressed: () => _setEntryAndDismiss(context),
-        //   )
-        // ],
       ),
       body: buildBodyScrollView(),
       backgroundColor: Colors.white,
@@ -154,11 +164,16 @@ class _EditEntryPageState extends State<EditEntryPage> {
                 _buildDuration(),
                 SizedBox(height: height * 0.013),
                 _buildComment(),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.62,
-                  child: FormSubmitButton(
-                    onPressed: () => _setEntryAndDismiss(context),
-                    text: widget.entry != null ? 'Update' : 'Create',
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.62,
+                    child: FormSubmitButton(
+                      onPressed:
+                          isLoading ? null : () => _setEntryAndDismiss(context),
+                      text: widget.entry != null ? 'Update' : 'Create',
+                      focusNode: _submitButtonNode,
+                    ),
                   ),
                 ),
                 SizedBox(height: height * 0.027),
@@ -172,6 +187,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
 
   Widget _buildStartDate() {
     return DateTimePicker(
+      enabled: isLoading == false,
       labelText: 'Start',
       selectedDate: _startDate,
       selectedTime: _startTime,
@@ -182,6 +198,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
 
   Widget _buildEndDate() {
     return DateTimePicker(
+      enabled: isLoading == false,
       labelText: 'End',
       selectedDate: _endDate,
       selectedTime: _endTime,
@@ -208,43 +225,16 @@ class _EditEntryPageState extends State<EditEntryPage> {
   }
 
   Widget _buildComment() {
-    // return TextFormField(
-    //   validator: (value) {
-    //     print('exceeded');
-    //     return (value.characters.length > 45) ? 'exceeded' : null;
-    //   },
-    //   keyboardType: TextInputType.text,
-    //   maxLength: 45,
-    //   controller: TextEditingController(text: _comment),
-    //   decoration: InputDecoration(
-    //     alignLabelWithHint: true,
-    //     hintText: 'Leave a comment',
-    //     hintStyle: CustomTextStyles.textStyleBold(),
-    //     errorMaxLines: 1,
-    //   ),
-    //   style: CustomTextStyles.textStyleNormal(color: Colors.black),
-    //   maxLines: null,
-    //   onChanged: (comment) => _comment = comment,
-    // );
-    return TextField(
+    return CustomTextField(
+      focusNode: _commentFieldNode,
+      labelText: 'Add a comment',
+      enabled: isLoading == false,
+      textInputAction: TextInputAction.done,
       keyboardType: TextInputType.text,
-      maxLength: 45,
+      maxLength: 40,
       controller: TextEditingController(text: _comment),
-      decoration: InputDecoration(
-        // labelText: 'Comment',
-        hintText: 'Leave a comment',
-        hintStyle: CustomTextStyles.textStyleBold(),
-      ),
-      style: CustomTextStyles.textStyleNormal(color: Colors.black),
-      maxLines: 1,
       onChanged: (comment) => _comment = comment,
-      //onSubmitted: (comment) => _check(comment),
+      onEditingComplete: () => _commentEditingComplete(),
     );
-  }
-
-  _check(String comment) {
-    if (comment.characters.length > 45) {
-      print('Exceeded');
-    }
   }
 }

@@ -5,15 +5,16 @@ import 'custom_raised_button.dart';
 class FormSubmitButton extends CustomElevatedButton {
   FormSubmitButton({
     @required String text,
+    @required FocusNode focusNode,
     VoidCallback onPressed,
   }) : super(
-          child: Text(
-            text,
-            style: CustomTextStyles.textStyleTitle(fontSize: 17.0),
-          ),
-          color: Colors.teal[700],
-          height: 40.0,
-          onPressed: onPressed,
-          disabledColor: Colors.grey,
-        );
+            child: Text(
+              text,
+              style: CustomTextStyles.textStyleTitle(fontSize: 17.0),
+            ),
+            color: Colors.teal[600],
+            height: 40.0,
+            onPressed: onPressed,
+            disabledColor: Colors.grey,
+            focusNode: focusNode);
 }

@@ -1,12 +1,13 @@
 import 'package:flutter/services.dart';
-import 'package:my_time_tracker/app/screens/unused_splash_screen.dart';
+import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
+// import 'package:my_time_tracker/app/screens/unused_splash_screen.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
-import 'package:my_time_tracker/app/sign_in/components/email_and_name_text_field.dart';
+import 'package:my_time_tracker/common_widgets/custom_icon_text_field.dart';
 import 'package:my_time_tracker/app/sign_in/components/password_field.dart';
 import 'package:my_time_tracker/app/screens/email_sign_up_screen.dart';
 import 'package:my_time_tracker/blocs/email_sign_in/email_sign_in_model.dart';
 import 'package:my_time_tracker/common_widgets/cancel_and_next_button.dart';
-import 'package:my_time_tracker/services/auth.dart';
+import 'package:my_time_tracker/services/auth_base.dart';
 import '../components/already_have_an_account_check.dart';
 
 import 'package:flutter/material.dart';
@@ -70,40 +71,29 @@ class _EmailSignInFormChangeNotifierBasedState
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: _buildChildren(),
-        ),
+    return Container(
+      height: MediaQuery.of(context).size.height / 1.05,
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: _buildChildren(context),
       ),
     );
   }
 
-  List<Widget> _buildChildren() {
+  List<Widget> _buildChildren(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return [
       SizedBox(
-        height: size.height * 0.45,
-        width: double.infinity,
-        child: Card(
-          child: UnusedSplashScreen(),
-          elevation: 0.0,
-        ),
+        height: size.height * 0.4,
+        // width: double.infinity,
+        // child: Card(
+        //   child: UnusedSplashScreen(),
+        //   elevation: 0.0,
+        // ),
       ),
-      showProgressIndicator(),
-      SizedBox(height: size.height * 0.015),
-      _buildEmail(),
-      SizedBox(height: size.height * 0.01),
-      _buildPassword(),
-      SizedBox(height: size.height * 0.02),
-      CancelAndSignInButtons(
-        focusNode: _signInButtonNode,
-        text: 'SIGN IN',
-        onPressed: model.canSubmit ? _submit : null,
-      ),
-      SizedBox(height: size.height * 0.01),
+      _buildInputFields(size),
+      // SizedBox(height: size.height * 0.01),
       AlreadyHaveAnAccountCheck(
         isMember: false,
         press: _routeToSignUp,
@@ -111,21 +101,40 @@ class _EmailSignInFormChangeNotifierBasedState
     ];
   }
 
-  Widget showProgressIndicator() {
-    if (model.isLoading == true) {
-      return Center(
-        child: LinearProgressIndicator(),
-      );
-    } else {
-      return Container();
-    }
+  Widget _buildInputFields(Size size) {
+    return SingleChildScrollView(
+      child: Container(
+        child: Column(
+          children: [
+            _buildEmail(),
+            SizedBox(height: size.height * 0.02),
+            _buildPassword(),
+            SizedBox(height: size.height * 0.02),
+            CancelAndSignInButtons(
+              focusNode: _signInButtonNode,
+              text: 'SIGN IN',
+              onPressed: model.canSubmit ? _submit : null,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _submit() async {
+    ProgressDialog progressDialog = ProgressDialog(
+      context: (context),
+      backgroundColor: Colors.white,
+      textColor: Colors.black,
+      loadingText: 'Signing you in...',
+    );
+    progressDialog.show();
+
     try {
       await model.submit();
-      Navigator.pop(context);
+      Navigator.popUntil(context, (route) => route.isFirst);
     } on PlatformException catch (e) {
+      progressDialog.dismiss();
       PlatformExceptionAlertDialog(
         title: 'Sign in Failed',
         exception: e,
@@ -145,10 +154,9 @@ class _EmailSignInFormChangeNotifierBasedState
   }
 
   Widget _buildEmail() {
-    return EmailNameSignInTextField(
+    return CustomIconTextField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      //enableSuggestions: false,
       textInputAction: TextInputAction.next,
       onChanged: (email) => model.updateWith(email: email),
       errorText: model.emailErrorText,

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
+import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:provider/provider.dart';
 
 import 'package:my_time_tracker/app/sign_in/components/password_field.dart';
 import 'package:my_time_tracker/app/screens/email_sign_in_screen.dart';
 import 'package:my_time_tracker/blocs/email_sign_up/email_sign_up_model.dart';
 import 'package:my_time_tracker/common_widgets/cancel_and_next_button.dart';
-import 'package:my_time_tracker/services/auth.dart';
-import 'package:my_time_tracker/app/sign_in/components/email_and_name_text_field.dart';
+import 'package:my_time_tracker/common_widgets/custom_icon_text_field.dart';
 import '../components/already_have_an_account_check.dart';
 
 class EmailSignUpFormChangeNotifierBased extends StatefulWidget {
@@ -103,13 +104,11 @@ class _EmailSignUpFormChangeNotifierBasedState
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: _buildChildren(),
-        ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: _buildChildren(),
       ),
     );
   }
@@ -118,9 +117,7 @@ class _EmailSignUpFormChangeNotifierBasedState
     Size size = MediaQuery.of(context).size;
 
     return [
-      SizedBox(height: size.height * 0.05),
-      showProgressIndicator(),
-      SizedBox(height: size.height * 0.05),
+      SizedBox(height: size.height * 0.1),
       _buildFirstName(),
       SizedBox(height: size.height * 0.01),
       _buildLastName(),
@@ -130,13 +127,13 @@ class _EmailSignUpFormChangeNotifierBasedState
       _buildPassword(),
       SizedBox(height: size.height * 0.02),
       _buildConfirmPassword(),
-      SizedBox(height: size.height * 0.02),
+      //SizedBox(height: size.height * 0.01),
       CancelAndSignInButtons(
         focusNode: _signUpButtonNode,
         text: 'SIGN UP',
         onPressed: model.canSubmit ? _submit : null,
       ),
-      SizedBox(height: size.height * 0.01),
+      //SizedBox(height: size.height * 0.01),
       AlreadyHaveAnAccountCheck(
         isMember: true,
         press: _routeToSignIn,
@@ -145,7 +142,7 @@ class _EmailSignUpFormChangeNotifierBasedState
   }
 
   Widget _buildFirstName() {
-    return EmailNameSignInTextField(
+    return CustomIconTextField(
       focusNode: _firstNameNode,
       controller: _firstNameController,
       keyboardType: TextInputType.text,
@@ -162,7 +159,7 @@ class _EmailSignUpFormChangeNotifierBasedState
   }
 
   Widget _buildLastName() {
-    return EmailNameSignInTextField(
+    return CustomIconTextField(
       focusNode: _lastNameNode,
       controller: _lastNameController,
       keyboardType: TextInputType.text,
@@ -179,7 +176,7 @@ class _EmailSignUpFormChangeNotifierBasedState
   }
 
   Widget _buildEmail() {
-    return EmailNameSignInTextField(
+    return CustomIconTextField(
       focusNode: _emailNode,
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
@@ -214,9 +211,9 @@ class _EmailSignUpFormChangeNotifierBasedState
     return PasswordField(
       focusNode: _retypePasswordNode,
       reTypePassword: true,
-      errorText: model.confirmPasswordErrorText,
       passwordController: _confirmPasswordController,
       textInputAction: TextInputAction.next,
+      errorText: model.confirmPasswordErrorText,
       onChanged: (password) => model.updateWith(confirmPassword: password),
       enabled: model.isLoading == false,
       onEditingComplete: _confirmPasswordEditingComplete,
@@ -247,21 +244,20 @@ class _EmailSignUpFormChangeNotifierBasedState
   //   );
   // }
 
-  Widget showProgressIndicator() {
-    if (model.isLoading == true) {
-      return Center(
-        child: LinearProgressIndicator(),
-      );
-    } else {
-      return Container();
-    }
-  }
-
   Future<void> _submit() async {
+    ProgressDialog progressDialog = ProgressDialog(
+      context: (context),
+      backgroundColor: Colors.white,
+      textColor: Colors.black,
+      loadingText: 'Signing you up...',
+    );
+    progressDialog.show();
+
     try {
       await model.submit();
-      Navigator.pop(context);
+      Navigator.popUntil(context, (route) => route.isFirst);
     } on PlatformException catch (e) {
+      progressDialog.dismiss();
       PlatformExceptionAlertDialog(
         title: 'Sign in Failed',
         exception: e,

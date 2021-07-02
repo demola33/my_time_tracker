@@ -14,6 +14,7 @@ class DateTimePicker extends StatelessWidget {
     this.selectedTime,
     this.onSelectDate,
     this.onSelectTime,
+    @required this.enabled,
   }) : super(key: key);
 
   final String labelText;
@@ -21,6 +22,7 @@ class DateTimePicker extends StatelessWidget {
   final TimeOfDay selectedTime;
   final ValueChanged<DateTime> onSelectDate;
   final ValueChanged<TimeOfDay> onSelectTime;
+  final bool enabled;
 
   Future<void> _selectDate(BuildContext context) async {
     final pickedDate = await showDatePicker(
@@ -56,7 +58,7 @@ class DateTimePicker extends StatelessWidget {
             labelText: labelText,
             valueText: format.date(selectedDate),
             valueStyle: valueStyle,
-            onPressed: () => _selectDate(context),
+            onPressed: enabled ? () =>_selectDate(context) : null,
           ),
         ),
         SizedBox(width: 30.0),
@@ -65,7 +67,7 @@ class DateTimePicker extends StatelessWidget {
           child: InputDropdown(
             valueText: selectedTime.format(context),
             valueStyle: valueStyle,
-            onPressed: () => _selectTime(context),
+            onPressed: enabled ? () => _selectTime(context) : null,
           ),
         ),
       ],

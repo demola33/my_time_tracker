@@ -24,15 +24,18 @@ class EntriesPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.teal),
-        backgroundColor: Colors.white,
+        backgroundColor: Color.fromRGBO(0, 88, 72, 0.5),
         title: Text(
           'Entries',
-          style: CustomTextStyles.textStyleTitle(color: Colors.teal),
+          style: CustomTextStyles.textStyleTitle(),
         ),
         centerTitle: false,
-        elevation: 0.0,
+        elevation: 5.0,
       ),
-      body: _buildContents(context),
+      body: Container(
+        color: Color.fromRGBO(0, 88, 72, 0.1),
+        child: _buildContents(context),
+      ),
     );
   }
 
@@ -41,9 +44,12 @@ class EntriesPage extends StatelessWidget {
     return StreamBuilder<List<EntriesListTileModel>>(
       stream: bloc.entriesTileModelStream,
       builder: (context, snapshot) {
-        return ListItemsBuilder<EntriesListTileModel>(
-          snapshot: snapshot,
-          itemBuilder: (context, model) => EntriesListTile(model: model),
+        return Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: ListItemsBuilder<EntriesListTileModel>(
+            snapshot: snapshot,
+            itemBuilder: (context, model) => EntriesListTile(model: model),
+          ),
         );
       },
     );

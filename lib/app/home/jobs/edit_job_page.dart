@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:my_time_tracker/common_widgets/custom_icon_text_field.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
-import 'package:my_time_tracker/common_widgets/firebase_exception_alert_dialog.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
 import 'package:my_time_tracker/common_widgets/platform_alert_dialog.dart';
+import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
+import 'package:my_time_tracker/common_widgets/show_snack_bar.dart';
 import 'package:my_time_tracker/services/database.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +19,7 @@ class EditJobPage extends StatefulWidget {
 
   static Future<void> show(BuildContext context, {Job job}) async {
     final database = Provider.of<Database>(context, listen: false);
-    await Navigator.of(context).push(MaterialPageRoute(
+    await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
       fullscreenDialog: true,
       builder: (context) => EditJobPage(
         database: database,
@@ -36,13 +38,40 @@ class _EditJobPageState extends State<EditJobPage> {
   String _name;
   int _ratePerHour;
   bool isLoading = false;
+  FocusNode _jobNameNode, _ratePerHourNode, _submitButtonNode;
+  var _jobNameController = TextEditingController();
+  var _jobRateController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+
+    _ratePerHourNode = FocusNode();
+    _jobNameNode = FocusNode();
+    _submitButtonNode = FocusNode();
+
     if (widget.job != null) {
       _name = widget.job.name;
       _ratePerHour = widget.job.ratePerHour;
+      _jobNameController = TextEditingController(text: _name);
+      _jobRateController = TextEditingController(
+          text: _ratePerHour != null ? '$_ratePerHour' : '');
+    }
+  }
+
+  @override
+  void dispose() {
+    _ratePerHourNode.dispose();
+    _jobNameNode.dispose();
+    _submitButtonNode.dispose();
+    super.dispose();
+  }
+
+  String get scaffoldContent {
+    if (widget.job != null) {
+      return '${widget.job.name} updated successfully.';
+    } else {
+      return '$_name added successfully.';
     }
   }
 
@@ -55,45 +84,60 @@ class _EditJobPageState extends State<EditJobPage> {
     return false;
   }
 
+  void _jobNameEditingComplete() {
+    FocusScope.of(context).requestFocus(_ratePerHourNode);
+  }
+
+  void _jobRateEditingComplete() {
+    FocusScope.of(context).requestFocus(_submitButtonNode);
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.teal),
         title: Text(
           widget.job == null ? 'New Job' : 'Edit Job',
-          style: CustomTextStyles.textStyleTitle(fontSize: size.height * 0.035),
+          style: CustomTextStyles.textStyleTitle(
+              fontSize: size.height * 0.035, color: Colors.teal),
         ),
         centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0.0,
+        automaticallyImplyLeading: true,
       ),
       body: _buildContent(),
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.white,
     );
   }
 
-  InputDecoration _buildInputDecoration(
-    String labelText,
-    IconData icon,
-    bool value,
-  ) {
-    Size size = MediaQuery.of(context).size;
-    return InputDecoration(
-      labelText: labelText,
-      labelStyle: CustomTextStyles.textStyleBold(fontSize: size.height * 0.025),
-      icon: Icon(
-        icon,
-        color: Colors.teal[700],
-        size: size.height * 0.05,
-      ),
-      enabled: value,
-    );
-  }
+  // InputDecoration _buildInputDecoration(
+  //   String labelText,
+  //   IconData icon,
+  //   bool enabled,
+  // ) {
+  //   Size size = MediaQuery.of(context).size;
+  //   return InputDecoration(
+  //     border: OutlineInputBorder(),
+  //     labelText: labelText,
+  //     labelStyle: CustomTextStyles.textStyleBold(fontSize: size.height * 0.025),
+  //     icon: Icon(
+  //       icon,
+  //       color: Colors.teal[700],
+  //       size: size.height * 0.05,
+  //     ),
+  //     enabled: enabled,
+  //   );
+  // }
 
   Widget _buildContent() {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Card(
+          elevation: 5.0,
           child: Column(children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -103,10 +147,11 @@ class _EditJobPageState extends State<EditJobPage> {
               height: 5.0,
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.62,
+              width: MediaQuery.of(context).size.width * 0.82,
               child: FormSubmitButton(
                 onPressed: isLoading ? null : _submit,
                 text: 'Save',
+                focusNode: _submitButtonNode,
               ),
             ),
             SizedBox(
@@ -130,8 +175,10 @@ class _EditJobPageState extends State<EditJobPage> {
   }
 
   List<Widget> _buildFormChildren() {
+    Size size = MediaQuery.of(context).size;
     return [
       _buildJobNameField(),
+      SizedBox(height: size.height * 0.02),
       _buildJobRateField(),
       SizedBox(
         height: 15.0,
@@ -140,38 +187,69 @@ class _EditJobPageState extends State<EditJobPage> {
   }
 
   Widget _buildJobNameField() {
-    return TextFormField(
-      decoration: _buildInputDecoration(
-        'Job name',
-        Icons.work,
-        isLoading == false,
-      ),
-      initialValue: _name,
+    return CustomIconTextField(
+      labelText: 'Job name',
+      icon: Icons.work,
+      controller: _jobNameController,
+      enabled: isLoading == false,
       validator: (value) =>
           value == null || value.isEmpty ? 'Name can\'t be empty' : null,
+      focusNode: _jobNameNode,
+      maxLength: 20,
+      //initialValue: _name,
+      keyboardType: TextInputType.name,
       textInputAction: TextInputAction.next,
       textCapitalization: TextCapitalization.words,
       onSaved: (value) => _name = value,
+      onEditingComplete: _jobNameEditingComplete,
     );
+    // return TextFormField(
+    //   decoration: _buildInputDecoration(
+    //     'Job name',
+    //     Icons.work,
+    //     isLoading == false,
+    //   ),
+    //   initialValue: _name,
+    //   focusNode: _jobNameNode,
+    //   validator: (value) =>
+    //       value == null || value.isEmpty ? 'Name can\'t be empty' : null,
+    //   textInputAction: TextInputAction.next,
+    //   textCapitalization: TextCapitalization.words,
+    //   onSaved: (value) => _name = value,
+    // );
   }
 
   Widget _buildJobRateField() {
-    return TextFormField(
-      decoration: _buildInputDecoration(
-        'Rate Per Hour',
-        Icons.attach_money,
-        isLoading == false,
-      ),
-      initialValue: _ratePerHour != null ? '$_ratePerHour' : '',
+    return CustomIconTextField(
+      labelText: 'Rate Per Hour',
+      icon: Icons.attach_money,
+      focusNode: _ratePerHourNode,
+      enabled: isLoading == false,
+      controller: _jobRateController,
       keyboardType:
           TextInputType.numberWithOptions(decimal: false, signed: false),
+      textInputAction: TextInputAction.done,
+      //initialValue: _ratePerHour != null ? '$_ratePerHour' : '',
       onSaved: (value) => _ratePerHour = int.tryParse(value) ?? 0,
-      onEditingComplete: _submit,
+      onEditingComplete: _jobRateEditingComplete,
     );
+    // return TextFormField(
+    //   decoration: _buildInputDecoration(
+    //     'Rate Per Hour',
+    //     Icons.attach_money,
+    //     isLoading == false,
+    //   ),
+    //   initialValue: _ratePerHour != null ? '$_ratePerHour' : '',
+    //   focusNode: _ratePerHourNode,
+    //   textInputAction: TextInputAction.done,
+    //   keyboardType:
+    //       TextInputType.numberWithOptions(decimal: false, signed: false),
+    //   onSaved: (value) => _ratePerHour = int.tryParse(value) ?? 0,
+    //   //onEditingComplete: _submit,
+    // );
   }
 
   Future<void> _submit() async {
-    //Future.delayed(Duration(seconds: 5));
     if (_validateAndSaveForm()) {
       setState(() {
         isLoading = true;
@@ -197,16 +275,19 @@ class _EditJobPageState extends State<EditJobPage> {
           );
           await widget.database.setJob(job);
           Navigator.of(context).pop();
+          MyCustomSnackBar(
+              enabled: widget.job == null ? true : false,
+              text: scaffoldContent,
+              onPressed: () => widget.database.deleteJob(job)).show(context);
         }
       } catch (e) {
         if (e.code == "permission-denied") {
-          FirebaseExceptionAlertDialog(title: 'Operation Failed', exception: e)
+          PlatformExceptionAlertDialog(title: 'Operation Failed', exception: e)
               .show(context);
+          setState(() {
+            isLoading = false;
+          });
         }
-      } finally {
-        setState(() {
-          isLoading = false;
-        });
       }
     }
   }

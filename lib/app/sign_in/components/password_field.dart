@@ -54,7 +54,7 @@ class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return TextField(
+    return TextFormField(
       key: widget.fieldKey,
       controller: widget.passwordController,
       focusNode: widget.focusNode,
@@ -63,10 +63,11 @@ class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
       textInputAction: widget.textInputAction,
       onChanged: widget.onChanged,
       onEditingComplete: widget.onEditingComplete,
-      //onSaved: widget.onSaved,
-      //: widget.validator,
-      //onFieldSubmitted: widget.onFieldSubmitted,
       decoration: InputDecoration(
+        isDense: true,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(),
         icon: Icon(
           Icons.lock,
           color: Colors.teal[700],

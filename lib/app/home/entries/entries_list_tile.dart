@@ -23,7 +23,7 @@ class EntriesListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const fontSize = 16.0;
+    //const fontSize = 16.0;
     return Container(
       color: model.isHeader || model.isMainHeader ? Colors.teal[100] : null,
       padding: !model.isHeader

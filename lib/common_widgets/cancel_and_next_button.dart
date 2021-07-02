@@ -22,7 +22,7 @@ class CancelAndSignInButtons extends StatelessWidget {
             TextButton(
               style: TextButton.styleFrom(
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
                 ),
               ),
               onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
@@ -44,7 +44,7 @@ class CancelAndSignInButtons extends StatelessWidget {
                 shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
                   (Set<MaterialState> states) => RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
-                      Radius.circular(20.0),
+                      Radius.circular(4.0),
                     ),
                   ),
                 ),
