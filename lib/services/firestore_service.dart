@@ -10,14 +10,38 @@ class FirestoreService {
     @required String path,
     @required Map<String, dynamic> data,
   }) async {
-    try{
+    try {
       final reference = FirebaseFirestore.instance.doc(path);
       await reference.set(data);
-    } catch (e){
-      if (e.message.contains('com.google.firebase.FirebaseException')){
+    } catch (e) {
+      if (e.message.contains('com.google.firebase.FirebaseException')) {
         throw PlatformException(
           code: 'no-network',
-          message: 'You are not connected to the internet. Make sure your Wi-fi/Mobile Data is connected to the internet and try again.',
+          message:
+              'You are not connected to the internet. Make sure your Wi-fi/Mobile Data is connected to the internet and try again.',
+        );
+      } else {
+        throw PlatformException(
+          code: e.code,
+          message: e.message,
+        );
+      }
+    }
+  }
+
+  Future<void> updateData({
+    @required String path,
+    @required Map<String, dynamic> data,
+  }) async {
+    try {
+      final reference = FirebaseFirestore.instance.doc(path);
+      await reference.update(data);
+    } catch (e) {
+      if (e.message.contains('com.google.firebase.FirebaseException')) {
+        throw PlatformException(
+          code: 'no-network',
+          message:
+              'You are not connected to the internet. Make sure your Wi-fi/Mobile Data is connected to the internet and try again.',
         );
       } else {
         throw PlatformException(
@@ -54,22 +78,42 @@ class FirestoreService {
     if (queryBuilder != null) {
       query = queryBuilder(query);
     }
-   try{
-     final Stream<QuerySnapshot> snapshots = query.snapshots();
-     return snapshots.map((snapshot) {
-       final result = snapshot.docs
-           .map((snapshot) => builder(snapshot.data(), snapshot.id))
-           .where((value) => value != null)
-           .toList();
-       if (sort != null) {
-         result.sort(sort);
-       }
-       return result;
-     });
-   } catch (e){
-      print(e.toString());
-   }
+
+    final Stream<QuerySnapshot> snapshots = query.snapshots();
+    return snapshots.map((snapshot) {
+      final result = snapshot.docs
+          .map((snapshot) => builder(snapshot.data(), snapshot.id))
+          .where((value) => value != null)
+          .toList();
+      if (sort != null) {
+        result.sort(sort);
+      }
+      return result;
+    });
   }
+
+  // Stream<List<T>> userProfileStream<T>({
+  //   @required String path,
+  //   @required T builder(Map<String, dynamic> data, String uid),
+  //   Query queryBuilder(Query query),
+  // }) {
+  //   Query query = FirebaseFirestore.instance.collection(path);
+  //   if (queryBuilder != null) {
+  //     query = queryBuilder(query);
+  //   }
+  //   try {
+  //     final Stream<QuerySnapshot> snapshots = query.snapshots();
+  //     return snapshots.map((snapshot) {
+  //       final result = snapshot.docs
+  //           .map((snapshot) => builder(snapshot.data(), snapshot.id))
+  //           .where((value) => value != null)
+  //           .toList();
+  //       return result;
+  //     });
+  //   } catch (e) {
+  //     print('query error: ${e.toString()}');
+  //   }
+  // }
 
   Stream<T> documentStream<T>({
     @required String path,

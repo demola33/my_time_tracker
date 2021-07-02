@@ -19,6 +19,7 @@ class PlatformExceptionAlertDialog extends PlatformAlertDialog {
 
   static Map<String, String> _errors = {
     'invalid-email': "Please use a valid email address",
+    'invalid-verification-code': 'Please use a valid verification code.',
 
     ///  - Thrown if the email address is not valid.
     /// - **user-disabled**:
@@ -32,6 +33,8 @@ class PlatformExceptionAlertDialog extends PlatformAlertDialog {
 
     'email-already-in-use':
         "This Email address is already in use by another user.",
+    'network_error':
+        'You are not connected to the internet. Make sure your Wi-fi/Mobile Data is connected to the internet and try again.',
 
     ///  - Thrown if there already exists an account with the given email address.
     /// - **invalid-email**:

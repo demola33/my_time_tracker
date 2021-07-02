@@ -8,7 +8,7 @@ import 'package:my_time_tracker/common_widgets/platform_widget.dart';
 
 class PlatformAlertDialog extends PlatformWidget {
   final String title;
-  final String content;
+  final dynamic content;
   final String defaultActionText;
   final String cancelActionText;
 
@@ -16,7 +16,7 @@ class PlatformAlertDialog extends PlatformWidget {
     @required this.title,
     @required this.content,
     this.cancelActionText,
-    @required this.defaultActionText,
+    @required this.defaultActionText, exception,
   })  : assert(title != null),
         assert(content != null),
         assert(defaultActionText != null);
