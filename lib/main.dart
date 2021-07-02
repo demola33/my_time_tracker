@@ -4,7 +4,9 @@ import 'package:my_time_tracker/app/home/job_entries/format.dart';
 import 'package:my_time_tracker/app/landing_page.dart';
 import 'package:my_time_tracker/app/screens/splash_screen.dart';
 import 'package:my_time_tracker/services/auth.dart';
+import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:my_time_tracker/services/connectivity_provider.dart';
+import 'package:my_time_tracker/services/database.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -18,7 +20,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    WidgetsFlutterBinding.ensureInitialized();
+    final Future<FirebaseApp> _initialization = Firebase.initializeApp();
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ConnectivityProvider()),
@@ -27,22 +29,35 @@ class MyApp extends StatelessWidget {
       ],
       child: FutureBuilder(
         // Replace the 3 second delay with your initialization code:
-        future: Future.delayed(Duration(seconds: 3)),
+        future: _initialization,
         builder: (context, AsyncSnapshot snapshot) {
           // Show splash screen while waiting for app resources to load:
           if (snapshot.connectionState == ConnectionState.waiting) {
-            Future.delayed(Duration(seconds: 3));
+            print('I GOT REBUILT......');
+
             return MaterialApp(
                 debugShowCheckedModeBanner: false, home: SplashScreen());
           } else {
             // Loading is done, return the app:
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              title: 'Time Tracker',
-              theme: ThemeData(
-                primarySwatch: Colors.teal,
+            return GestureDetector(
+              onTap: () {
+                print('Tap');
+                FocusScopeNode currentFocus = FocusScope.of(context);
+                if (!currentFocus.hasPrimaryFocus &&
+                    currentFocus.focusedChild != null) {
+                  FocusManager.instance.primaryFocus.unfocus();
+                }
+              },
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                title: 'Time Tracker',
+                theme: ThemeData(
+                  primarySwatch: Colors.teal,
+                ),
+                home: LandingPage(
+                  databaseBuilder: (uid) => FirestoreDatabase(uid: uid),
+                ),
               ),
-              home: LandingPage(),
             );
           }
         },
