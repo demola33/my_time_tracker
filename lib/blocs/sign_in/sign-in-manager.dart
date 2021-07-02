@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:my_time_tracker/services/auth.dart';
+import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
+import 'package:my_time_tracker/services/auth_base.dart';
 
 class SignInManager {
   final AuthBase auth;
@@ -12,9 +13,8 @@ class SignInManager {
       isLoading.value = true;
       return await signInMethod();
     } catch (e) {
-      rethrow;
-    } finally {
       isLoading.value = false;
+      rethrow;
     }
   }
 

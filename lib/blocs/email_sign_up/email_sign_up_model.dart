@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:my_time_tracker/app/sign_in/components/validators.dart';
-import 'package:my_time_tracker/services/auth.dart';
+import 'package:my_time_tracker/services/auth_base.dart';
 
 class EmailSignUpModel with EmailAndPasswordValidator, ChangeNotifier {
   String email;
@@ -34,7 +34,8 @@ class EmailSignUpModel with EmailAndPasswordValidator, ChangeNotifier {
     );
 
     try {
-      await auth.createUserWithEmailAndPassword(email, password);
+      await auth.createUserWithEmailAndPassword(
+          email, password, firstName, lastName);
     } catch (e) {
       rethrow;
     } finally {
@@ -56,8 +57,8 @@ class EmailSignUpModel with EmailAndPasswordValidator, ChangeNotifier {
     return emailValidator.isValid(email) &&
         passwordValidator.isValid(password) &&
         passwordValidator.isValid(confirmPassword) &&
-        // firstNameValidator.isValid(firstName) &&
-        // lastNameValidator.isValid(lastName) &&
+        firstNameValidator.isValid(firstName) &&
+        lastNameValidator.isValid(lastName) &&
         !isLoading &&
         isPasswordMatch;
   }
@@ -87,11 +88,6 @@ class EmailSignUpModel with EmailAndPasswordValidator, ChangeNotifier {
             !confirmPasswordValidator.isValid(confirmPassword) ||
         (confirmPasswordValidator.isValid(confirmPassword) && !isPasswordMatch);
     return showErrorText ? invalidConfirmPasswordErrorText : null;
-  }
-
-  String get nameErrorText {
-    bool showErrorText = submitted && !firstNamevalidator1.isValid(firstName);
-    return showErrorText ? invalidFirstNameErrorText1 : null;
   }
 
   void updateWith({
