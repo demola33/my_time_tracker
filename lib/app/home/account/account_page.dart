@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_time_tracker/app/home/account/Phone_page.dart';
 import 'package:my_time_tracker/app/home/account/components/user_image_picker.dart';
+import 'package:my_time_tracker/app/home/account/reset_password_page.dart';
 import 'package:my_time_tracker/app/home/home_app.dart';
 import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
@@ -255,7 +256,12 @@ class AccountPage extends StatelessWidget {
             user: user,
             enabled: _enableTile(user),
             showChevronIcon: true,
-            onTap: () {},
+            onTap: () => Navigator.of(context, rootNavigator: true).push(
+              MaterialPageRoute(
+                fullscreenDialog: false,
+                builder: (context) => ResetPassword(),
+              ),
+            ),
             icon: Icons.lock,
             label: '',
           ),

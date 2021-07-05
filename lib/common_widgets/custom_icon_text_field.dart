@@ -20,6 +20,7 @@ class CustomIconTextField extends StatelessWidget {
     this.onEditingComplete,
     this.onSaved,
     this.enabled,
+    this.helperText,
     this.maxLength,
     this.textCapitalization: TextCapitalization.none,
   }) : super(key: key);
@@ -29,6 +30,7 @@ class CustomIconTextField extends StatelessWidget {
   final IconData icon;
   final IconData suffixIcon;
   final String errorText;
+  final String helperText;
   final FocusNode focusNode;
   final int maxLength;
   //final String initialValue;
@@ -68,6 +70,7 @@ class CustomIconTextField extends StatelessWidget {
         border: OutlineInputBorder(),
         labelText: labelText,
         hintText: hint,
+        helperText: helperText,
         hintStyle: CustomTextStyles.textStyleBold(),
         labelStyle: CustomTextStyles.textStyleBold(),
         icon: Icon(

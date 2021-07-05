@@ -171,7 +171,8 @@ class _EmailSignInFormChangeNotifierBasedState
   Widget _buildPassword() {
     return PasswordField(
       focusNode: _passwordNode,
-      reTypePassword: false,
+      labelText: 'Password',
+      //reTypePassword: false,
       errorText: model.passwordErrorText,
       textInputAction: TextInputAction.next,
       passwordController: _passwordController,

@@ -113,25 +113,6 @@ class _EditJobPageState extends State<EditJobPage> {
     );
   }
 
-  // InputDecoration _buildInputDecoration(
-  //   String labelText,
-  //   IconData icon,
-  //   bool enabled,
-  // ) {
-  //   Size size = MediaQuery.of(context).size;
-  //   return InputDecoration(
-  //     border: OutlineInputBorder(),
-  //     labelText: labelText,
-  //     labelStyle: CustomTextStyles.textStyleBold(fontSize: size.height * 0.025),
-  //     icon: Icon(
-  //       icon,
-  //       color: Colors.teal[700],
-  //       size: size.height * 0.05,
-  //     ),
-  //     enabled: enabled,
-  //   );
-  // }
-
   Widget _buildContent() {
     return SingleChildScrollView(
       child: Padding(
@@ -142,20 +123,6 @@ class _EditJobPageState extends State<EditJobPage> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: _buildForm(),
-            ),
-            SizedBox(
-              height: 5.0,
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.82,
-              child: FormSubmitButton(
-                onPressed: isLoading ? null : _submit,
-                text: 'Save',
-                focusNode: _submitButtonNode,
-              ),
-            ),
-            SizedBox(
-              height: 15.0,
             ),
           ]),
         ),
@@ -180,9 +147,14 @@ class _EditJobPageState extends State<EditJobPage> {
       _buildJobNameField(),
       SizedBox(height: size.height * 0.02),
       _buildJobRateField(),
+      SizedBox(height: size.height * 0.02),
       SizedBox(
-        height: 15.0,
-      )
+        child: FormSubmitButton(
+          onPressed: isLoading ? null : _submit,
+          text: 'Save',
+          focusNode: _submitButtonNode,
+        ),
+      ),
     ];
   }
 
@@ -196,27 +168,12 @@ class _EditJobPageState extends State<EditJobPage> {
           value == null || value.isEmpty ? 'Name can\'t be empty' : null,
       focusNode: _jobNameNode,
       maxLength: 20,
-      //initialValue: _name,
       keyboardType: TextInputType.name,
       textInputAction: TextInputAction.next,
       textCapitalization: TextCapitalization.words,
       onSaved: (value) => _name = value,
       onEditingComplete: _jobNameEditingComplete,
     );
-    // return TextFormField(
-    //   decoration: _buildInputDecoration(
-    //     'Job name',
-    //     Icons.work,
-    //     isLoading == false,
-    //   ),
-    //   initialValue: _name,
-    //   focusNode: _jobNameNode,
-    //   validator: (value) =>
-    //       value == null || value.isEmpty ? 'Name can\'t be empty' : null,
-    //   textInputAction: TextInputAction.next,
-    //   textCapitalization: TextCapitalization.words,
-    //   onSaved: (value) => _name = value,
-    // );
   }
 
   Widget _buildJobRateField() {
@@ -226,27 +183,13 @@ class _EditJobPageState extends State<EditJobPage> {
       focusNode: _ratePerHourNode,
       enabled: isLoading == false,
       controller: _jobRateController,
+      helperText: 'Rate must be an integer.',
       keyboardType:
           TextInputType.numberWithOptions(decimal: false, signed: false),
       textInputAction: TextInputAction.done,
-      //initialValue: _ratePerHour != null ? '$_ratePerHour' : '',
       onSaved: (value) => _ratePerHour = int.tryParse(value) ?? 0,
       onEditingComplete: _jobRateEditingComplete,
     );
-    // return TextFormField(
-    //   decoration: _buildInputDecoration(
-    //     'Rate Per Hour',
-    //     Icons.attach_money,
-    //     isLoading == false,
-    //   ),
-    //   initialValue: _ratePerHour != null ? '$_ratePerHour' : '',
-    //   focusNode: _ratePerHourNode,
-    //   textInputAction: TextInputAction.done,
-    //   keyboardType:
-    //       TextInputType.numberWithOptions(decimal: false, signed: false),
-    //   onSaved: (value) => _ratePerHour = int.tryParse(value) ?? 0,
-    //   //onEditingComplete: _submit,
-    // );
   }
 
   Future<void> _submit() async {

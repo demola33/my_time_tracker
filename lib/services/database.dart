@@ -6,8 +6,6 @@ import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
 import 'package:my_time_tracker/services/api_path.dart';
 import 'package:my_time_tracker/services/firestore_service.dart';
 
-import 'package:my_time_tracker/blocs/models/user_profile.dart';
-
 abstract class Database {
   Future<void> setJob(Job job);
 

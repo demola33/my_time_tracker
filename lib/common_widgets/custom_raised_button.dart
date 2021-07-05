@@ -39,10 +39,10 @@ class CustomElevatedButton extends StatelessWidget {
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
               if (states.contains(MaterialState.pressed))
-                return color.withOpacity(0.5);
+                return Theme.of(context).colorScheme.primary.withOpacity(0.5);
               else if (states.contains(MaterialState.disabled))
                 return disabledColor;
-              return color;
+              return disabledColor;
             },
           ),
         ),

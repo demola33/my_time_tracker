@@ -21,6 +21,7 @@ class UserImagePicker extends StatefulWidget {
 
 class _UserImagePickerState extends State<UserImagePicker> {
   final _service = FirebaseStorageServices.instance;
+  bool isLoading = false;
   File _pickedImage;
 
   // CachedNetworkImageProvider _getNetworkImage(String url) {
@@ -52,7 +53,11 @@ class _UserImagePickerState extends State<UserImagePicker> {
                         await ImagePicker.pickImage(source: ImageSource.camera);
                     _pickedImage = File(pickedImageFile.path);
                     Navigator.pop(context);
-                    final imageURL = await uploadImage(_pickedImage);
+                    setState(() {
+                      isLoading = true;
+                    });
+                    final imageURL = await uploadImage(_pickedImage)
+                        .whenComplete(() => this.isLoading = false);
                     await auth.updateUserImageURL(imageURL);
                   },
                   splashColor: Colors.teal[600],
@@ -72,7 +77,11 @@ class _UserImagePickerState extends State<UserImagePicker> {
                         source: ImageSource.gallery);
                     _pickedImage = File(pickedImageFile.path);
                     Navigator.pop(context);
-                    final imageURL = await uploadImage(_pickedImage);
+                    setState(() {
+                      isLoading = true;
+                    });
+                    final imageURL = await uploadImage(_pickedImage)
+                        .whenComplete(() => this.isLoading = false);
                     await auth.updateUserImageURL(imageURL);
                   },
                   splashColor: Colors.teal[600],
@@ -148,7 +157,7 @@ class _UserImagePickerState extends State<UserImagePicker> {
               ),
               padding: EdgeInsets.all(8.0),
               shape: CircleBorder(),
-              onPressed: onPressed,
+              onPressed: isLoading ? null : onPressed,
             ),
           ),
         ],

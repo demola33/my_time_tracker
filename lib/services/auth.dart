@@ -376,6 +376,29 @@ class Auth implements AuthBase {
   }
 
   @override
+  Future<bool> validateCurrentPassword(String currentPassword) async {
+    User user = _firebaseAuth.currentUser;
+
+    final authCredential = EmailAuthProvider.credential(
+        email: user.email, password: currentPassword);
+    try {
+      final authResult =
+          await user.reauthenticateWithCredential(authCredential);
+      return authResult.user != null;
+    } catch (e) {
+      print(e.code);
+      print(e.message);
+      return false;
+    }
+  }
+
+  @override
+  Future<void> updatePassword(String newPassword) async {
+    User user = _firebaseAuth.currentUser;
+    await user.updatePassword(newPassword);
+  }
+
+  @override
   Future<void> removeUserPhone() async {
     User user = _firebaseAuth.currentUser;
     if (user != null) {

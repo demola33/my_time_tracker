@@ -17,6 +17,8 @@ abstract class AuthBase {
 
   Future<CustomUser> signInWithEmailAndPassword(String email, String password);
   Future<void> removeUserPhone();
+  Future<bool> validateCurrentPassword(String newPassword);
+  Future<void> updatePassword(String newPassword);
 
   Future<CustomUser> createUserWithEmailAndPassword(
       String email, String password, String firstName, String lastName);

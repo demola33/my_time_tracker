@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
 //import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:provider/provider.dart';
 
@@ -79,14 +80,14 @@ class _PhonePageState extends State<PhonePage> {
   //     },
   //   );
   // }
-  Widget _buildRemoveNumberButton(AuthBase auth) {
+  Widget _buildRemoveNumberButton() {
     return TextButton(
       style: TextButton.styleFrom(
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20.0)),
         ),
       ),
-      onPressed: () => _press(auth),
+      onPressed: () => _press(),
       child: Padding(
         padding: EdgeInsets.zero,
         child: Text("Remove number",
@@ -95,7 +96,8 @@ class _PhonePageState extends State<PhonePage> {
     );
   }
 
-  void _press(AuthBase auth) async {
+  void _press() async {
+    final auth = Provider.of<AuthBase>(context);
     await auth.removeUserPhone();
     Navigator.pop(context);
   }
@@ -106,27 +108,6 @@ class _PhonePageState extends State<PhonePage> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthBase>(context);
-
-    ProgressDialog progressDialog = ProgressDialog(
-      context: (context),
-      backgroundColor: Colors.white,
-      textColor: Colors.black,
-      loadingText: 'Please wait...',
-    );
-
-    Future<OkCancelResult> showErrorDialog({
-      final String message,
-    }) {
-      return showOkAlertDialog(
-        context: context,
-        title: 'Operation Failed',
-        message: message,
-        barrierDismissible: false,
-        alertStyle: AdaptiveStyle.adaptive,
-      );
-    }
-
     return Scaffold(
       //resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -156,7 +137,9 @@ class _PhonePageState extends State<PhonePage> {
                     Container(
                       child: Center(
                         child: Text(
-                          'Enter a phone number',
+                          widget.number == null
+                              ? 'Enter a phone number'
+                              : 'Update your phone number',
                           style: CustomTextStyles.textStyleBold(
                               fontSize: 20.0, fontWeight: FontWeight.w900),
                         ),
@@ -246,60 +229,56 @@ class _PhonePageState extends State<PhonePage> {
               ),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: ElevatedButton(
+                child: FormSubmitButton(
+                  onPressed: validate ? _submit : null,
+                  text: 'Next',
                   focusNode: _submitButtonNode,
-                  style: ButtonStyle(
-                    elevation: MaterialStateProperty.resolveWith<double>(
-                        (Set<MaterialState> states) => 10.0),
-                    overlayColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) => Colors.deepOrangeAccent),
-                    shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
-                      (Set<MaterialState> states) => RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(4.0),
-                        ),
-                      ),
-                    ),
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.pressed))
-                          return Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.5);
-                        else if (states.contains(MaterialState.disabled))
-                          return Colors.teal[600];
-                        return null;
-                      },
-                    ),
-                  ),
-                  onPressed: validate
-                      ? () {
-                          progressDialog.show();
-                          String number =
-                              '${countryCodeController.text}${phoneNumberController.text}';
-                          try {
-                            auth.verifyUserPhoneNumber(context, number);
-                          } catch (e) {
-                            print('Hello Error');
-                            showErrorDialog(
-                              message: e.message,
-                            );
-                          }
-                        }
-                      : null,
-                  child: Text('Next'),
                 ),
               ),
               if (widget.number != '')
                 Container(
                   padding: EdgeInsets.all(5),
-                  child: _buildRemoveNumberButton(auth),
+                  child: _buildRemoveNumberButton(),
                 ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _submit() async {
+    final auth = Provider.of<AuthBase>(context);
+
+    ProgressDialog progressDialog = ProgressDialog(
+      context: (context),
+      backgroundColor: Colors.white,
+      textColor: Colors.black,
+      loadingText: 'Please wait...',
+    );
+
+    Future<OkCancelResult> showErrorDialog({
+      final String message,
+    }) {
+      return showOkAlertDialog(
+        context: context,
+        title: 'Operation Failed',
+        message: message,
+        barrierDismissible: false,
+        alertStyle: AdaptiveStyle.adaptive,
+      );
+    }
+
+    progressDialog.show();
+    String number =
+        '${countryCodeController.text}${phoneNumberController.text}';
+    try {
+      await auth.verifyUserPhoneNumber(context, number);
+    } catch (e) {
+      print('Hello Error');
+      showErrorDialog(
+        message: e.message,
+      );
+    }
   }
 }

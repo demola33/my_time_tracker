@@ -24,7 +24,7 @@ class MyCustomSnackBar {
 
     return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        behavior: SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.fixed,
         content: Text(
           text,
           style: CustomTextStyles.textStyleBold(),

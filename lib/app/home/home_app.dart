@@ -4,7 +4,6 @@ import 'package:my_time_tracker/app/home/bottom_navigation.dart';
 import 'package:my_time_tracker/app/home/entries/entries_page.dart';
 import 'package:my_time_tracker/app/home/jobs/jobs_page.dart';
 import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
-import 'package:my_time_tracker/blocs/models/user_profile.dart';
 import 'package:my_time_tracker/app/home/tab_item.dart';
 import 'package:my_time_tracker/services/database.dart';
 import 'package:provider/provider.dart';

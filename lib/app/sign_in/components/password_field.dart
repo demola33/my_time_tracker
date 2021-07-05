@@ -4,10 +4,12 @@ import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 
 class PasswordField extends StatefulWidget {
   const PasswordField({
+    Key key,
     this.restorationId,
-    this.fieldKey,
     this.errorText,
     this.maxLength,
+    this.autofocus: false,
+    this.fillColor: Colors.white,
     //this.onSaved,
     this.onEditingComplete,
     this.validator,
@@ -18,22 +20,26 @@ class PasswordField extends StatefulWidget {
     this.enabled,
     this.textInputAction,
     this.helperText,
-    @required this.reTypePassword,
-  });
+    @required this.labelText,
+    //@required this.reTypePassword,
+  }) : super(key: key);
 
   final String restorationId;
-  final Key fieldKey;
+  //final Key fieldKey;
+  final String labelText;
   final int maxLength;
   final Function(String) onChanged;
   final String errorText;
   final bool enabled;
+  final Color fillColor;
+  final bool autofocus;
   final TextInputAction textInputAction;
-  final Function onEditingComplete;
+  final void Function() onEditingComplete;
   final String helperText;
   final FormFieldValidator<String> validator;
   final ValueChanged<String> onFieldSubmitted;
   final FocusNode focusNode;
-  final bool reTypePassword;
+  //final bool reTypePassword;
   final TextEditingController passwordController;
 
   @override
@@ -55,28 +61,36 @@ class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return TextFormField(
-      key: widget.fieldKey,
+      //key: key,
+      validator: widget.validator,
       controller: widget.passwordController,
       focusNode: widget.focusNode,
+      autofocus: widget.autofocus,
       obscureText: _obscureText.value,
       maxLength: widget.maxLength,
+
       textInputAction: widget.textInputAction,
       onChanged: widget.onChanged,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       onEditingComplete: widget.onEditingComplete,
       decoration: InputDecoration(
         isDense: true,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: widget.fillColor,
         border: OutlineInputBorder(),
         icon: Icon(
           Icons.lock,
           color: Colors.teal[700],
           size: size.height * 0.05,
         ),
-        labelText: widget.reTypePassword ? 'Confirm Password' : 'Password',
+        labelText: widget.labelText,
         labelStyle: CustomTextStyles.textStyleBold(),
         helperText: widget.helperText,
+        helperStyle: CustomTextStyles.textStyleNormal(fontSize: 11),
         errorText: widget.errorText,
+        errorMaxLines: 2,
+        errorStyle: CustomTextStyles.textStyleNormal(
+            fontSize: 11, color: Colors.redAccent),
         suffixIcon: GestureDetector(
           dragStartBehavior: DragStartBehavior.down,
           onTap: () {

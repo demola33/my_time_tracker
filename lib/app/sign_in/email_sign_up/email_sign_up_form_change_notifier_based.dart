@@ -47,9 +47,10 @@ class _EmailSignUpFormChangeNotifierBasedState
       TextEditingController();
 
   _EmailSignUpFormChangeNotifierBasedState({this.onChanged});
+  final _formKey = GlobalKey<FormState>();
 
-  final GlobalKey<FormFieldState<String>> _passwordFieldKey =
-      GlobalKey<FormFieldState<String>>();
+  // final GlobalKey<FormFieldState<String>> _passwordFieldKey =
+  //     GlobalKey<FormFieldState<String>>();
 
   final ValueChanged<bool> onChanged;
   EmailSignUpModel get model => widget.model;
@@ -104,11 +105,14 @@ class _EmailSignUpFormChangeNotifierBasedState
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: _buildChildren(),
+    return Form(
+      key: _formKey,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: _buildChildren(),
+        ),
       ),
     );
   }
@@ -194,14 +198,20 @@ class _EmailSignUpFormChangeNotifierBasedState
   Widget _buildPassword() {
     return PasswordField(
       focusNode: _passwordNode,
-      reTypePassword: false,
+      labelText: 'Password',
+      //reTypePassword: false,
+      validator: (value) {
+        if (value.length < 10) {
+          return 'Password can not be less than 10 characters';
+        }
+        return null;
+      },
       errorText: model.passwordErrorText,
-      helperText: 'No more than 10 characters',
+      helperText: 'Not less than 10 characters',
       passwordController: _passwordController,
       onChanged: (password) => model.updateWith(password: password),
-      fieldKey: _passwordFieldKey,
+      //fieldKey: _passwordFieldKey,
       textInputAction: TextInputAction.next,
-      maxLength: 10,
       enabled: model.isLoading == false,
       onEditingComplete: _passwordEditingComplete,
     );
@@ -210,7 +220,8 @@ class _EmailSignUpFormChangeNotifierBasedState
   Widget _buildConfirmPassword() {
     return PasswordField(
       focusNode: _retypePasswordNode,
-      reTypePassword: true,
+      labelText: 'Confirm Password',
+      //reTypePassword: true,
       passwordController: _confirmPasswordController,
       textInputAction: TextInputAction.next,
       errorText: model.confirmPasswordErrorText,
@@ -251,17 +262,18 @@ class _EmailSignUpFormChangeNotifierBasedState
       textColor: Colors.black,
       loadingText: 'Signing you up...',
     );
-    progressDialog.show();
-
-    try {
-      await model.submit();
-      Navigator.popUntil(context, (route) => route.isFirst);
-    } on PlatformException catch (e) {
-      progressDialog.dismiss();
-      PlatformExceptionAlertDialog(
-        title: 'Sign in Failed',
-        exception: e,
-      ).show(context);
+    if (_formKey.currentState.validate()) {
+      progressDialog.show();
+      try {
+        await model.submit();
+        Navigator.popUntil(context, (route) => route.isFirst);
+      } on PlatformException catch (e) {
+        progressDialog.dismiss();
+        PlatformExceptionAlertDialog(
+          title: 'Sign in Failed',
+          exception: e,
+        ).show(context);
+      }
     }
   }
 }
