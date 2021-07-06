@@ -248,7 +248,7 @@ class _PhonePageState extends State<PhonePage> {
   }
 
   Future<void> _submit() async {
-    final auth = Provider.of<AuthBase>(context);
+    final auth = Provider.of<AuthBase>(context, listen: false);
 
     ProgressDialog progressDialog = ProgressDialog(
       context: (context),
