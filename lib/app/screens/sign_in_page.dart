@@ -132,7 +132,6 @@ class _SignInPageState extends State<SignInPage> {
                 children: [
                   _buildLogo(context),
                   _buildSignInTitle(context),
-                  showProgressIndicator(),
                 ],
               ),
             ),
@@ -181,7 +180,6 @@ class _SignInPageState extends State<SignInPage> {
               children: [
                 _buildLogo(context),
                 _buildSignInTitle(context),
-                showProgressIndicator(),
               ],
             ),
           ),
@@ -244,7 +242,8 @@ class _SignInPageState extends State<SignInPage> {
   List<Widget> _content(BuildContext context, bool isLoading) {
     Size size = MediaQuery.of(context).size;
     return [
-      SizedBox(height: size.height * 0.015),
+      showProgressIndicator(),
+      SizedBox(height: 4.0),
       SignInButton(
         text: 'Sign in with Email',
         textColor: Colors.white,

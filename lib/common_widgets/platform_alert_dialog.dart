@@ -16,7 +16,8 @@ class PlatformAlertDialog extends PlatformWidget {
     @required this.title,
     @required this.content,
     this.cancelActionText,
-    @required this.defaultActionText, exception,
+    @required this.defaultActionText,
+    exception,
   })  : assert(title != null),
         assert(content != null),
         assert(defaultActionText != null);
@@ -43,7 +44,7 @@ class PlatformAlertDialog extends PlatformWidget {
       ),
       content: Text(
         content,
-        style: CustomTextStyles.textStyleNormal(),
+        style: CustomTextStyles.textStyleBold(),
       ),
       actions: _buildActions(context),
     );
@@ -58,7 +59,11 @@ class PlatformAlertDialog extends PlatformWidget {
       ),
       content: Text(
         content,
-        style: CustomTextStyles.textStyleNormal(),
+        style: CustomTextStyles.textStyleBold(
+          fontSize: 14.0,
+          color: Colors.black54,
+          fontWeight: FontWeight.w800,
+        ),
       ),
       actions: _buildActions(context),
     );

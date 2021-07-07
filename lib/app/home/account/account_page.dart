@@ -42,6 +42,15 @@ class AccountPage extends StatelessWidget {
     }
   }
 
+  bool didUserSignUpWithPassword(BuildContext context) {
+    final auth = Provider.of<AuthBase>(context, listen: false);
+    final providerId = auth.userProviderId();
+    if (providerId == 'password') {
+      return true;
+    }
+    return false;
+  }
+
   bool _enableTile(CustomUser user) {
     if (user.displayName == 'Anonymous') {
       return false;
@@ -254,7 +263,8 @@ class AccountPage extends StatelessWidget {
           ),
           _buildListTile(
             user: user,
-            enabled: _enableTile(user),
+            enabled:
+                didUserSignUpWithPassword(context) ? _enableTile(user) : false,
             showChevronIcon: true,
             onTap: () => Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(

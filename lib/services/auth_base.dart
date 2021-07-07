@@ -9,6 +9,8 @@ abstract class AuthBase {
 
   CustomUser currentUser();
 
+  String userProviderId();
+
   Future<CustomUser> signInAnonymously();
 
   Future<CustomUser> signInWithGoogle();

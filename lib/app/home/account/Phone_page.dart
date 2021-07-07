@@ -5,6 +5,7 @@ import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
 //import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
+import 'package:my_time_tracker/common_widgets/platform_alert_dialog.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:provider/provider.dart';
 
@@ -87,7 +88,7 @@ class _PhonePageState extends State<PhonePage> {
           borderRadius: BorderRadius.all(Radius.circular(20.0)),
         ),
       ),
-      onPressed: () => _press(),
+      onPressed: () => _confirmRemoveNumber(context),
       child: Padding(
         padding: EdgeInsets.zero,
         child: Text("Remove number",
@@ -96,8 +97,20 @@ class _PhonePageState extends State<PhonePage> {
     );
   }
 
+  Future<void> _confirmRemoveNumber(BuildContext context) async {
+    final didRequestLogOut = await PlatformAlertDialog(
+      title: 'Remove Number',
+      content: 'Are you sure you want to remove ${widget.number} ?',
+      cancelActionText: 'Cancel',
+      defaultActionText: 'Remove',
+    ).show(context);
+    if (didRequestLogOut == true) {
+      _press();
+    }
+  }
+
   void _press() async {
-    final auth = Provider.of<AuthBase>(context);
+    final auth = Provider.of<AuthBase>(context, listen: false);
     await auth.removeUserPhone();
     Navigator.pop(context);
   }
@@ -151,9 +164,10 @@ class _PhonePageState extends State<PhonePage> {
                         child: Text(
                           'You will receive a text message with a verification code.',
                           style: CustomTextStyles.textStyleBold(
-                              fontSize: 12.0,
-                              color: Colors.black54,
-                              fontWeight: FontWeight.w800),
+                            fontSize: 12.0,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     )

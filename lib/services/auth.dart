@@ -91,12 +91,23 @@ class Auth implements AuthBase {
   }
 
   @override
+  String userProviderId() {
+    User user = _firebaseAuth.currentUser;
+    if (user.providerData.isEmpty) {
+      return 'Anonymous';
+    } else {
+      return user.providerData[0].providerId;
+    }
+  }
+
+  @override
   Future<CustomUser> createUserWithEmailAndPassword(
       String email, String password, String firstName, String lastName) async {
     try {
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
       User user = userCredential.user;
+
       String displayName = '$lastName' + ' ' + '$firstName';
 
       CustomUser userProfile = CustomUser(
@@ -191,6 +202,9 @@ class Auth implements AuthBase {
             ),
           );
           CustomUser userProfile = _userFromFirebase(userCredential.user);
+          print('Provider Data: ${userCredential.user.providerData}');
+          print(
+              'Provider ID: ${userCredential.user.providerData[0].providerId}');
           await FirestoreDatabase(uid: userProfile.uid)
               .writeUserDataToFirestore(userProfile);
           return userProfile;
@@ -237,6 +251,8 @@ class Auth implements AuthBase {
         email: '',
         phone: '',
       );
+      print('Provider Data: ${user.providerData.toString()}');
+
       await FirestoreDatabase(uid: userProfile.uid)
           .writeUserDataToFirestore(userProfile);
 
