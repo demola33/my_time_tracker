@@ -10,7 +10,7 @@ class FormSubmitButton extends CustomElevatedButton {
   }) : super(
             child: Text(
               text,
-              style: CustomTextStyles.textStyleBold(fontSize: 17.0),
+              style: CustomTextStyles.textStyleBold(fontSize: 15),
             ),
             color: Colors.teal[600],
             height: 40.0,

@@ -25,7 +25,12 @@ abstract class AuthBase {
   Future<CustomUser> createUserWithEmailAndPassword(
       String email, String password, String firstName, String lastName);
   Future<void> updateUserImageURL(String photoURL);
-  Future<void> verifyUserPhoneNumber(BuildContext context, String number);
+  Future<void> verifyUserPhoneNumber(
+      {BuildContext context, String number, String isoCode});
   Future<void> phoneCredential(
-      {BuildContext context, String otp, String verificationId, String number});
+      {BuildContext context,
+      String otp,
+      String verificationId,
+      String number,
+      String isoCode});
 }

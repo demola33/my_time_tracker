@@ -8,12 +8,21 @@ class JobListTile extends StatelessWidget {
   final VoidCallback onTap;
   final Job job;
 
+  String truncateLabel(String label) {
+    if (label.length > 18) {
+      final truncEmail = label.substring(0, 18);
+      return truncEmail + '...';
+    } else {
+      return label;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return ListTile(
       title: Text(
-        job.name ?? 'Job name not found',
+        truncateLabel(job.name) ?? 'Job name not found',
         style: CustomTextStyles.textStyleBold(fontSize: size.height * 0.025),
       ),
       trailing: Icon(Icons.chevron_right),

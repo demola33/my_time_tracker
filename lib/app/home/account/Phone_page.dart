@@ -1,29 +1,29 @@
-import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:country_codes/country_codes.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
-//import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
+
+import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
 import 'package:my_time_tracker/common_widgets/platform_alert_dialog.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
-import 'package:provider/provider.dart';
 
 class PhonePage extends StatefulWidget {
-  //static final _formKey = GlobalKey<FormState>();
-
-  const PhonePage({Key key, @required this.number}) : super(key: key);
+  const PhonePage({Key key, @required this.number, @required this.isoCode})
+      : super(key: key);
   final String number;
-  //final AuthBase auth;
+  final String isoCode;
 
-  static void show(BuildContext context, {String phoneNumber, AuthBase auth}) {
-    //final user = Provider.of<CustomUser>(context, listen: false);
-    //final auth = Provider.of<AuthBase>(context, listen: false);
+  static void show(BuildContext context) {
+    final user = Provider.of<CustomUser>(context, listen: false);
     Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
       fullscreenDialog: true,
       builder: (context) => PhonePage(
-        number: phoneNumber,
-        //auth: auth,
+        number: user.phone,
+        isoCode: user.isoCode,
       ),
     ));
   }
@@ -33,54 +33,40 @@ class PhonePage extends StatefulWidget {
 }
 
 class _PhonePageState extends State<PhonePage> {
-  String _userNumber;
-  var countryCodeController = TextEditingController(text: '+234');
-  var phoneNumberController = TextEditingController();
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  TextEditingController controller = TextEditingController();
+  PhoneNumber _number;
   bool validate = false;
-  FocusNode _submitButtonNode, _phoneNumberNode;
+  FocusNode _submitButtonNode;
 
   @override
   void initState() {
     super.initState();
     _submitButtonNode = FocusNode();
-    _phoneNumberNode = FocusNode();
+    Locale local = CountryCodes.getDeviceLocale();
+    String isoCode = local.countryCode;
+
+    PhoneNumber phoneNumber =
+        PhoneNumber(isoCode: widget.isoCode == '' ? isoCode : widget.isoCode);
+    _number = phoneNumber;
 
     if (widget.number != '') {
-      _userNumber = widget.number;
+      PhoneNumber phoneNumber =
+          PhoneNumber(isoCode: widget.isoCode, phoneNumber: widget.number);
+      _number = phoneNumber;
       validate = true;
-      phoneNumberController =
-          TextEditingController(text: _userNumber.substring(4));
-      countryCodeController =
-          TextEditingController(text: _userNumber.substring(0, 4));
-      print(_userNumber);
     }
   }
 
-  // showAlertDialog(BuildContext context) {
-  //   AlertDialog alert = AlertDialog(
-  //     content: Row(
-  //       children: [
-  //         CircularProgressIndicator(
-  //           valueColor:
-  //               AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
-  //         ),
-  //         SizedBox(width: 25),
-  //         Text(
-  //           'Please Wait...',
-  //           style: CustomTextStyles.textStyleBold(),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  //   showDialog(
-  //     barrierDismissible: false,
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return alert;
-  //     },
-  //   );
-  // }
+  bool _validateAndSaveForm() {
+    final form = _formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
+  }
+
   Widget _buildRemoveNumberButton() {
     return TextButton(
       style: TextButton.styleFrom(
@@ -115,7 +101,7 @@ class _PhonePageState extends State<PhonePage> {
     Navigator.pop(context);
   }
 
-  void _emailEditingComplete() {
+  void _phoneNumberEditingComplete() {
     FocusScope.of(context).requestFocus(_submitButtonNode);
   }
 
@@ -137,124 +123,96 @@ class _PhonePageState extends State<PhonePage> {
         backgroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        child: Container(
-          color: Colors.white,
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                padding: EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Container(
-                      child: Center(
-                        child: Text(
-                          widget.number == null
-                              ? 'Enter a phone number'
-                              : 'Update your phone number',
-                          style: CustomTextStyles.textStyleBold(
-                              fontSize: 20.0, fontWeight: FontWeight.w900),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(8.0),
-                      child: Center(
-                        child: Text(
-                          'You will receive a text message with a verification code.',
-                          style: CustomTextStyles.textStyleBold(
-                            fontSize: 12.0,
-                            color: Colors.black54,
-                            fontWeight: FontWeight.w800,
+        child: Form(
+          key: _formKey,
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        child: Center(
+                          child: Text(
+                            widget.number == ''
+                                ? 'Enter a phone number'
+                                : 'Update your phone number',
+                            style: CustomTextStyles.textStyleBold(
+                                fontSize: 20.0, fontWeight: FontWeight.w900),
                           ),
                         ),
                       ),
-                    )
-                  ],
-                ),
-              ),
-              Container(
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: countryCodeController,
-                            enabled: false,
-                            autofocus: true,
-                            decoration: InputDecoration(
-                              isDense: true,
-                              labelText: 'COUNTRY',
-                              labelStyle: CustomTextStyles.textStyleBold(
-                                  color: Colors.teal[600]),
-
-                              //errorText: 'Error message',
-                              border: OutlineInputBorder(),
+                      Container(
+                        padding: EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Text(
+                            'You will receive a text message with a verification code.',
+                            style: CustomTextStyles.textStyleBold(
+                              fontSize: 12.0,
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
-                          SizedBox(
-                            height: 22,
-                          )
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      flex: 3,
-                      child: TextFormField(
-                        controller: phoneNumberController,
-                        keyboardType: TextInputType.phone,
-                        focusNode: _phoneNumberNode,
-                        autofocus: true,
-                        textInputAction: TextInputAction.next,
-                        onEditingComplete: _emailEditingComplete,
-                        maxLength: 10,
-                        onChanged: (value) {
-                          if (value.length == 10) {
-                            setState(
-                              () {
-                                validate = true;
-                              },
-                            );
-                          }
-                          if (value.length < 10) {
-                            setState(() {
-                              validate = false;
-                            });
-                          }
-                        },
-                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          hintText: 'Enter your phone number',
-                          hintStyle: CustomTextStyles.textStyleNormal(),
-                          labelText: 'PHONE NUMBER',
-                          labelStyle: CustomTextStyles.textStyleBold(
-                              color: Colors.teal[600]),
-                          border: OutlineInputBorder(),
                         ),
-                      ),
-                    ),
-                  ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: FormSubmitButton(
-                  onPressed: validate ? _submit : null,
-                  text: 'Next',
-                  focusNode: _submitButtonNode,
+                InternationalPhoneNumberInput(
+                  onInputChanged: (PhoneNumber number) {},
+                  inputDecoration: InputDecoration(
+                    isDense: true,
+                    hintText: 'Enter your phone number',
+                    hintStyle: CustomTextStyles.textStyleNormal(),
+                    labelText: 'PHONE NUMBER',
+                    labelStyle:
+                        CustomTextStyles.textStyleBold(color: Colors.teal[600]),
+                    border: OutlineInputBorder(),
+                  ),
+                  autoFocus: true,
+                  onInputValidated: (bool value) {
+                    if (value == true) {
+                      setState(() {
+                        validate = value;
+                      });
+                    }
+                    setState(() {
+                      validate = value;
+                    });
+                  },
+                  selectorConfig: SelectorConfig(
+                    selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                  ),
+                  initialValue: _number,
+                  textFieldController: controller,
+                  formatInput: true,
+                  keyboardAction: TextInputAction.next,
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: true, decimal: true),
+                  onSaved: (PhoneNumber number) {
+                    _number = number;
+                  },
+                  onSubmit: _phoneNumberEditingComplete,
                 ),
-              ),
-              if (widget.number != '')
                 Container(
-                  padding: EdgeInsets.all(5),
-                  child: _buildRemoveNumberButton(),
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: FormSubmitButton(
+                    onPressed: validate ? _submit : null,
+                    text: 'Next',
+                    focusNode: _submitButtonNode,
+                  ),
                 ),
-            ],
+                if (widget.number != '')
+                  Container(
+                    padding: EdgeInsets.all(5),
+                    child: _buildRemoveNumberButton(),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -271,27 +229,12 @@ class _PhonePageState extends State<PhonePage> {
       loadingText: 'Please wait...',
     );
 
-    Future<OkCancelResult> showErrorDialog({
-      final String message,
-    }) {
-      return showOkAlertDialog(
+    if (_validateAndSaveForm()) {
+      progressDialog.show();
+      await auth.verifyUserPhoneNumber(
         context: context,
-        title: 'Operation Failed',
-        message: message,
-        barrierDismissible: false,
-        alertStyle: AdaptiveStyle.adaptive,
-      );
-    }
-
-    progressDialog.show();
-    String number =
-        '${countryCodeController.text}${phoneNumberController.text}';
-    try {
-      await auth.verifyUserPhoneNumber(context, number);
-    } catch (e) {
-      print('Hello Error');
-      showErrorDialog(
-        message: e.message,
+        number: _number.phoneNumber,
+        isoCode: _number.isoCode,
       );
     }
   }

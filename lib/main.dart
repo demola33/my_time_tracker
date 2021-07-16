@@ -1,5 +1,7 @@
+import 'package:country_codes/country_codes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:my_time_tracker/app/home/job_entries/format.dart';
 import 'package:my_time_tracker/app/landing_page.dart';
 import 'package:my_time_tracker/app/screens/splash_screen.dart';
@@ -10,8 +12,13 @@ import 'package:my_time_tracker/services/database.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
+  //Intl.defaultLocale = 'en_GB';
+
+  String locale = Intl.getCurrentLocale();
+  print('locale: $locale');
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await CountryCodes.init();
   runApp(
     MyApp(),
   );

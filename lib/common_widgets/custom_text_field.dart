@@ -64,6 +64,8 @@ class CustomTextField extends StatelessWidget {
         hintText: hint,
         hintStyle: CustomTextStyles.textStyleBold(),
         labelStyle: CustomTextStyles.textStyleBold(),
+        errorStyle: CustomTextStyles.textStyleNormal(
+            fontSize: 11, color: Colors.redAccent),
         errorText: errorText,
         enabled: enabled,
       ),

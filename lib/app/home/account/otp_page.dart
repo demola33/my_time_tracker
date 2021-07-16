@@ -13,16 +13,26 @@ class OTPPage extends StatefulWidget {
     Key key,
     @required this.number,
     @required this.verificationId,
+    @required this.isoCode,
   }) : super(key: key);
 
-  final String number, verificationId;
-  static void show(BuildContext context, String number, String verificationId) {
+  final String number, verificationId, isoCode;
+  static void show({
+    BuildContext context,
+    String number,
+    String verificationId,
+    String isoCode,
+  }) {
     Navigator.of(context).push(MaterialPageRoute(
       fullscreenDialog: true,
       builder: (
         context,
       ) =>
-          OTPPage(number: number, verificationId: verificationId),
+          OTPPage(
+        number: number,
+        verificationId: verificationId,
+        isoCode: isoCode,
+      ),
     ));
   }
 
@@ -142,8 +152,10 @@ class _OTPPageState extends State<OTPPage> {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 fullscreenDialog: true,
-                                builder: (context) =>
-                                    PhonePage(number: widget.number),
+                                builder: (context) => PhonePage(
+                                  number: widget.number,
+                                  isoCode: widget.isoCode,
+                                ),
                               ),
                             );
                           },
@@ -223,6 +235,7 @@ class _OTPPageState extends State<OTPPage> {
                                               verificationId:
                                                   widget.verificationId,
                                               number: widget.number,
+                                              isoCode: widget.isoCode,
                                             );
                                           } on PlatformException catch (e) {
                                             _showVerifyNumberError(context, e);

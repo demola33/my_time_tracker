@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
+import 'package:my_time_tracker/app/screens/email_verification_screen.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:my_time_tracker/app/sign_in/components/password_field.dart';
 import 'package:my_time_tracker/app/screens/email_sign_in_screen.dart';
 import 'package:my_time_tracker/blocs/email_sign_up/email_sign_up_model.dart';
-import 'package:my_time_tracker/common_widgets/cancel_and_next_button.dart';
+import 'package:my_time_tracker/common_widgets/cancel_and_sign_in_buttons.dart';
 import 'package:my_time_tracker/common_widgets/custom_icon_text_field.dart';
 import '../components/already_have_an_account_check.dart';
 
@@ -48,9 +49,6 @@ class _EmailSignUpFormChangeNotifierBasedState
 
   _EmailSignUpFormChangeNotifierBasedState({this.onChanged});
   final _formKey = GlobalKey<FormState>();
-
-  // final GlobalKey<FormFieldState<String>> _passwordFieldKey =
-  //     GlobalKey<FormFieldState<String>>();
 
   final ValueChanged<bool> onChanged;
   EmailSignUpModel get model => widget.model;
@@ -122,6 +120,10 @@ class _EmailSignUpFormChangeNotifierBasedState
 
     return [
       SizedBox(height: size.height * 0.1),
+      AlreadyHaveAnAccountCheck(
+        isMember: true,
+        press: _routeToSignIn,
+      ),
       _buildFirstName(),
       SizedBox(height: size.height * 0.01),
       _buildLastName(),
@@ -131,16 +133,10 @@ class _EmailSignUpFormChangeNotifierBasedState
       _buildPassword(),
       SizedBox(height: size.height * 0.02),
       _buildConfirmPassword(),
-      //SizedBox(height: size.height * 0.01),
       CancelAndSignInButtons(
         focusNode: _signUpButtonNode,
         text: 'SIGN UP',
-        onPressed: model.canSubmit ? _submit : null,
-      ),
-      //SizedBox(height: size.height * 0.01),
-      AlreadyHaveAnAccountCheck(
-        isMember: true,
-        press: _routeToSignIn,
+        onPressed: _submit,
       ),
     ];
   }
@@ -154,7 +150,7 @@ class _EmailSignUpFormChangeNotifierBasedState
       textInputAction: TextInputAction.next,
       onChanged: (firstName) => model.updateWith(firstName: firstName),
       onEditingComplete: _firstNameEditingComplete,
-      errorText: model.firstNameErrorText,
+      validator: model.firstNameValidator,
       icon: Icons.person,
       labelText: 'First Name',
       enabled: model.isLoading == false,
@@ -171,7 +167,7 @@ class _EmailSignUpFormChangeNotifierBasedState
       textInputAction: TextInputAction.next,
       onChanged: (lastName) => model.updateWith(lastName: lastName),
       onEditingComplete: _lastNameEditingComplete,
-      errorText: model.lastNameErrorText,
+      validator: model.lastNameValidator,
       icon: Icons.person,
       labelText: 'Last Name',
       enabled: model.isLoading == false,
@@ -190,7 +186,7 @@ class _EmailSignUpFormChangeNotifierBasedState
       labelText: 'Email',
       hint: 'adamsmith@email.com',
       icon: Icons.email,
-      errorText: model.emailErrorText,
+      validator: model.emailValidator,
       enabled: model.isLoading == false,
     );
   }
@@ -199,18 +195,9 @@ class _EmailSignUpFormChangeNotifierBasedState
     return PasswordField(
       focusNode: _passwordNode,
       labelText: 'Password',
-      //reTypePassword: false,
-      validator: (value) {
-        if (value.length < 10) {
-          return 'Password can not be less than 10 characters';
-        }
-        return null;
-      },
-      errorText: model.passwordErrorText,
-      helperText: 'Not less than 10 characters',
+      validator: model.passValidator,
       passwordController: _passwordController,
       onChanged: (password) => model.updateWith(password: password),
-      //fieldKey: _passwordFieldKey,
       textInputAction: TextInputAction.next,
       enabled: model.isLoading == false,
       onEditingComplete: _passwordEditingComplete,
@@ -221,10 +208,9 @@ class _EmailSignUpFormChangeNotifierBasedState
     return PasswordField(
       focusNode: _retypePasswordNode,
       labelText: 'Confirm Password',
-      //reTypePassword: true,
       passwordController: _confirmPasswordController,
       textInputAction: TextInputAction.next,
-      errorText: model.confirmPasswordErrorText,
+      validator: (value) => model.passwordMatchValidator(value),
       onChanged: (password) => model.updateWith(confirmPassword: password),
       enabled: model.isLoading == false,
       onEditingComplete: _confirmPasswordEditingComplete,
@@ -243,18 +229,6 @@ class _EmailSignUpFormChangeNotifierBasedState
     );
   }
 
-  // CheckboxListTile _checkboxListTile() {
-  //   return CheckboxListTile(
-  //     controlAffinity: ListTileControlAffinity.leading,
-  //     value: model.agree,
-  //     onChanged: (bool newValue) {
-  //       model.updateWith(agree: newValue);
-  //     },
-  //     title: Text('Agree to terms and conditions',
-  //         style: CustomTextStyles.textStyleBold()),
-  //   );
-  // }
-
   Future<void> _submit() async {
     ProgressDialog progressDialog = ProgressDialog(
       context: (context),
@@ -266,7 +240,11 @@ class _EmailSignUpFormChangeNotifierBasedState
       progressDialog.show();
       try {
         await model.submit();
-        Navigator.popUntil(context, (route) => route.isFirst);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => EmailVerificationPage(),
+          ),
+        );
       } on PlatformException catch (e) {
         progressDialog.dismiss();
         PlatformExceptionAlertDialog(

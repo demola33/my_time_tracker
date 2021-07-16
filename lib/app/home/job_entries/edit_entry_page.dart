@@ -4,6 +4,7 @@ import 'package:my_time_tracker/app/home/job_entries/date_time_picker.dart';
 import 'package:my_time_tracker/app/home/job_entries/format.dart';
 import 'package:my_time_tracker/app/home/models/entry.dart';
 import 'package:my_time_tracker/app/home/models/job.dart';
+import 'package:my_time_tracker/app/sign_in/components/validators.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_field.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
@@ -49,6 +50,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
   String _comment;
   bool isLoading = false;
   FocusNode _commentFieldNode, _submitButtonNode;
+  final _formKey = GlobalKey<FormState>();
 
   String get scaffoldContent {
     if (widget.entry != null) {
@@ -97,26 +99,28 @@ class _EditEntryPageState extends State<EditEntryPage> {
   }
 
   Future<void> _setEntryAndDismiss(BuildContext context) async {
-    try {
-      setState(() {
-        isLoading = true;
-      });
-      final entry = _entryFromState();
-      await widget.database.setEntry(entry);
-      print('PASSED22222!!!!');
-      Navigator.of(context).pop();
-      MyCustomSnackBar(
-          enabled: widget.entry == null ? true : false,
-          text: scaffoldContent,
-          onPressed: () => widget.database.deleteEntry(entry)).show(context);
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      PlatformExceptionAlertDialog(
-        title: 'Operation failed',
-        exception: e,
-      ).show(context);
+    if (_formKey.currentState.validate()) {
+      try {
+        setState(() {
+          isLoading = true;
+        });
+        final entry = _entryFromState();
+        await widget.database.setEntry(entry);
+        print('PASSED22222!!!!');
+        Navigator.of(context).pop();
+        MyCustomSnackBar(
+            enabled: widget.entry == null ? true : false,
+            text: scaffoldContent,
+            onPressed: () => widget.database.deleteEntry(entry)).show(context);
+      } catch (e) {
+        setState(() {
+          isLoading = false;
+        });
+        PlatformExceptionAlertDialog(
+          title: 'Operation failed',
+          exception: e,
+        ).show(context);
+      }
     }
   }
 
@@ -225,16 +229,21 @@ class _EditEntryPageState extends State<EditEntryPage> {
   }
 
   Widget _buildComment() {
-    return CustomTextField(
-      focusNode: _commentFieldNode,
-      labelText: 'Add a comment',
-      enabled: isLoading == false,
-      textInputAction: TextInputAction.done,
-      keyboardType: TextInputType.text,
-      maxLength: 40,
-      controller: TextEditingController(text: _comment),
-      onChanged: (comment) => _comment = comment,
-      onEditingComplete: () => _commentEditingComplete(),
+    return Form(
+      key: _formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      child: CustomTextField(
+        focusNode: _commentFieldNode,
+        labelText: 'Add a comment',
+        enabled: isLoading == false,
+        textInputAction: TextInputAction.done,
+        keyboardType: TextInputType.text,
+        maxLength: 40,
+        validator: CommentValidator(),
+        controller: TextEditingController(text: _comment),
+        onChanged: (comment) => _comment = comment,
+        onEditingComplete: () => _commentEditingComplete(),
+      ),
     );
   }
 }

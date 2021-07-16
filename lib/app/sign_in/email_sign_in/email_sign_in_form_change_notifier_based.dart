@@ -1,12 +1,12 @@
 import 'package:flutter/services.dart';
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
-// import 'package:my_time_tracker/app/screens/unused_splash_screen.dart';
+import 'package:my_time_tracker/app/sign_in/components/forgot_password.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:my_time_tracker/common_widgets/custom_icon_text_field.dart';
 import 'package:my_time_tracker/app/sign_in/components/password_field.dart';
 import 'package:my_time_tracker/app/screens/email_sign_up_screen.dart';
 import 'package:my_time_tracker/blocs/email_sign_in/email_sign_in_model.dart';
-import 'package:my_time_tracker/common_widgets/cancel_and_next_button.dart';
+import 'package:my_time_tracker/common_widgets/cancel_and_sign_in_buttons.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
 import '../components/already_have_an_account_check.dart';
 
@@ -42,6 +42,7 @@ class _EmailSignInFormChangeNotifierBasedState
   final TextEditingController _emailController = TextEditingController();
 
   FocusNode _emailNode, _signInButtonNode, _passwordNode;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -75,7 +76,7 @@ class _EmailSignInFormChangeNotifierBasedState
       height: MediaQuery.of(context).size.height / 1.05,
       padding: const EdgeInsets.all(8.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: _buildChildren(context),
       ),
     );
@@ -85,37 +86,39 @@ class _EmailSignInFormChangeNotifierBasedState
     Size size = MediaQuery.of(context).size;
     return [
       SizedBox(
-        height: size.height * 0.4,
-        // width: double.infinity,
-        // child: Card(
-        //   child: UnusedSplashScreen(),
-        //   elevation: 0.0,
-        // ),
+        height: size.height * 0.3,
       ),
-      _buildInputFields(size),
-      // SizedBox(height: size.height * 0.01),
       AlreadyHaveAnAccountCheck(
         isMember: false,
         press: _routeToSignUp,
+      ),
+      _buildInputFields(size),
+      Align(
+        alignment: Alignment.centerRight,
+        child: ForgotPassword(
+          press: () {},
+        ),
+      ),
+      CancelAndSignInButtons(
+        focusNode: _signInButtonNode,
+        text: 'SIGN IN',
+        onPressed: _submit,
       ),
     ];
   }
 
   Widget _buildInputFields(Size size) {
     return SingleChildScrollView(
-      child: Container(
-        child: Column(
-          children: [
-            _buildEmail(),
-            SizedBox(height: size.height * 0.02),
-            _buildPassword(),
-            SizedBox(height: size.height * 0.02),
-            CancelAndSignInButtons(
-              focusNode: _signInButtonNode,
-              text: 'SIGN IN',
-              onPressed: model.canSubmit ? _submit : null,
-            ),
-          ],
+      child: Form(
+        key: _formKey,
+        child: Container(
+          child: Column(
+            children: [
+              _buildEmail(),
+              SizedBox(height: size.height * 0.02),
+              _buildPassword(),
+            ],
+          ),
         ),
       ),
     );
@@ -128,17 +131,18 @@ class _EmailSignInFormChangeNotifierBasedState
       textColor: Colors.black,
       loadingText: 'Signing you in...',
     );
-    progressDialog.show();
-
-    try {
-      await model.submit();
-      Navigator.popUntil(context, (route) => route.isFirst);
-    } on PlatformException catch (e) {
-      progressDialog.dismiss();
-      PlatformExceptionAlertDialog(
-        title: 'Sign in Failed',
-        exception: e,
-      ).show(context);
+    if (_formKey.currentState.validate()) {
+      progressDialog.show();
+      try {
+        await model.submit();
+        Navigator.popUntil(context, (route) => route.isFirst);
+      } on PlatformException catch (e) {
+        progressDialog.dismiss();
+        PlatformExceptionAlertDialog(
+          title: 'Sign in Failed',
+          exception: e,
+        ).show(context);
+      }
     }
   }
 
@@ -159,7 +163,7 @@ class _EmailSignInFormChangeNotifierBasedState
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
       onChanged: (email) => model.updateWith(email: email),
-      errorText: model.emailErrorText,
+      validator: model.emailValidator,
       focusNode: _emailNode,
       icon: Icons.email,
       labelText: 'Email',
@@ -172,8 +176,7 @@ class _EmailSignInFormChangeNotifierBasedState
     return PasswordField(
       focusNode: _passwordNode,
       labelText: 'Password',
-      //reTypePassword: false,
-      errorText: model.passwordErrorText,
+      validator: model.requiredValidator,
       textInputAction: TextInputAction.next,
       passwordController: _passwordController,
       onChanged: (password) => model.updateWith(password: password),

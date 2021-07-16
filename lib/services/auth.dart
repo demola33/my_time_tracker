@@ -23,6 +23,7 @@ class Auth implements AuthBase {
       displayName: user.displayName ?? '',
       email: user.email ?? '',
       phone: user.phoneNumber ?? '',
+      isoCode: '',
     );
   }
 
@@ -116,9 +117,15 @@ class Auth implements AuthBase {
         email: email ?? '',
         phone: '',
         photoUrl: '',
+        isoCode: '',
       );
       await FirestoreDatabase(uid: userProfile.uid)
-          .writeUserDataToFirestore(userProfile);
+          .writeUserDataToFirestore(userProfile)
+          .then((value) async {
+        if (user != null && !user.emailVerified) {
+          await user.sendEmailVerification();
+        }
+      }).catchError((onError) {});
       return userProfile;
     } catch (e) {
       if (e.message.contains('com.google.firebase.FirebaseException')) {
@@ -233,11 +240,6 @@ class Auth implements AuthBase {
     return _firebaseAuth.authStateChanges().map(_userFromFirebase);
   }
 
-  // @override
-  // Stream<CustomUser> get userChanges {
-  //   return _firebaseAuth.userChanges().map(_userFromFirebase);
-  // }
-
   @override
   Future<CustomUser> signInAnonymously() async {
     try {
@@ -250,6 +252,7 @@ class Auth implements AuthBase {
         uid: user.uid,
         email: '',
         phone: '',
+        isoCode: '',
       );
       print('Provider Data: ${user.providerData.toString()}');
 
@@ -310,8 +313,11 @@ class Auth implements AuthBase {
   }
 
   @override
-  Future<void> verifyUserPhoneNumber(
-      BuildContext context, String number) async {
+  Future<void> verifyUserPhoneNumber({
+    @required BuildContext context,
+    @required String number,
+    @required String isoCode,
+  }) async {
     final PhoneVerificationCompleted verificationCompleted =
         (PhoneAuthCredential credential) async {
       await _firebaseAuth.signInWithCredential(credential);
@@ -327,7 +333,10 @@ class Auth implements AuthBase {
           onPress: () => Navigator.of(context).push(
             MaterialPageRoute(
               fullscreenDialog: true,
-              builder: (context) => PhonePage(number: number),
+              builder: (context) => PhonePage(
+                number: number,
+                isoCode: isoCode,
+              ),
             ),
           ),
         );
@@ -341,7 +350,10 @@ class Auth implements AuthBase {
           onPress: () => Navigator.of(context).push(
             MaterialPageRoute(
               fullscreenDialog: true,
-              builder: (context) => PhonePage(number: number),
+              builder: (context) => PhonePage(
+                number: number,
+                isoCode: isoCode,
+              ),
             ),
           ),
         );
@@ -353,7 +365,10 @@ class Auth implements AuthBase {
           onPress: () => Navigator.of(context).push(
             MaterialPageRoute(
               fullscreenDialog: true,
-              builder: (context) => PhonePage(number: number),
+              builder: (context) => PhonePage(
+                number: number,
+                isoCode: isoCode,
+              ),
             ),
           ),
         );
@@ -362,7 +377,12 @@ class Auth implements AuthBase {
 
     final PhoneCodeSent codeSent =
         (String verificationId, int resendToken) async {
-      OTPPage.show(context, number, verificationId);
+      OTPPage.show(
+        context: context,
+        number: number,
+        verificationId: verificationId,
+        isoCode: isoCode,
+      );
     };
 
     await _firebaseAuth.verifyPhoneNumber(
@@ -430,19 +450,21 @@ class Auth implements AuthBase {
   }
 
   @override
-  Future<void> phoneCredential(
-      {BuildContext context,
-      String otp,
-      String verificationId,
-      String number}) async {
+  Future<void> phoneCredential({
+    BuildContext context,
+    String otp,
+    String verificationId,
+    String number,
+    String isoCode,
+  }) async {
     try {
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
           verificationId: verificationId, smsCode: otp);
 
       User user = _firebaseAuth.currentUser;
       await user.updatePhoneNumber(credential);
-      await FirestoreDatabase(uid: user.uid)
-          .updateUserDataOnFirestore({'phone': '$number'});
+      await FirestoreDatabase(uid: user.uid).updateUserDataOnFirestore(
+          {'phone': '$number', 'countryCode': '$isoCode'});
       Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
       if (e.message.contains('com.google.firebase.FirebaseException')) {
@@ -471,6 +493,7 @@ class Auth implements AuthBase {
                 builder: (context) => OTPPage(
                   number: number,
                   verificationId: verificationId,
+                  isoCode: isoCode,
                 ),
               ),
             ),

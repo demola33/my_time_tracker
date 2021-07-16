@@ -15,6 +15,15 @@ class EntryListItem extends StatelessWidget {
   final Entry entry;
   final Job job;
 
+  String truncateLabel(String label) {
+    if (label.length > 4) {
+      final truncEmail = label.substring(0, 4);
+      return truncEmail + '..';
+    } else {
+      return label;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -54,7 +63,7 @@ class EntryListItem extends StatelessWidget {
               dayOfWeek,
               style: CustomTextStyles.textStyleBold(color: Colors.grey),
             ),
-            SizedBox(width: size.height * 0.025),
+            SizedBox(width: size.height * 0.01),
             Text(
               '$startDate - $endDate',
               style: CustomTextStyles.textStyleBold(),
@@ -62,7 +71,7 @@ class EntryListItem extends StatelessWidget {
             if (job.ratePerHour > 0.0) ...<Widget>[
               Expanded(child: Container()),
               Text(
-                payFormatted,
+                truncateLabel(payFormatted),
                 style: CustomTextStyles.textStyleBold(color: Colors.green[700]),
               ),
             ],

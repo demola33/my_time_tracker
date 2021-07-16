@@ -83,6 +83,8 @@ class CustomIconTextField extends StatelessWidget {
           color: Colors.teal[700],
         ),
         errorText: errorText,
+        errorStyle: CustomTextStyles.textStyleNormal(
+            fontSize: 11, color: Colors.redAccent),
         enabled: enabled,
       ),
     );

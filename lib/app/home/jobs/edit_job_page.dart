@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_time_tracker/app/home/jobs/edit_job_page_manager.dart';
 import 'package:my_time_tracker/common_widgets/custom_icon_text_field.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
@@ -33,6 +34,7 @@ class EditJobPage extends StatefulWidget {
 }
 
 class _EditJobPageState extends State<EditJobPage> {
+  EditJobPageManager get model => EditJobPageManager();
   final _formKey = GlobalKey<FormState>();
 
   String _name;
@@ -164,10 +166,8 @@ class _EditJobPageState extends State<EditJobPage> {
       icon: Icons.work,
       controller: _jobNameController,
       enabled: isLoading == false,
-      validator: (value) =>
-          value == null || value.isEmpty ? 'Name can\'t be empty' : null,
+      validator: model.firstNameValidator,
       focusNode: _jobNameNode,
-      maxLength: 20,
       keyboardType: TextInputType.name,
       textInputAction: TextInputAction.next,
       textCapitalization: TextCapitalization.words,
@@ -183,6 +183,7 @@ class _EditJobPageState extends State<EditJobPage> {
       focusNode: _ratePerHourNode,
       enabled: isLoading == false,
       controller: _jobRateController,
+      validator: model.jobRateValidator,
       helperText: 'Rate must be an integer.',
       keyboardType:
           TextInputType.numberWithOptions(decimal: false, signed: false),

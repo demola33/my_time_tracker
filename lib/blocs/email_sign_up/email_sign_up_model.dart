@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:my_time_tracker/app/sign_in/components/validators.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
 
-class EmailSignUpModel with EmailAndPasswordValidator, ChangeNotifier {
+class EmailSignUpModel with ErrorText, ChangeNotifier {
   String email;
   String firstName;
   String lastName;
@@ -45,49 +46,35 @@ class EmailSignUpModel with EmailAndPasswordValidator, ChangeNotifier {
     }
   }
 
-  bool get isPasswordMatch {
-    if (password != confirmPassword) {
-      return false;
-    } else {
-      return true;
-    }
+  NameValidator get firstNameValidator {
+    return NameValidator(errorText: firstNameError);
   }
 
-  bool get canSubmit {
-    return emailValidator.isValid(email) &&
-        passwordValidator.isValid(password) &&
-        passwordValidator.isValid(confirmPassword) &&
-        firstNameValidator.isValid(firstName) &&
-        lastNameValidator.isValid(lastName) &&
-        !isLoading &&
-        isPasswordMatch;
+  NameValidator get lastNameValidator {
+    return NameValidator(errorText: lastNameError);
   }
 
-  String get firstNameErrorText {
-    bool showErrorText = submitted && !firstNameValidator.isValid(firstName);
-    return showErrorText ? invalidFirstNameErrorText : null;
+  MultiValidator get passValidator {
+    final String _pattern = r'(?=.*?[#?!@$%^&*-])';
+    final passValidator = MultiValidator([
+      RequiredValidator(errorText: requiredPasswordError),
+      MinLengthValidator(8, errorText: minLengthError),
+      PatternValidator(_pattern, errorText: passwordPatternError)
+    ]);
+    return passValidator;
   }
 
-  String get lastNameErrorText {
-    bool showErrorText = submitted && !lastNameValidator.isValid(lastName);
-    return showErrorText ? invalidLastNameErrorText : null;
+  MultiValidator get emailValidator {
+    final validator = MultiValidator([
+      RequiredValidator(errorText: requiredEmailError),
+      EmailValidator(errorText: invalidEmailError),
+    ]);
+    return validator;
   }
 
-  String get emailErrorText {
-    bool showErrorText = submitted && !emailValidator.isValid(email);
-    return showErrorText ? invalidEmailErrorText : null;
-  }
-
-  String get passwordErrorText {
-    bool showErrorText = submitted && !passwordValidator.isValid(password);
-    return showErrorText ? invalidPasswordErrorText : null;
-  }
-
-  String get confirmPasswordErrorText {
-    bool showErrorText = submitted &&
-            !confirmPasswordValidator.isValid(confirmPassword) ||
-        (confirmPasswordValidator.isValid(confirmPassword) && !isPasswordMatch);
-    return showErrorText ? invalidConfirmPasswordErrorText : null;
+  String passwordMatchValidator(String value) {
+    return MatchValidator(errorText: passwordMatchError)
+        .validateMatch(value, password);
   }
 
   void updateWith({

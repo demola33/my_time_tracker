@@ -15,32 +15,20 @@ class AlreadyHaveAnAccountCheck extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Text(
-            isMember
-                ? "Already have an Account ?   "
-                : "Don't Have an account ?   ",
-            style: CustomTextStyles.textStyleBold(color: Colors.teal[900])),
+        Text(isMember ? "Already have an Account? " : "Don't Have an account? ",
+            style: CustomTextStyles.textStyleBold(
+                color: Colors.black, fontSize: 13)),
         TextButton(
-          style: TextButton.styleFrom(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(20.0)),
-            ),
-          ),
           onPressed: press,
           child: Padding(
             padding: buttonTextPadding,
             child: Text(
               isMember ? "SIGN IN" : "SIGN UP",
-              style: TextStyle(
-                decoration: TextDecoration.underline,
-                decorationThickness: 2.0,
-                fontFamily: 'SourceSansPro',
-                decorationColor: Colors.deepOrangeAccent,
+              style: CustomTextStyles.textStyleBold(
+                color: Colors.deepOrangeAccent.shade700,
                 fontWeight: FontWeight.w900,
-                color: Colors.teal[900],
               ),
             ),
           ),

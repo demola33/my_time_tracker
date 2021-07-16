@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:my_time_tracker/app/sign_in/components/validators.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
 
-class EmailSignInModel with EmailAndPasswordValidator, ChangeNotifier {
+class EmailSignInModel with ErrorText, ChangeNotifier {
   EmailSignInModel({
     this.email: '',
     this.password: '',
@@ -16,20 +17,16 @@ class EmailSignInModel with EmailAndPasswordValidator, ChangeNotifier {
   bool submitted;
   final AuthBase auth;
 
-  bool get canSubmit {
-    return emailValidator.isValid(email) &&
-        passwordValidator.isValid(password) &&
-        !isLoading;
+  MultiValidator get emailValidator {
+    final validator = MultiValidator([
+      RequiredValidator(errorText: requiredEmailError),
+      EmailValidator(errorText: invalidEmailError),
+    ]);
+    return validator;
   }
 
-  String get emailErrorText {
-    bool showErrorText = submitted && !emailValidator.isValid(email);
-    return showErrorText ? invalidEmailErrorText : null;
-  }
-
-  String get passwordErrorText {
-    bool showErrorText = submitted && !passwordValidator.isValid(password);
-    return showErrorText ? invalidPasswordErrorText : null;
+  RequiredValidator get requiredValidator {
+    return RequiredValidator(errorText: requiredPasswordError);
   }
 
   Future<void> submit() async {

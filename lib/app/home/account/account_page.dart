@@ -45,7 +45,7 @@ class AccountPage extends StatelessWidget {
   bool didUserSignUpWithPassword(BuildContext context) {
     final auth = Provider.of<AuthBase>(context, listen: false);
     final providerId = auth.userProviderId();
-    if (providerId == 'password') {
+    if (providerId == 'password' || providerId == 'phone') {
       return true;
     }
     return false;
@@ -78,6 +78,15 @@ class AccountPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String truncateLabel(String label) {
+    if (label.length > 20) {
+      final truncEmail = label.substring(0, 20);
+      return truncEmail + '...';
+    } else {
+      return label;
+    }
   }
 
   @override
@@ -190,12 +199,12 @@ class AccountPage extends StatelessWidget {
         color: enabled ? Colors.grey[700] : null,
       ),
       trailing: SizedBox(
-        width: 200,
+        width: 260,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(
-              label,
+              truncateLabel(label),
               style: CustomTextStyles.textStyleBold(
                 color: enabled ? Colors.teal : null,
               ),
@@ -234,7 +243,7 @@ class AccountPage extends StatelessWidget {
             enabled: true,
             icon: Icons.person,
             label: user.displayName == ''
-                ? 'Display name not found...'
+                ? 'Display name not found'
                 : user.displayName,
           ),
           Divider(
@@ -254,9 +263,9 @@ class AccountPage extends StatelessWidget {
             user: user,
             enabled: _enableTile(user),
             showChevronIcon: true,
-            onTap: () => PhonePage.show(context, phoneNumber: user.phone),
+            onTap: () => PhonePage.show(context),
             icon: Icons.phone,
-            label: user.phone == '' ? '+ Add phone...  ' : user.phone,
+            label: user.phone == '' ? 'Add phone  ' : user.phone,
           ),
           Divider(
             thickness: 2.0,

@@ -21,6 +21,24 @@ class EntriesListTile extends StatelessWidget {
   const EntriesListTile({@required this.model});
   final EntriesListTileModel model;
 
+  String truncateLabel(String label) {
+    if (label.length > 18) {
+      final truncEmail = label.substring(0, 18);
+      return truncEmail + '...';
+    } else {
+      return label;
+    }
+  }
+
+  String truncateTime(String label) {
+    if (label.length > 4) {
+      final truncEmail = label.substring(0, 4);
+      return truncEmail + '..h';
+    } else {
+      return label;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     //const fontSize = 16.0;
@@ -33,7 +51,7 @@ class EntriesListTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            model.leadingText,
+            truncateLabel(model.leadingText),
             style: model.isHeader || model.isMainHeader
                 ? CustomTextStyles.textStyleHeader(fontSize: 17.0)
                 : CustomTextStyles.textStyleBold(fontSize: 15.0),
