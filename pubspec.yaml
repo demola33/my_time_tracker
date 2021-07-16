@@ -54,6 +54,7 @@ dependencies:
   rxdart: ^0.23.1
   user_profile_avatar: ^0.0.9
   widget_circular_animator: ^1.0.0
+  empty_widget: ^0.0.5
 
 flutter_native_splash:
   color: "#EDEBAD"

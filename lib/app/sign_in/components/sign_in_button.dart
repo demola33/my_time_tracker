@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_time_tracker/common_widgets/custom_raised_button.dart';
+import 'package:my_time_tracker/common_widgets/custom_elevated_button.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 
 class SignInButton extends CustomElevatedButton {

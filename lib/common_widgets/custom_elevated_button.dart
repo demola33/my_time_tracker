@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 class CustomElevatedButton extends StatelessWidget {
-  CustomElevatedButton(
-      {this.child,
-      this.color,
-      this.disabledColor,
-      this.borderRadius: 4.0,
-      this.height: 40.0,
-      this.onPressed,
-      @required this.focusNode})
-      : assert(borderRadius != null),
+  CustomElevatedButton({
+    this.child,
+    this.color,
+    this.disabledColor,
+    this.borderRadius: 4.0,
+    this.height: 40.0,
+    this.onPressed,
+    this.focusNode,
+  })  : assert(borderRadius != null),
         assert(height != null);
   final Widget child;
   final Color color;

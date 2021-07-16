@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
-import 'custom_raised_button.dart';
+import 'custom_elevated_button.dart';
 
 class FormSubmitButton extends CustomElevatedButton {
   FormSubmitButton({
