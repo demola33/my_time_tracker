@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:my_time_tracker/app/landing_page.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
+import 'package:my_time_tracker/common_widgets/show_snack_bar.dart';
+import 'package:my_time_tracker/services/auth_base.dart';
+import 'package:my_time_tracker/services/database.dart';
 import 'package:open_mail_app/open_mail_app.dart';
+import 'package:provider/provider.dart';
 
 class EmailVerificationPage extends StatelessWidget {
-  const EmailVerificationPage({Key key}) : super(key: key);
+  const EmailVerificationPage(this.email);
+
+  final String email;
 
   void showNoMailAppsDialog(BuildContext context) {
     showDialog(
@@ -29,6 +36,7 @@ class EmailVerificationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthBase>(context);
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -60,12 +68,27 @@ class EmailVerificationPage extends StatelessWidget {
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'A verification link has been sent to the email provided. Please Click on the link in email to activate your account.',
-                    style: CustomTextStyles.textStyleBold(
-                      fontSize: 12.0,
-                      color: Colors.grey[800],
-                      fontWeight: FontWeight.w800,
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'A verification link has been sent to ',
+                      style: CustomTextStyles.textStyleBold(
+                          fontSize: 12.0,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w800),
+                      children: [
+                        TextSpan(
+                          text: email,
+                          style: CustomTextStyles.textStyleBold(
+                            fontSize: 12.0,
+                            color: Colors.teal[600],
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        TextSpan(
+                          text:
+                              '. Please Click on the link in email to activate your account.',
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -89,7 +112,43 @@ class EmailVerificationPage extends StatelessWidget {
                           },
                         );
                       }
-                      Navigator.popUntil(context, (route) => route.isFirst);
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FormSubmitButton(
+                    focusNode: FocusNode(),
+                    text: 'Proceed to Time Tracker',
+                    onPressed: () async {
+                      await auth.reloadUser();
+                      final isUserVerified = auth.isUserVerified();
+                      if (isUserVerified) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => LandingPage(
+                              databaseBuilder: (uid) =>
+                                  FirestoreDatabase(uid: uid),
+                            ),
+                          ),
+                        );
+                      } else {
+                        MyCustomSnackBar(
+                                text: 'Please verify your email.',
+                                enabled: false)
+                            .show(context);
+                      }
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FormSubmitButton(
+                    focusNode: FocusNode(),
+                    text: 'Sign out',
+                    onPressed: () async {
+                      await auth.signOut();
+                      Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                   ),
                 )

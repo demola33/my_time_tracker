@@ -15,6 +15,7 @@ class LandingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     print('I GOT REBUILT HERE......');
     final auth = Provider.of<AuthBase>(context, listen: false);
+
     //Size size = MediaQuery.of(context).size;
     return StreamBuilder<CustomUser>(
       stream: auth.authStateChanges,
@@ -24,14 +25,27 @@ class LandingPage extends StatelessWidget {
         if (user == null) {
           return SignInPage.create(context);
         }
-        print('user:${user.uid}');
-        return Provider<CustomUser>.value(
-          value: user,
-          child: Provider<Database>(
-            create: (_) => databaseBuilder(user.uid),
-            child: HomeApp(),
-          ),
-        );
+        bool isVerified = auth.isUserVerified();
+        bool isAnonymous = auth.isUserAnonymous();
+        String providerID = auth.userProviderId();
+        print('provider: $providerID');
+        print('LandingVerify: $isVerified');
+        print('anon: $isAnonymous');
+        if (user != null && isVerified ||
+            isAnonymous ||
+            providerID == 'facebook.com') {
+          print('user:${user.uid}');
+          return Provider<CustomUser>.value(
+            value: user,
+            child: Provider<Database>(
+              create: (_) => databaseBuilder(user.uid),
+              child: HomeApp(),
+            ),
+          );
+        }
+        print('usssser:${user.uid}');
+        return SignInPage.create(context);
+
         //}
         //  else {
         //   return Scaffold(

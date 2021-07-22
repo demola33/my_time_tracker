@@ -14,7 +14,7 @@ class ForgotPassword extends StatelessWidget {
       child: Padding(
         padding: buttonTextPadding,
         child: Text(
-          'Forgot Password',
+          'Forgot Password?',
           style: CustomTextStyles.textStyleBold(
             fontSize: 13,
             color: Colors.deepOrangeAccent.shade700,

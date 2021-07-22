@@ -107,44 +107,40 @@ class _SignInPageState extends State<SignInPage> {
     // print('connected: $connect');
     return Scaffold(
       backgroundColor: Color.fromRGBO(37, 165, 159, 0.6),
-      body: Column(
+      body: ListView(
         children: [
-          Expanded(
-            flex: 2,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
-                gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                  colors: [
-                    Color.fromRGBO(66, 150, 152, 0.8),
-                    Color.fromRGBO(255, 228, 115, 1),
-                  ],
-                ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
               ),
-              width: MediaQuery.of(context).size.width,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  _buildLogo(context),
-                  _buildSignInTitle(context),
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  Color.fromRGBO(66, 150, 152, 0.8),
+                  Color.fromRGBO(255, 228, 115, 1),
                 ],
               ),
             ),
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(height: 20),
+                _buildLogo(context),
+                _buildSignInTitle(context),
+              ],
+            ),
           ),
-          Expanded(
-            child: Container(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: _content(context, isLoading),
-                ),
+          Container(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: _content(context, isLoading),
               ),
             ),
           )

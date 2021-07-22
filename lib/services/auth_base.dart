@@ -18,19 +18,37 @@ abstract class AuthBase {
   Future<CustomUser> signInWithFacebook();
 
   Future<CustomUser> signInWithEmailAndPassword(String email, String password);
+
   Future<void> removeUserPhone();
+
   Future<bool> validateCurrentPassword(String newPassword);
+
   Future<void> updatePassword(String newPassword);
+
+  Future<void> sendPasswordResetEmail(String email);
+
+  bool isUserVerified();
+  bool isUserAnonymous();
+
+  Future<void> reloadUser();
 
   Future<CustomUser> createUserWithEmailAndPassword(
       String email, String password, String firstName, String lastName);
+
   Future<void> updateUserImageURL(String photoURL);
-  Future<void> verifyUserPhoneNumber(
-      {BuildContext context, String number, String isoCode});
-  Future<void> phoneCredential(
-      {BuildContext context,
-      String otp,
-      String verificationId,
-      String number,
-      String isoCode});
+
+  Future<void> verifyUserPhoneNumber({
+    @required BuildContext context,
+    @required String number,
+    @required String isoCode,
+    int token,
+  });
+
+  Future<void> phoneCredential({
+    BuildContext context,
+    String otp,
+    String verificationId,
+    String number,
+    String isoCode,
+  });
 }

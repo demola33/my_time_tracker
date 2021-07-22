@@ -217,8 +217,7 @@ class AccountPage extends StatelessWidget {
   }
 
   Widget _accountInformation(BuildContext context, CustomUser user) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16.0),
+    return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

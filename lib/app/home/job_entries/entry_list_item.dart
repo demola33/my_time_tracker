@@ -48,10 +48,11 @@ class EntryListItem extends StatelessWidget {
     final endDate = format.date(entry.end);
     final startTime = TimeOfDay.fromDateTime(entry.start).format(context);
     final endTime = TimeOfDay.fromDateTime(entry.end).format(context);
-    final durationFormatted = format.hours(entry.durationInHours);
+    final durationFormatted = Duration(hours: entry.durationInHours.toInt());
+    formatDuration(Duration d) => d.toString().split('.').first.padLeft(8, "0");
 
     final pay = job.ratePerHour * entry.durationInHours;
-    final payFormatted = format.currency(pay);
+    final payFormatted = format.currency(pay.toDouble());
     Size size = MediaQuery.of(context).size;
 
     return Column(
@@ -85,7 +86,7 @@ class EntryListItem extends StatelessWidget {
           ),
           Expanded(child: Container()),
           Text(
-            durationFormatted,
+            formatDuration(durationFormatted),
             style: CustomTextStyles.textStyleNormal(color: Colors.black),
           ),
         ]),
