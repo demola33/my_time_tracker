@@ -1,3 +1,4 @@
+import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_time_tracker/app/home/account/Phone_page.dart';
@@ -13,23 +14,28 @@ class OTPPage extends StatefulWidget {
     @required this.number,
     @required this.verificationId,
     @required this.isoCode,
+    @required this.resendToken,
   }) : super(key: key);
 
   final String number, verificationId, isoCode;
+  final int resendToken;
+
   static void show({
     BuildContext context,
     String number,
     String verificationId,
     String isoCode,
+    int resendToken,
   }) {
     Navigator.of(context).push(MaterialPageRoute(
-      fullscreenDialog: true,
+      fullscreenDialog: false,
       builder: (
         context,
       ) =>
           OTPPage(
         number: number,
         verificationId: verificationId,
+        resendToken: resendToken,
         isoCode: isoCode,
       ),
     ));
@@ -40,7 +46,7 @@ class OTPPage extends StatefulWidget {
 }
 
 class _OTPPageState extends State<OTPPage> {
-  bool isLoading = true;
+  bool enabled = true;
   final TextEditingController _pinPutController = TextEditingController();
 
   void _showVerifyNumberError(
@@ -49,6 +55,15 @@ class _OTPPageState extends State<OTPPage> {
       title: 'Operation failed',
       exception: exception,
     ).show(context);
+  }
+
+  void resendOTP(int resendToken, AuthBase auth) async {
+    await auth.verifyUserPhoneNumber(
+      context: context,
+      number: widget.number,
+      isoCode: widget.isoCode,
+      token: resendToken,
+    );
   }
 
   @override
@@ -61,12 +76,12 @@ class _OTPPageState extends State<OTPPage> {
             icon: Icon(Icons.cancel),
             onPressed: () =>
                 Navigator.of(context).popUntil((route) => route.isFirst)
-            // Navigator.of(context).push(
-            //   MaterialPageRoute(
-            //     fullscreenDialog: true,
-            //     builder: (context) => PhonePage(),
-            //   ),
-            // ),
+            //     // Navigator.of(context).push(
+            //     //   MaterialPageRoute(
+            //     //     fullscreenDialog: true,
+            //     //     builder: (context) => PhonePage(),
+            //     //   ),
+            //     // ),
             ),
         elevation: 0.0,
         automaticallyImplyLeading: false,
@@ -107,9 +122,10 @@ class _OTPPageState extends State<OTPPage> {
                             TextSpan(
                               text: widget.number,
                               style: CustomTextStyles.textStyleBold(
-                                  fontSize: 12.0,
-                                  color: Colors.teal[600],
-                                  fontWeight: FontWeight.w800),
+                                fontSize: 12.0,
+                                color: Colors.teal[600],
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ],
                         ),
@@ -117,7 +133,7 @@ class _OTPPageState extends State<OTPPage> {
                     ),
                   ),
                   SizedBox(
-                    width: 10.0,
+                    width: 5.0,
                   ),
                   InkWell(
                     onTap: () {
@@ -127,6 +143,7 @@ class _OTPPageState extends State<OTPPage> {
                           builder: (context) => PhonePage(
                             number: widget.number,
                             isoCode: widget.isoCode,
+                            token: widget.resendToken,
                           ),
                         ),
                       );
@@ -141,26 +158,56 @@ class _OTPPageState extends State<OTPPage> {
               margin: const EdgeInsets.all(20.0),
               padding: const EdgeInsets.all(20.0),
               child: OTPInputBox(
-                isLoading: isLoading,
+                enabled: enabled,
                 controller: _pinPutController,
-                onSubmit: (String pin) {
+                onSubmit: (String pin) async {
                   setState(() {
-                    isLoading = false;
-                    String _otp = pin;
-                    try {
-                      auth.phoneCredential(
-                        context: context,
-                        otp: _otp,
-                        verificationId: widget.verificationId,
-                        number: widget.number,
-                        isoCode: widget.isoCode,
-                      );
-                    } on PlatformException catch (e) {
-                      _showVerifyNumberError(context, e);
-                    }
+                    enabled = false;
+                  });
+                  String _otp = pin;
+                  await auth
+                      .phoneCredential(
+                    context: context,
+                    otp: _otp,
+                    verificationId: widget.verificationId,
+                    number: widget.number,
+                    isoCode: widget.isoCode,
+                  )
+                      .catchError((e) {
+                    _showVerifyNumberError(context, e);
+                  }).then((value) {
+                    setState(() {
+                      _pinPutController.clear();
+                      enabled = true;
+                    });
                   });
                 },
               ),
+            ),
+            ArgonTimerButton(
+              initialTimer: 30, // Optional
+              height: 40,
+              width: MediaQuery.of(context).size.width * 0.45,
+              minWidth: MediaQuery.of(context).size.width * 0.30,
+              disabledColor: Colors.teal[600],
+
+              borderRadius: 4.0,
+              splashColor: Colors.deepOrangeAccent,
+              child: Text(
+                "Resend OTP",
+                style: CustomTextStyles.textStyleBold(color: Colors.white),
+              ),
+              loader: (timeLeft) {
+                return Text("Request a new code in $timeLeft seconds",
+                    style: CustomTextStyles.textStyleBold());
+              },
+              onTap: (startTimer, btnState) {
+                if (btnState == ButtonState.Idle) {
+                  startTimer(20);
+                  resendOTP(widget.resendToken, auth);
+                  print('token: ${widget.resendToken}');
+                }
+              },
             ),
           ],
         ),

@@ -6,7 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_time_tracker/app/home/account/Phone_page.dart';
 import 'package:my_time_tracker/app/home/account/otp_page.dart';
 import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:my_time_tracker/services/database.dart';
 
@@ -17,6 +17,7 @@ class Auth implements AuthBase {
     if (user == null) {
       return null;
     }
+    print('i was called');
     return CustomUser(
       uid: user.uid,
       photoUrl: user.photoURL ?? '',
@@ -27,67 +28,25 @@ class Auth implements AuthBase {
     );
   }
 
-  _showAlertDialog(
-      {BuildContext context, String message, VoidCallback onPress}) {
-    Widget okButton = TextButton(
-      onPressed: onPress,
-      child: Text(
-        'OK',
-        style: CustomTextStyles.textStyleBold(),
-      ),
-    );
-
-    AlertDialog alert = AlertDialog(
-      title: Text(
-        'Operation Failed',
-        style: CustomTextStyles.textStyleBold(),
-      ),
-      content: Text(
-        message,
-        style: CustomTextStyles.textStyleNormal(),
-      ),
-      actions: [
-        okButton,
-      ],
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-
   @override
   Future<CustomUser> signInWithEmailAndPassword(
       String email, String password) async {
     try {
       final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
-      return _userFromFirebase(userCredential.user);
-    } catch (e) {
-      if (e.message
-          .toString()
-          .contains('com.google.firebase.FirebaseException')) {
-        throw PlatformException(
-          code: 'no-network',
-          message:
-              'You are not connected to the internet. Make sure your Wi-fi/Mobile Data is connected to the internet and try again.',
-        );
-      } else if (e.message.toString().contains('String is empty or null')) {
-        throw PlatformException(
-          code: 'empty-credential',
-          message: 'Please input a valid email and password.',
-        );
-      } else {
-        print(e.code);
-        print(e.message);
-        throw PlatformException(
-          code: e.code,
-          message: e.message,
-        );
+      User user = userCredential.user;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        print('Verification Email Sent');
       }
+
+      return _userFromFirebase(user);
+    } catch (e) {
+      print('ErrorCode: ${e.code}');
+      throw PlatformException(
+        code: e.code,
+        message: e.message,
+      );
     }
   }
 
@@ -128,18 +87,10 @@ class Auth implements AuthBase {
       }).catchError((onError) {});
       return userProfile;
     } catch (e) {
-      if (e.message.contains('com.google.firebase.FirebaseException')) {
-        throw PlatformException(
-          code: 'no-network',
-          message:
-              'You are not connected to the internet. Make sure your Wi-fi/Mobile Data is connected to the internet and try again.',
-        );
-      } else {
-        throw PlatformException(
-          code: e.code,
-          message: e.message,
-        );
-      }
+      throw PlatformException(
+        code: e.code,
+        message: e.message,
+      );
     }
   }
 
@@ -158,11 +109,11 @@ class Auth implements AuthBase {
           final userCredential = await _firebaseAuth.signInWithCredential(
             FacebookAuthProvider.credential(token),
           );
-          //print('Facebook User Phone number: ${userCredential.user.phoneNumber}');
           userProfile = _userFromFirebase(userCredential.user);
-          await FirestoreDatabase(uid: userProfile.uid)
-              .writeUserDataToFirestore(userProfile);
-          //customUser = _userFromFirebase(userCredential.user);
+          if (userCredential.additionalUserInfo.isNewUser) {
+            await FirestoreDatabase(uid: userProfile.uid)
+                .writeUserDataToFirestore(userProfile);
+          }
           break;
         case FacebookLoginStatus.cancelledByUser:
           throw PlatformException(
@@ -179,18 +130,10 @@ class Auth implements AuthBase {
       }
       return userProfile;
     } catch (e) {
-      if (e.message.contains('com.google.firebase.FirebaseException')) {
-        throw PlatformException(
-          code: 'no-network',
-          message:
-              'You are not connected to the internet. Make sure your Wi-fi/Mobile Data is connected to the internet and try again.',
-        );
-      } else {
-        throw PlatformException(
-          code: e.code,
-          message: e.message,
-        );
-      }
+      throw PlatformException(
+        code: e.code,
+        message: e.message,
+      );
     }
   }
 
@@ -198,35 +141,20 @@ class Auth implements AuthBase {
   Future<CustomUser> signInWithGoogle() async {
     try {
       final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
-      if (googleUser != null) {
-        final GoogleSignInAuthentication googleAuth =
-            await googleUser.authentication;
-        if (googleAuth.idToken != null && googleAuth.accessToken != null) {
-          final userCredential = await _firebaseAuth.signInWithCredential(
-            GoogleAuthProvider.credential(
-              accessToken: googleAuth.accessToken,
-              idToken: googleAuth.idToken,
-            ),
-          );
-          CustomUser userProfile = _userFromFirebase(userCredential.user);
-          print('Provider Data: ${userCredential.user.providerData}');
-          print(
-              'Provider ID: ${userCredential.user.providerData[0].providerId}');
-          await FirestoreDatabase(uid: userProfile.uid)
-              .writeUserDataToFirestore(userProfile);
-          return userProfile;
-        } else {
-          throw PlatformException(
-            code: "ERROR_MISSING_GOOGLE_AUTH TOKEN",
-            message: 'Missing Google Auth Token',
-          );
-        }
-      } else {
-        throw PlatformException(
-          code: "ERROR_ABORTED_BY_USER",
-          message: 'sign in aborted by user',
-        );
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        ),
+      );
+      CustomUser userProfile = _userFromFirebase(userCredential.user);
+      if (userCredential.additionalUserInfo.isNewUser) {
+        await FirestoreDatabase(uid: userProfile.uid)
+            .writeUserDataToFirestore(userProfile);
       }
+      return userProfile;
     } catch (e) {
       throw PlatformException(
         code: e.code,
@@ -248,39 +176,21 @@ class Auth implements AuthBase {
       String displayName = 'Anonymous';
       CustomUser userProfile = CustomUser(
         photoUrl: '',
-        displayName: displayName ?? '',
+        displayName: displayName,
         uid: user.uid,
         email: '',
         phone: '',
         isoCode: '',
       );
-      print('Provider Data: ${user.providerData.toString()}');
-
       await FirestoreDatabase(uid: userProfile.uid)
           .writeUserDataToFirestore(userProfile);
-
       return userProfile;
     } catch (e) {
-      if (e.message.contains('com.google.firebase.FirebaseException')) {
-        throw PlatformException(
-          code: 'no-network',
-          message:
-              'You are not connected to the internet. Make sure your Wi-fi/Mobile Data is connected to the internet and try again.',
-        );
-      } else if (e.code == 'admin-restricted-operation') {
-        throw PlatformException(
-          code: 'admin-restricted-operation',
-          message:
-              'Anonymous sign-in has been disabled by the Administrator. Try other sign-in options.',
-        );
-      } else {
-        print(e.message);
-        print(e.code);
-        throw PlatformException(
-          code: e.code,
-          message: e.message,
-        );
-      }
+      print(e.code);
+      throw PlatformException(
+        code: e.code,
+        message: e.message,
+      );
     }
   }
 
@@ -291,18 +201,10 @@ class Auth implements AuthBase {
       await FacebookLogin().logOut();
       return await _firebaseAuth.signOut();
     } catch (e) {
-      if (e.message.contains('com.google.firebase.FirebaseException')) {
-        throw PlatformException(
-          code: 'no-network',
-          message:
-              'You are not connected to the internet. Make sure your Wi-fi/Mobile Data is connected to the internet and try again.',
-        );
-      } else {
-        throw PlatformException(
-          code: e.code,
-          message: e.message,
-        );
-      }
+      throw PlatformException(
+        code: e.code,
+        message: e.message,
+      );
     }
   }
 
@@ -317,80 +219,58 @@ class Auth implements AuthBase {
     @required BuildContext context,
     @required String number,
     @required String isoCode,
+    int token,
   }) async {
+    void _showVerifyPhoneNumberError(
+        BuildContext context, PlatformException exception) {
+      PlatformExceptionAlertDialog(
+        title: 'Verification failed',
+        exception: exception,
+        onPressOk: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            fullscreenDialog: false,
+            builder: (context) => PhonePage(
+              number: number,
+              isoCode: isoCode,
+            ),
+          ),
+        ),
+      ).show(context);
+    }
+
     final PhoneVerificationCompleted verificationCompleted =
         (PhoneAuthCredential credential) async {
       await _firebaseAuth.signInWithCredential(credential);
     };
-
     final PhoneVerificationFailed verificationFailed =
         (FirebaseAuthException e) {
-      if (e.code == 'invalid-phone-number') {
-        String message = 'The provided phone number is not valid.';
-        _showAlertDialog(
-          context: context,
-          message: message,
-          onPress: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              fullscreenDialog: true,
-              builder: (context) => PhonePage(
-                number: number,
-                isoCode: isoCode,
-              ),
-            ),
-          ),
+      try {
+        throw PlatformException(
+          code: e.code,
+          message: e.message,
         );
-      }
-      if (e.code == 'network-request-failed') {
-        String message =
-            'You are not connected to the internet. Make sure your Wi-fi/Mobile Data is connected to the internet and try again.';
-        _showAlertDialog(
-          context: context,
-          message: message,
-          onPress: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              fullscreenDialog: true,
-              builder: (context) => PhonePage(
-                number: number,
-                isoCode: isoCode,
-              ),
-            ),
-          ),
-        );
-      } else {
-        String message = 'An Error has occured';
-        _showAlertDialog(
-          context: context,
-          message: message,
-          onPress: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              fullscreenDialog: true,
-              builder: (context) => PhonePage(
-                number: number,
-                isoCode: isoCode,
-              ),
-            ),
-          ),
-        );
+      } catch (e) {
+        print(e.code);
+        print(e.message);
+        _showVerifyPhoneNumberError(context, e);
       }
     };
-
     final PhoneCodeSent codeSent =
         (String verificationId, int resendToken) async {
       OTPPage.show(
-        context: context,
-        number: number,
-        verificationId: verificationId,
-        isoCode: isoCode,
-      );
+          context: context,
+          number: number,
+          verificationId: verificationId,
+          isoCode: isoCode,
+          resendToken: resendToken);
     };
-
     await _firebaseAuth.verifyPhoneNumber(
       phoneNumber: number,
       verificationCompleted: verificationCompleted,
       verificationFailed: verificationFailed,
       codeSent: codeSent,
       timeout: const Duration(seconds: 60),
+      forceResendingToken: token,
       codeAutoRetrievalTimeout: (String verificationId) {
         print('VerificationId: $verificationId');
       },
@@ -406,8 +286,50 @@ class Auth implements AuthBase {
           {'imageURL': photoURL}).catchError((onError) {
         print('error occured : ${onError.toString()}');
       });
-      //await user.updatePhotoURL(photoURL).onError((error, stackTrace) =>
-      // print('Error Uploading Image : ${error.toString()}'));
+    }
+  }
+
+  @override
+  bool isUserVerified() {
+    User user = _firebaseAuth.currentUser;
+    bool verified = user.emailVerified;
+    print('verify: $verified');
+    if (verified) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @override
+  bool isUserAnonymous() {
+    User user = _firebaseAuth.currentUser;
+    bool anonymous = user.isAnonymous;
+    print('anonymous: $anonymous');
+    if (anonymous) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> reloadUser() async {
+    User user = _firebaseAuth.currentUser;
+    await user.reload();
+  }
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      print(e.code);
+      print(e.message);
+      throw PlatformException(
+        code: e.code,
+        message: e.message,
+      );
     }
   }
 
@@ -438,14 +360,17 @@ class Auth implements AuthBase {
   Future<void> removeUserPhone() async {
     User user = _firebaseAuth.currentUser;
     if (user != null) {
-      _firebaseAuth.currentUser
-          .unlink(PhoneAuthProvider.PROVIDER_ID)
-          .whenComplete(
-            () async => await FirestoreDatabase(uid: user.uid)
-                .updateUserDataOnFirestore(
-              {'phone': ''},
-            ),
-          );
+      try {
+        await _firebaseAuth.currentUser.unlink(PhoneAuthProvider.PROVIDER_ID);
+        await FirestoreDatabase(uid: user.uid).updateUserDataOnFirestore(
+          {'phone': ''},
+        );
+      } catch (e) {
+        throw PlatformException(
+          code: e.code,
+          message: e.message,
+        );
+      }
     }
   }
 
@@ -467,57 +392,12 @@ class Auth implements AuthBase {
           {'phone': '$number', 'countryCode': '$isoCode'});
       Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
-      if (e.message.contains('com.google.firebase.FirebaseException')) {
-        throw PlatformException(
-          code: 'no-network',
-          message:
-              'You are not connected to the internet. Make sure your Wi-fi/Mobile Data is connected to the internet and try again.',
-        );
-      } else {
-        if (e.code.toString() == 'credential-already-in-use') {
-          String message =
-              'This Phone number is already associated with a different user account';
-          _showAlertDialog(
-              context: context,
-              message: message,
-              onPress: () =>
-                  Navigator.of(context).popUntil((route) => route.isFirst));
-        } else if (e.code.toString() == 'invalid-verification-code') {
-          String message = 'Please use a valid verification code.';
-          _showAlertDialog(
-            context: context,
-            message: message,
-            onPress: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                fullscreenDialog: true,
-                builder: (context) => OTPPage(
-                  number: number,
-                  verificationId: verificationId,
-                  isoCode: isoCode,
-                ),
-              ),
-            ),
-          );
-        } else if (e.message.contains('too-many-requests')) {
-          String message =
-              'We have blocked all requests from this device due to unusual activity. Try again later.';
-          _showAlertDialog(
-              context: context,
-              message: message,
-              onPress: () =>
-                  Navigator.of(context).popUntil((route) => route.isFirst));
-        } else {
-          print('errorCode: ${e.code}');
-          print('errorMessage: ${e.message}');
-          String message =
-              'An unknown error has occurred, kindly send a mail to our team for help.';
-          _showAlertDialog(
-              context: context,
-              message: message,
-              onPress: () =>
-                  Navigator.of(context).popUntil((route) => route.isFirst));
-        }
-      }
+      print(e.code);
+      print(e.message);
+      throw PlatformException(
+        code: e.code,
+        message: e.message,
+      );
     }
   }
 }

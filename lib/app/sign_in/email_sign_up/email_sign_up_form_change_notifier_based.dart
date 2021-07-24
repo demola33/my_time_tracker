@@ -240,9 +240,11 @@ class _EmailSignUpFormChangeNotifierBasedState
       progressDialog.show();
       try {
         await model.submit();
-        Navigator.of(context).push(
+        progressDialog.dismiss();
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => EmailVerificationPage(),
+            fullscreenDialog: true,
+            builder: (context) => EmailVerificationPage(_emailController.text),
           ),
         );
       } on PlatformException catch (e) {

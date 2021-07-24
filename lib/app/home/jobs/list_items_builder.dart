@@ -1,3 +1,4 @@
+import 'package:empty_widget/empty_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/home/jobs/empty_content.dart';
@@ -34,6 +35,7 @@ class _ListItemsBuilderState<T> extends State<ListItemsBuilder<T>> {
       return EmptyContent(
         title: 'Something went wrong',
         message: 'Can\'t load items right now',
+        packageImage: PackageImage.Image_4,
       );
     }
     return Center(

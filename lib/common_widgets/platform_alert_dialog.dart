@@ -11,10 +11,14 @@ class PlatformAlertDialog extends PlatformWidget {
   final dynamic content;
   final String defaultActionText;
   final String cancelActionText;
+  final VoidCallback onPressOk;
+  final VoidCallback onPressCancel;
 
   PlatformAlertDialog({
     @required this.title,
     @required this.content,
+    this.onPressOk,
+    this.onPressCancel,
     this.cancelActionText,
     @required this.defaultActionText,
     exception,
@@ -73,14 +77,17 @@ class PlatformAlertDialog extends PlatformWidget {
     final actions = <Widget>[];
     if (cancelActionText != null) {
       actions.add(PlatformAlertDialogAction(
-        press: () => Navigator.of(context).pop(false),
+        press: onPressCancel == null
+            ? () => Navigator.of(context).pop(false)
+            : onPressCancel,
         child: CustomText(
           text: cancelActionText,
         ),
       ));
     }
     actions.add(PlatformAlertDialogAction(
-      press: () => Navigator.of(context).pop(true),
+      press:
+          onPressOk == null ? () => Navigator.of(context).pop(true) : onPressOk,
       child: CustomText(
         text: defaultActionText,
       ),

@@ -7,12 +7,12 @@ class OTPInputBox extends StatelessWidget {
       {Key key,
       @required this.onSubmit,
       @required this.controller,
-      @required this.isLoading})
+      @required this.enabled})
       : super(key: key);
 
-  void Function(String) onSubmit;
+  final void Function(String) onSubmit;
   final TextEditingController controller;
-  final bool isLoading;
+  final bool enabled;
 
   BoxDecoration get _pinPutDecoration {
     return BoxDecoration(
@@ -27,7 +27,7 @@ class OTPInputBox extends StatelessWidget {
       fieldsCount: 6,
       onSubmit: onSubmit,
       onSaved: (String pin) => print('OnSaved: $pin'),
-      enabled: isLoading,
+      enabled: enabled,
       autofocus: true,
       textStyle: CustomTextStyles.textStyleBold(),
       preFilledWidget: Icon(

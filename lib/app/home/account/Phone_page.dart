@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:country_codes/country_codes.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -12,20 +13,24 @@ import 'package:my_time_tracker/common_widgets/platform_alert_dialog.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
 
 class PhonePage extends StatefulWidget {
-  const PhonePage({Key key, @required this.number, @required this.isoCode})
+  const PhonePage(
+      {Key key, @required this.number, @required this.isoCode, this.token})
       : super(key: key);
   final String number;
   final String isoCode;
+  final int token;
 
   static void show(BuildContext context) {
     final user = Provider.of<CustomUser>(context, listen: false);
-    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
-      fullscreenDialog: true,
-      builder: (context) => PhonePage(
-        number: user.phone,
-        isoCode: user.isoCode,
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        fullscreenDialog: false,
+        builder: (context) => PhonePage(
+          number: user.phone,
+          isoCode: user.isoCode,
+        ),
       ),
-    ));
+    );
   }
 
   @override
@@ -84,25 +89,37 @@ class _PhonePageState extends State<PhonePage> {
   }
 
   Future<void> _confirmRemoveNumber(BuildContext context) async {
-    final didRequestLogOut = await PlatformAlertDialog(
+    final didRequestRemove = await PlatformAlertDialog(
       title: 'Remove Number',
       content: 'Are you sure you want to remove ${widget.number} ?',
       cancelActionText: 'Cancel',
       defaultActionText: 'Remove',
     ).show(context);
-    if (didRequestLogOut == true) {
+    if (didRequestRemove == true) {
       _press();
     }
   }
 
   void _press() async {
+    bool error = false;
     final auth = Provider.of<AuthBase>(context, listen: false);
-    await auth.removeUserPhone();
-    Navigator.pop(context);
+    await auth.removeUserPhone().catchError((e) {
+      error = true;
+      _showRemovePhoneNumberError(context, e);
+    });
+    if (!error) Navigator.pop(context);
   }
 
   void _phoneNumberEditingComplete() {
     FocusScope.of(context).requestFocus(_submitButtonNode);
+  }
+
+  void _showRemovePhoneNumberError(
+      BuildContext context, PlatformException exception) {
+    PlatformExceptionAlertDialog(
+      title: 'Operation failed',
+      exception: exception,
+    ).show(context);
   }
 
   @override
@@ -111,7 +128,7 @@ class _PhonePageState extends State<PhonePage> {
       //resizeToAvoidBottomInset: false,
       appBar: AppBar(
         elevation: 0.0,
-        automaticallyImplyLeading: true,
+        automaticallyImplyLeading: false,
         leading: IconButton(
           icon: Icon(Icons.cancel),
           onPressed: () =>
@@ -231,11 +248,14 @@ class _PhonePageState extends State<PhonePage> {
 
     if (_validateAndSaveForm()) {
       progressDialog.show();
+      print('ppToken: ${widget.token}');
       await auth.verifyUserPhoneNumber(
         context: context,
         number: _number.phoneNumber,
         isoCode: _number.isoCode,
+        token: widget.token,
       );
     }
+    //progressDialog.dismiss();
   }
 }
