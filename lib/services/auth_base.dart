@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
+import 'package:my_time_tracker/models_and_managers/models/custom_user_model.dart';
 
 abstract class AuthBase {
   Stream<CustomUser> get authStateChanges;
@@ -21,7 +21,11 @@ abstract class AuthBase {
 
   Future<void> removeUserPhone();
 
+  Future<void> deleteUserAccount();
+
   Future<bool> validateCurrentPassword(String newPassword);
+  Future<bool> reAuthenticateFacebookUser();
+  Future<bool> reAuthenticateGoogleUser();
 
   Future<void> updatePassword(String newPassword);
 

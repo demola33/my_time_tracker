@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:my_time_tracker/app/home/models/entry.dart';
 import 'package:my_time_tracker/app/home/models/job.dart';
-import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
+import 'package:my_time_tracker/models_and_managers/models/custom_user_model.dart';
 import 'package:my_time_tracker/services/api_path.dart';
 import 'package:my_time_tracker/services/firestore_service.dart';
 
@@ -12,12 +12,14 @@ abstract class Database {
   Future<void> deleteJob(Job job);
 
   Stream<List<Job>> jobsStream();
+  Future<List<Job>> jobsList();
 
   Future<void> setEntry(Entry entry);
 
   Future<void> deleteEntry(Entry entry);
 
   Stream<List<Entry>> entriesStream({Job job});
+  Future<List<Entry>> entriesList({Job job});
 
   //Future writeUserDataToFirestore(CustomUser userProfile);
 
@@ -97,6 +99,14 @@ class FirestoreDatabase implements Database {
   }
 
   @override
+  Future<List<Job>> jobsList() async {
+    return await _service.collectionList(
+      path: APIPath.jobs(uid),
+      builder: (data, documentId) => Job.fromMap(data, documentId),
+    );
+  }
+
+  @override
   Future<void> setEntry(Entry entry) async {
     try {
       await _service
@@ -108,13 +118,23 @@ class FirestoreDatabase implements Database {
         Future.error(onError);
       });
     } catch (e) {
-      print('ERRORRRRRRR SPOTTED : ${e.toString()}');
+      print('ERROR : ${e.toString()}');
     }
   }
 
   @override
   Future<void> deleteEntry(Entry entry) async =>
       await _service.deleteData(path: APIPath.entry(uid, entry.id));
+
+  @override
+  Future<List<Entry>> entriesList({Job job}) => _service.collectionList<Entry>(
+        path: APIPath.entries(uid),
+        queryBuilder: job != null
+            ? (query) => query.where('jobId', isEqualTo: job.id)
+            : null,
+        builder: (data, documentID) => Entry.fromMap(data, documentID),
+        sort: (lhs, rhs) => rhs.start.compareTo(lhs.start),
+      );
 
   @override
   Stream<List<Entry>> entriesStream({Job job}) =>

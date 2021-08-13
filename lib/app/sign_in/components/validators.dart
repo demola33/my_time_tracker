@@ -9,6 +9,7 @@ class ErrorText {
   final String firstNameError = "Enter a valid first name";
   final String jobNameError = "Enter a valid job name";
   final String requiredJobNameError = "Job Name is required";
+  final String organizationNameError = "Enter a valid organization name";
   final String jobRateError = "Enter a valid job Rate";
   final String lastNameError = "Enter a valid last name";
   final String passwordMatchError = "Passwords do not match";
@@ -44,13 +45,30 @@ class JobNameValidator extends TextFieldValidator {
   @override
   bool isValid(String value) {
     // return true if the value is valid according the your condition
-    return hasMatch(r'^[A-Za-z/-\s]+$', value);
+    return hasMatch(r'^[A-Za-z1-9/-\s]+$', value);
+  }
+}
+
+class OrganizationNameValidator extends TextFieldValidator {
+  // pass the error text to the super constructor
+  OrganizationNameValidator({String errorText = 'enter a valid text'})
+      : super(errorText);
+
+  // return false if you want the validator to return error
+  // message when the value is empty.
+  @override
+  bool get ignoreEmptyValues => true;
+
+  @override
+  bool isValid(String value) {
+    // return true if the value is valid according the your condition
+    return hasMatch(r'^[A-Za-z1-9/-\s]+$', value);
   }
 }
 
 class JobRateValidator extends TextFieldValidator {
   // pass the error text to the super constructor
-  JobRateValidator({String errorText = 'enter a valid text'})
+  JobRateValidator({String errorText = 'enter a valid rate'})
       : super(errorText);
 
   // return false if you want the validator to return error

@@ -5,7 +5,7 @@ import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_time_tracker/app/home/account/Phone_page.dart';
 import 'package:my_time_tracker/app/home/account/otp_page.dart';
-import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
+import 'package:my_time_tracker/models_and_managers/models/custom_user_model.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:my_time_tracker/services/database.dart';
@@ -17,7 +17,6 @@ class Auth implements AuthBase {
     if (user == null) {
       return null;
     }
-    print('i was called');
     return CustomUser(
       uid: user.uid,
       photoUrl: user.photoURL ?? '',
@@ -97,7 +96,8 @@ class Auth implements AuthBase {
   @override
   Future<CustomUser> signInWithFacebook() async {
     final facebookLogin = FacebookLogin();
-    facebookLogin.loginBehavior = FacebookLoginBehavior.webOnly;
+    facebookLogin.logOut();
+    facebookLogin.loginBehavior = FacebookLoginBehavior.webViewOnly;
     final FacebookLoginResult result =
         await facebookLogin.logIn(['public_profile']);
     CustomUser userProfile;
@@ -141,21 +141,29 @@ class Auth implements AuthBase {
   Future<CustomUser> signInWithGoogle() async {
     try {
       final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final userCredential = await _firebaseAuth.signInWithCredential(
-        GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        ),
-      );
-      CustomUser userProfile = _userFromFirebase(userCredential.user);
-      if (userCredential.additionalUserInfo.isNewUser) {
-        await FirestoreDatabase(uid: userProfile.uid)
-            .writeUserDataToFirestore(userProfile);
+      if (googleUser != null) {
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+        final userCredential = await _firebaseAuth.signInWithCredential(
+          GoogleAuthProvider.credential(
+            accessToken: googleAuth.accessToken,
+            idToken: googleAuth.idToken,
+          ),
+        );
+        CustomUser userProfile = _userFromFirebase(userCredential.user);
+        if (userCredential.additionalUserInfo.isNewUser) {
+          await FirestoreDatabase(uid: userProfile.uid)
+              .writeUserDataToFirestore(userProfile);
+        }
+        return userProfile;
+      } else {
+        throw PlatformException(
+          code: "ERROR_ABORTED_BY_USER",
+          message: 'sign in aborted by user',
+        );
       }
-      return userProfile;
     } catch (e) {
+      print('Error: ${e.toString()}');
       throw PlatformException(
         code: e.code,
         message: e.message,
@@ -165,7 +173,9 @@ class Auth implements AuthBase {
 
   @override
   Stream<CustomUser> get authStateChanges {
-    return _firebaseAuth.authStateChanges().map(_userFromFirebase);
+    Stream<CustomUser> customUserStream =
+        _firebaseAuth.authStateChanges().map(_userFromFirebase);
+    return customUserStream;
   }
 
   @override
@@ -232,6 +242,7 @@ class Auth implements AuthBase {
             builder: (context) => PhonePage(
               number: number,
               isoCode: isoCode,
+              editNumberCallback: false,
             ),
           ),
         ),
@@ -240,7 +251,25 @@ class Auth implements AuthBase {
 
     final PhoneVerificationCompleted verificationCompleted =
         (PhoneAuthCredential credential) async {
-      await _firebaseAuth.signInWithCredential(credential);
+      User user = _firebaseAuth.currentUser;
+      try {
+        await user
+            .updatePhoneNumber(credential)
+            .then((value) => FocusScope.of(context).requestFocus(FocusNode()))
+            .whenComplete(() => FirestoreDatabase(uid: user.uid)
+                .updateUserDataOnFirestore(
+                    {'phone': '$number', 'countryCode': '$isoCode'}))
+            .catchError((e) {
+          throw PlatformException(
+            code: e.code,
+            message: e.message,
+          );
+        });
+        //await Future.delayed(Duration(milliseconds: 100));
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      } catch (e) {
+        _showVerifyPhoneNumberError(context, e);
+      }
     };
     final PhoneVerificationFailed verificationFailed =
         (FirebaseAuthException e) {
@@ -275,7 +304,37 @@ class Auth implements AuthBase {
         print('VerificationId: $verificationId');
       },
     );
-    print('verification done');
+  }
+
+  @override
+  Future<void> phoneCredential({
+    BuildContext context,
+    String otp,
+    String verificationId,
+    String number,
+    String isoCode,
+  }) async {
+    try {
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+          verificationId: verificationId, smsCode: otp);
+
+      User user = _firebaseAuth.currentUser;
+      await user
+          .updatePhoneNumber(credential)
+          .whenComplete(() => FocusScope.of(context).requestFocus(FocusNode()))
+          .then((value) => FirestoreDatabase(uid: user.uid)
+              .updateUserDataOnFirestore(
+                  {'phone': '$number', 'countryCode': '$isoCode'}));
+      //await Future.delayed(Duration(milliseconds: 100));
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } catch (e) {
+      print(e.code);
+      print(e.message);
+      throw PlatformException(
+        code: e.code,
+        message: e.message,
+      );
+    }
   }
 
   @override
@@ -284,7 +343,7 @@ class Auth implements AuthBase {
     if (user != null) {
       await FirestoreDatabase(uid: user.uid).updateUserDataOnFirestore(
           {'imageURL': photoURL}).catchError((onError) {
-        print('error occured : ${onError.toString()}');
+        print('error occurred : ${onError.toString()}');
       });
     }
   }
@@ -293,7 +352,6 @@ class Auth implements AuthBase {
   bool isUserVerified() {
     User user = _firebaseAuth.currentUser;
     bool verified = user.emailVerified;
-    print('verify: $verified');
     if (verified) {
       return true;
     } else {
@@ -305,7 +363,6 @@ class Auth implements AuthBase {
   bool isUserAnonymous() {
     User user = _firebaseAuth.currentUser;
     bool anonymous = user.isAnonymous;
-    print('anonymous: $anonymous');
     if (anonymous) {
       return true;
     } else {
@@ -351,9 +408,97 @@ class Auth implements AuthBase {
   }
 
   @override
+  Future<bool> reAuthenticateFacebookUser() async {
+    FacebookAccessToken accessToken;
+    FacebookLoginResult result;
+    try {
+      FacebookLogin facebookLogin = FacebookLogin();
+      bool loggedIn = await facebookLogin.isLoggedIn;
+      if (loggedIn) {
+        FacebookAccessToken currentAccessToken =
+            await facebookLogin.currentAccessToken;
+        //currentAccessToken != null && currentAccessToken.isValid()
+        if (2 > 3) {
+          print('Delete my account');
+          accessToken = currentAccessToken;
+        } else {
+          facebookLogin.loginBehavior = FacebookLoginBehavior.webViewOnly;
+          result = await facebookLogin.logIn(['public_profile']);
+
+          if (result.status == FacebookLoginStatus.loggedIn) {
+            accessToken = result.accessToken;
+          } else if (result.status == FacebookLoginStatus.cancelledByUser) {
+            throw PlatformException(
+              code: "CANCELLED_BY_USER",
+              message: 'Cancelled by user',
+            );
+          } else if (result.errorMessage == 'net::ERR_INTERNET_DISCONNECTED') {
+            throw PlatformException(
+              code: 'network_error',
+            );
+          } else {
+            print(result.errorMessage);
+            throw PlatformException(
+              code: 'network_error',
+              message: result.errorMessage,
+            );
+          }
+        }
+
+        final userCredential =
+            await _firebaseAuth.currentUser.reauthenticateWithCredential(
+          FacebookAuthProvider.credential(accessToken.token),
+        );
+        return userCredential.user != null;
+      }
+      return false;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> reAuthenticateGoogleUser() async {
+    String accessToken;
+    String idToken;
+    try {
+      final user = GoogleSignIn();
+      final GoogleSignInAccount googleUser = await user.signIn();
+      if (googleUser != null) {
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+        accessToken = googleAuth.accessToken;
+        idToken = googleAuth.idToken;
+        if (accessToken != null && idToken != null) {
+          final userCredential =
+              await _firebaseAuth.currentUser.reauthenticateWithCredential(
+            GoogleAuthProvider.credential(
+              accessToken: googleAuth.accessToken,
+              idToken: googleAuth.idToken,
+            ),
+          );
+          if (userCredential != null) {
+            await user.disconnect();
+            print('user disconnected');
+          }
+          return userCredential != null;
+        }
+      }
+      return false;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> updatePassword(String newPassword) async {
     User user = _firebaseAuth.currentUser;
     await user.updatePassword(newPassword);
+  }
+
+  @override
+  Future<void> deleteUserAccount() async {
+    await _firebaseAuth.currentUser.delete();
   }
 
   @override
@@ -371,33 +516,6 @@ class Auth implements AuthBase {
           message: e.message,
         );
       }
-    }
-  }
-
-  @override
-  Future<void> phoneCredential({
-    BuildContext context,
-    String otp,
-    String verificationId,
-    String number,
-    String isoCode,
-  }) async {
-    try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-          verificationId: verificationId, smsCode: otp);
-
-      User user = _firebaseAuth.currentUser;
-      await user.updatePhoneNumber(credential);
-      await FirestoreDatabase(uid: user.uid).updateUserDataOnFirestore(
-          {'phone': '$number', 'countryCode': '$isoCode'});
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    } catch (e) {
-      print(e.code);
-      print(e.message);
-      throw PlatformException(
-        code: e.code,
-        message: e.message,
-      );
     }
   }
 }

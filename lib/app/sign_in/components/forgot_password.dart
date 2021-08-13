@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 
 class ForgotPassword extends StatelessWidget {
   const ForgotPassword({Key key, this.press}) : super(key: key);

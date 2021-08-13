@@ -58,16 +58,6 @@ class FirestoreService {
     await reference.delete();
   }
 
-  // Stream<List<T>> collectionStream<T>({
-  //   @required String path,
-  //   @required T builder(Map<String, dynamic> data, String documentId),
-  // }) {
-  //   final reference = FirebaseFirestore.instance.collection(path);
-  //   final snapshots = reference.snapshots();
-  //   return snapshots.map((snapshot) => snapshot.docs
-  //       .map((snapshot) => builder(snapshot.data(), snapshot.id))
-  //       .toList());
-  // }
   Stream<List<T>> collectionStream<T>({
     @required String path,
     @required T builder(Map<String, dynamic> data, String documentID),
@@ -92,28 +82,27 @@ class FirestoreService {
     });
   }
 
-  // Stream<List<T>> userProfileStream<T>({
-  //   @required String path,
-  //   @required T builder(Map<String, dynamic> data, String uid),
-  //   Query queryBuilder(Query query),
-  // }) {
-  //   Query query = FirebaseFirestore.instance.collection(path);
-  //   if (queryBuilder != null) {
-  //     query = queryBuilder(query);
-  //   }
-  //   try {
-  //     final Stream<QuerySnapshot> snapshots = query.snapshots();
-  //     return snapshots.map((snapshot) {
-  //       final result = snapshot.docs
-  //           .map((snapshot) => builder(snapshot.data(), snapshot.id))
-  //           .where((value) => value != null)
-  //           .toList();
-  //       return result;
-  //     });
-  //   } catch (e) {
-  //     print('query error: ${e.toString()}');
-  //   }
-  // }
+  Future<List<T>> collectionList<T>({
+    @required String path,
+    @required T builder(Map<String, dynamic> data, String documentID),
+    Query queryBuilder(Query query),
+    int sort(T lhs, T rhs),
+  }) async {
+    Query query = FirebaseFirestore.instance.collection(path);
+    if (queryBuilder != null) {
+      query = queryBuilder(query);
+    }
+    final QuerySnapshot data = await query.get();
+    var docSnapshot = data.docs;
+    final result = docSnapshot
+        .map((snapshot) => builder(snapshot.data(), snapshot.id))
+        .where((value) => value != null)
+        .toList();
+    if (sort != null) {
+      result.sort(sort);
+    }
+    return result;
+  }
 
   Stream<T> documentStream<T>({
     @required String path,
