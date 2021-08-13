@@ -19,6 +19,20 @@ class CustomTextStyles {
     );
   }
 
+  static TextStyle textStyleExtraBold({
+    final Color color: Colors.deepOrangeAccent,
+    final FontWeight fontWeight: FontWeight.w800,
+    final double fontSize: 12.5,
+  }) {
+    return TextStyle(
+      letterSpacing: letterSpacingOrNone(1.0),
+      fontFamily: _fontFamily,
+      fontWeight: fontWeight,
+      fontSize: fontSize,
+      color: color,
+    );
+  }
+
   static TextStyle textStyleHeader({
     final FontWeight fontWeight: FontWeight.w600,
     final double fontSize: 30.0,
