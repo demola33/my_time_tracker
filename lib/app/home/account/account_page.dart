@@ -1,106 +1,29 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:my_time_tracker/app/home/account/Phone_page.dart';
+import 'package:my_time_tracker/app/home/account/account_page_manager.dart';
 import 'package:my_time_tracker/app/home/account/components/user_image_picker.dart';
 import 'package:my_time_tracker/app/home/account/reset_password_page.dart';
-import 'package:my_time_tracker/app/home/home_app.dart';
-import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
-import 'package:my_time_tracker/common_widgets/platform_alert_dialog.dart';
-import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
-import 'package:my_time_tracker/services/auth_base.dart';
+import 'package:my_time_tracker/models_and_managers/models/custom_user_model.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:provider/provider.dart';
 
 class AccountPage extends StatelessWidget {
-  const AccountPage({Key key}) : super(key: key);
-
-  Future<void> _signOut(BuildContext context) async {
-    try {
-      final auth = Provider.of<AuthBase>(context, listen: false);
-      // After Sign out, Set the current tab back
-      // to the jobsPage
-      HomeAppState.currentTab = 0;
-      await auth.signOut();
-    } on PlatformException catch (e) {
-      PlatformExceptionAlertDialog(
-        exception: e,
-        title: 'Sign-out failed',
-      ).show(context);
-    }
-  }
-
-  Future<void> _confirmLogOut(BuildContext context) async {
-    final didRequestLogOut = await PlatformAlertDialog(
-      title: 'Log Out',
-      content: 'Are you sure you want to logout?',
-      cancelActionText: 'Cancel',
-      defaultActionText: 'Logout',
-    ).show(context);
-    if (didRequestLogOut == true) {
-      _signOut(context);
-    }
-  }
-
-  bool didUserSignUpWithPassword(BuildContext context) {
-    final auth = Provider.of<AuthBase>(context, listen: false);
-    final providerId = auth.userProviderId();
-    if (providerId == 'password' || providerId == 'phone') {
-      return true;
-    }
-    return false;
-  }
-
-  bool _enableTile(CustomUser user) {
-    if (user.displayName == 'Anonymous') {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  PopupMenuItem<String> popupMenuItem({
-    @required final String value,
-    @required final BuildContext context,
-    final VoidCallback onPressed,
-    final double popUpMenuFontSize = 15.0,
-  }) {
-    return PopupMenuItem<String>(
-      value: value,
-      child: TextButton(
-        onPressed: onPressed,
-        child: Text(
-          value,
-          style: CustomTextStyles.textStyleTitle(
-            fontSize: popUpMenuFontSize,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-
-  String truncateLabel(String label) {
-    if (label.length > 20) {
-      final truncEmail = label.substring(0, 20);
-      return truncEmail + '...';
-    } else {
-      return label;
-    }
-  }
+  const AccountPage({Key key, @required this.manager}) : super(key: key);
+  final AccountPageManager manager;
 
   @override
   Widget build(BuildContext context) {
+    double size = MediaQuery.of(context).size.height;
     CustomUser user;
     final userProfile = Provider.of<CustomUser>(context);
-    print('UserProfile : $userProfile');
 
     if (userProfile != null) {
       user = userProfile;
     }
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        toolbarHeight: 220,
+        toolbarHeight: size * 0.35,
         automaticallyImplyLeading: false,
         iconTheme: IconThemeData(
           color: Colors.white,
@@ -113,57 +36,56 @@ class AccountPage extends StatelessWidget {
         centerTitle: false,
         elevation: 5.0,
         actions: [
-          PopupMenuButton<String>(
-            color: Color.fromRGBO(0, 144, 144, 1),
-            itemBuilder: (context) {
-              return [
-                popupMenuItem(
-                  context: context,
-                  value: 'SignOut',
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _confirmLogOut(context);
-                  },
-                ),
-                popupMenuItem(
-                  context: context,
-                  value: 'Settings',
-                  onPressed: () {},
-                ),
-                popupMenuItem(
-                  context: context,
-                  value: 'Help',
-                  onPressed: () {},
-                ),
-                popupMenuItem(
-                  context: context,
-                  value: 'About',
-                  onPressed: () {},
-                ),
-              ];
-            },
-          )
+          IconButton(
+            iconSize: 30.0,
+            icon: Icon(Icons.settings),
+            tooltip: 'Settings',
+            onPressed: () => manager.showSettings(context),
+          ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(170),
+          preferredSize: Size.fromHeight(180),
           child: Container(
             child: _buildUserInfo(user),
           ),
         ),
       ),
       body: Container(
+        //height: 250,
         color: Colors.white,
         child: _buildContent(context, user),
       ),
     );
-    // });
   }
 
   Widget _buildContent(BuildContext context, CustomUser user) {
     if (user != null) {
-      return SingleChildScrollView(
-        child: _accountInformation(context, user),
-      );
+      double size = MediaQuery.of(context).size.height;
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Card(
+          elevation: 5.0,
+          color: Color.fromRGBO(0, 144, 144, 0.5),
+          child: Container(
+            margin: EdgeInsets.only(top: 8.0),
+            alignment: Alignment.center,
+            height: size * 0.066,
+            child: Text(
+              'ACCOUNT INFORMATION',
+              style: CustomTextStyles.textStyleExtraBold(
+                fontSize: 15,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            //color: Colors.blue,
+            margin: EdgeInsets.all(8.0),
+            child: _accountInformation(context, user),
+          ),
+        ),
+      ]);
     } else {
       return Center(
         child: CircularProgressIndicator(),
@@ -190,105 +112,96 @@ class AccountPage extends StatelessWidget {
     String label,
     bool showChevronIcon,
   }) {
-    return ListTile(
-      onTap: onTap,
-      dense: true,
-      enabled: enabled,
-      leading: Icon(
-        icon,
-        color: enabled ? Colors.grey[700] : null,
-      ),
-      trailing: SizedBox(
-        width: 260,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              truncateLabel(label),
-              style: CustomTextStyles.textStyleBold(
-                color: enabled ? Colors.teal : null,
+    return Expanded(
+      child: ListTile(
+        onTap: onTap,
+        dense: true,
+        enabled: enabled,
+        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+        leading: Icon(
+          icon,
+          color: enabled ? Colors.grey[700] : null,
+        ),
+        trailing: SizedBox(
+          width: 270,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SizedBox(
+                width: 220,
+                child: Text(
+                  label,
+                  textAlign: TextAlign.right,
+                  style: CustomTextStyles.textStyleBold(
+                    color: enabled ? Colors.teal : null,
+                  ),
+                ),
               ),
-            ),
-            if (showChevronIcon == true) Icon(Icons.chevron_right, size: 40.0),
-          ],
+              if (showChevronIcon == true)
+                Icon(Icons.chevron_right, size: 40.0),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _accountInformation(BuildContext context, CustomUser user) {
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            height: 60,
-            child: Card(
-              margin: EdgeInsets.only(top: 4.0, bottom: 4.0),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-              elevation: 5.0,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'ACCOUNT INFORMATION',
-                  style: CustomTextStyles.textStyleBold(),
-                ),
-              ),
-            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildListTile(
+          user: user,
+          onTap: () {},
+          enabled: true,
+          icon: Icons.person,
+          label: user.displayName == ''
+              ? 'Display name not found'
+              : user.displayName,
+        ),
+        Divider(
+          thickness: 2.0,
+        ),
+        _buildListTile(
+          user: user,
+          enabled: true,
+          onTap: () {},
+          icon: Icons.email,
+          label: user.email == '' ? 'Anonymous@email.com' : user.email,
+        ),
+        Divider(
+          thickness: 2.0,
+        ),
+        _buildListTile(
+          user: user,
+          enabled: manager.enableTile(user),
+          showChevronIcon: true,
+          onTap: () => PhonePage.show(
+            context: context,
+            phone: user.phone,
+            isoCode: user.isoCode,
+            editNumberCallback: false,
           ),
-          _buildListTile(
-            user: user,
-            onTap: () {},
-            enabled: true,
-            icon: Icons.person,
-            label: user.displayName == ''
-                ? 'Display name not found'
-                : user.displayName,
-          ),
-          Divider(
-            thickness: 2.0,
-          ),
-          _buildListTile(
-            user: user,
-            enabled: true,
-            onTap: () {},
-            icon: Icons.email,
-            label: user.email == '' ? 'Anonymous@email.com' : user.email,
-          ),
-          Divider(
-            thickness: 2.0,
-          ),
-          _buildListTile(
-            user: user,
-            enabled: _enableTile(user),
-            showChevronIcon: true,
-            onTap: () => PhonePage.show(context),
-            icon: Icons.phone,
-            label: user.phone == '' ? 'Add phone  ' : user.phone,
-          ),
-          Divider(
-            thickness: 2.0,
-          ),
-          _buildListTile(
-            user: user,
-            enabled:
-                didUserSignUpWithPassword(context) ? _enableTile(user) : false,
-            showChevronIcon: true,
-            onTap: () => Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                fullscreenDialog: false,
-                builder: (context) => ResetPassword(),
-              ),
-            ),
-            icon: Icons.lock,
-            label: '',
-          ),
-          Divider(
-            thickness: 20.0,
-            color: Color.fromRGBO(0, 144, 144, 0.5),
-          ),
-        ],
-      ),
+          icon: Icons.phone,
+          label: user.phone == '' ? 'Add phone  ' : user.phone,
+        ),
+        Divider(
+          thickness: 2.0,
+        ),
+        _buildListTile(
+          user: user,
+          enabled: manager.didUserSignUpWithPassword(context)
+              ? manager.enableTile(user)
+              : false,
+          showChevronIcon: true,
+          onTap: () => ResetPassword.show(context, false),
+          icon: Icons.lock,
+          label: '',
+        ),
+        Divider(
+          thickness: 2.0,
+        ),
+      ],
     );
   }
 }

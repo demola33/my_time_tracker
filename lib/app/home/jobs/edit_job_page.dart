@@ -1,32 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:my_time_tracker/app/home/jobs/edit_job_page_manager.dart';
-import 'package:my_time_tracker/common_widgets/custom_icon_text_field.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
-import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
-import 'package:my_time_tracker/common_widgets/platform_alert_dialog.dart';
-import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
-import 'package:my_time_tracker/common_widgets/show_snack_bar.dart';
-import 'package:my_time_tracker/services/database.dart';
 import 'package:provider/provider.dart';
 
+import '../../../app/home/jobs/edit_job_page_manager.dart';
+import '../../../common_widgets/custom_icon_text_field.dart';
+import '../../../layout/custom_text_style.dart';
+import '../../../common_widgets/form_submit_button.dart';
+import '../../../common_widgets/platform_alert_dialog.dart';
+import '../../../common_widgets/platform_exception_alert_dialog.dart';
+import '../../../common_widgets/show_snack_bar.dart';
+import '../../../common_widgets/true_or_false_switch.dart';
+import '../../../services/connectivity_provider.dart';
+import '../../../services/database.dart';
 import '../models/job.dart';
 
 class EditJobPage extends StatefulWidget {
   final Database database;
   final Job job;
+  final TrueOrFalseSwitch onSwitch;
+  final bool isConnected;
 
-  const EditJobPage({Key key, @required this.database, this.job})
-      : super(key: key);
+  const EditJobPage({
+    Key key,
+    @required this.database,
+    this.job,
+    this.isConnected,
+    @required this.onSwitch,
+  }) : super(key: key);
 
-  static Future<void> show(BuildContext context, {Job job}) async {
+  static Future<bool> show(BuildContext context, {Job job}) async {
     final database = Provider.of<Database>(context, listen: false);
-    await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
-      fullscreenDialog: true,
-      builder: (context) => EditJobPage(
-        database: database,
-        job: job,
+    final bool result = await Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (context) =>
+            Consumer2<TrueOrFalseSwitch, ConnectivityProvider>(
+          builder: (context, _onSwitch, _isConnected, child) => EditJobPage(
+            database: database,
+            job: job,
+            onSwitch: _onSwitch,
+            isConnected: _isConnected.online,
+          ),
+        ),
       ),
-    ));
+    );
+    return result;
   }
 
   @override
@@ -36,12 +53,17 @@ class EditJobPage extends StatefulWidget {
 class _EditJobPageState extends State<EditJobPage> {
   EditJobPageManager get model => EditJobPageManager();
   final _formKey = GlobalKey<FormState>();
+  TrueOrFalseSwitch get onSwitch => widget.onSwitch;
 
   String _name;
+  String _organization;
   int _ratePerHour;
-  bool isLoading = false;
-  FocusNode _jobNameNode, _ratePerHourNode, _submitButtonNode;
+  FocusNode _jobNameNode,
+      _ratePerHourNode,
+      _organizationNode,
+      _submitButtonNode;
   var _jobNameController = TextEditingController();
+  var _organizationController = TextEditingController();
   var _jobRateController = TextEditingController();
 
   @override
@@ -50,12 +72,15 @@ class _EditJobPageState extends State<EditJobPage> {
 
     _ratePerHourNode = FocusNode();
     _jobNameNode = FocusNode();
+    _organizationNode = FocusNode();
     _submitButtonNode = FocusNode();
 
     if (widget.job != null) {
       _name = widget.job.name;
+      _organization = widget.job.organization;
       _ratePerHour = widget.job.ratePerHour;
       _jobNameController = TextEditingController(text: _name);
+      _organizationController = TextEditingController(text: _organization);
       _jobRateController = TextEditingController(
           text: _ratePerHour != null ? '$_ratePerHour' : '');
     }
@@ -65,7 +90,11 @@ class _EditJobPageState extends State<EditJobPage> {
   void dispose() {
     _ratePerHourNode.dispose();
     _jobNameNode.dispose();
+    _organizationNode.dispose();
     _submitButtonNode.dispose();
+    _jobNameController.dispose();
+    _organizationController.dispose();
+    _jobRateController.dispose();
     super.dispose();
   }
 
@@ -87,6 +116,10 @@ class _EditJobPageState extends State<EditJobPage> {
   }
 
   void _jobNameEditingComplete() {
+    FocusScope.of(context).requestFocus(_organizationNode);
+  }
+
+  void _organizationEditingComplete() {
     FocusScope.of(context).requestFocus(_ratePerHourNode);
   }
 
@@ -148,11 +181,13 @@ class _EditJobPageState extends State<EditJobPage> {
     return [
       _buildJobNameField(),
       SizedBox(height: size.height * 0.02),
+      _organizationField(),
+      SizedBox(height: size.height * 0.02),
       _buildJobRateField(),
       SizedBox(height: size.height * 0.02),
       SizedBox(
         child: FormSubmitButton(
-          onPressed: isLoading ? null : _submit,
+          onPressed: onSwitch.value ? null : _submit,
           text: 'Save',
           focusNode: _submitButtonNode,
         ),
@@ -165,7 +200,7 @@ class _EditJobPageState extends State<EditJobPage> {
       labelText: 'Job name',
       icon: Icons.work,
       controller: _jobNameController,
-      enabled: isLoading == false,
+      enabled: !onSwitch.value,
       validator: model.firstNameValidator,
       focusNode: _jobNameNode,
       keyboardType: TextInputType.name,
@@ -176,12 +211,29 @@ class _EditJobPageState extends State<EditJobPage> {
     );
   }
 
+  Widget _organizationField() {
+    return CustomIconTextField(
+      labelText: 'Organization',
+      icon: Icons.business_sharp,
+      controller: _organizationController,
+      enabled: !onSwitch.value,
+      validator: model.organizationNameValidator,
+      focusNode: _organizationNode,
+      keyboardType: TextInputType.name,
+      textInputAction: TextInputAction.next,
+      textCapitalization: TextCapitalization.words,
+      onSaved: (value) =>
+          value != '' ? _organization = value : _organization = 'Freelance',
+      onEditingComplete: _organizationEditingComplete,
+    );
+  }
+
   Widget _buildJobRateField() {
     return CustomIconTextField(
       labelText: 'Rate Per Hour',
       icon: Icons.attach_money,
       focusNode: _ratePerHourNode,
-      enabled: isLoading == false,
+      enabled: !onSwitch.value,
       controller: _jobRateController,
       validator: model.jobRateValidator,
       helperText: 'Rate must be an integer.',
@@ -194,43 +246,64 @@ class _EditJobPageState extends State<EditJobPage> {
   }
 
   Future<void> _submit() async {
+    bool undo;
+    List<Job> allJobs = await widget.database.jobsList();
     if (_validateAndSaveForm()) {
-      setState(() {
-        isLoading = true;
-      });
-      try {
-        final jobs = await widget.database.jobsStream().first;
-        final allNames = jobs.map((job) => job.name).toList();
-        if (widget.job != null) {
-          allNames.remove(widget.job.name);
-        }
-        if (allNames.contains(_name)) {
-          PlatformAlertDialog(
-            title: 'Job already exist',
-            content: 'Please use a different job name.',
-            defaultActionText: 'Ok',
-          ).show(context);
-        } else {
-          final id = widget.job?.id ?? documentIdFromCurrentDate();
-          final job = Job(
-            id: id,
-            name: _name,
-            ratePerHour: _ratePerHour,
-          );
-          await widget.database.setJob(job);
-          Navigator.of(context).pop();
-          MyCustomSnackBar(
-              enabled: widget.job == null ? true : false,
-              text: scaffoldContent,
-              onPressed: () => widget.database.deleteJob(job)).show(context);
-        }
-      } catch (e) {
-        if (e.code == "permission-denied") {
-          PlatformExceptionAlertDialog(title: 'Operation Failed', exception: e)
-              .show(context);
-          setState(() {
-            isLoading = false;
+      onSwitch.toggle();
+      final jobs = allJobs;
+      final jobNames = jobs.map((job) => job.name).toList();
+      final jobOrganizations = jobs.map((job) => job.organization).toList();
+      if (widget.job != null) {
+        jobNames.remove(widget.job.name);
+        jobOrganizations.remove(widget.job.organization);
+      }
+      if (jobNames.contains(_name) &&
+          jobOrganizations.contains(_organization)) {
+        PlatformAlertDialog(
+          title: 'Job already exist',
+          content: 'Please use a different job name.',
+          defaultActionText: 'Ok',
+        ).show(context);
+        onSwitch.toggle();
+      } else {
+        final id = widget.job?.id ?? documentIdFromCurrentDate();
+        final job = Job(
+          id: id,
+          name: _name,
+          organization: _organization,
+          ratePerHour: _ratePerHour,
+        );
+        if (widget.isConnected) {
+          allJobs.add(job);
+          await MyCustomSnackBar(
+            text: scaffoldContent,
+            onPressed: () {
+              undo = allJobs.remove(job);
+            },
+          ).showPlusUndo(context).closed.whenComplete(() async {
+            if (undo != true) {
+              try {
+                await widget.database.setJob(job);
+              } catch (e) {
+                undo = allJobs.remove(job);
+                onSwitch.toggle();
+                print('ERROR: ${e.toString()}');
+                if (e.code == "permission-denied") {
+                  PlatformExceptionAlertDialog(
+                          title: 'Operation Failed', exception: e)
+                      .show(context);
+                }
+              }
+            }
+          }).then((value) {
+            onSwitch.toggle();
+            Navigator.of(context).pop(undo == true);
           });
+        } else {
+          onSwitch.toggle();
+          MyCustomSnackBar(
+            text: 'No internet connection!',
+          ).show(context);
         }
       }
     }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/landing_page.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
 import 'package:my_time_tracker/common_widgets/show_snack_bar.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
@@ -134,9 +134,8 @@ class EmailVerificationPage extends StatelessWidget {
                         );
                       } else {
                         MyCustomSnackBar(
-                                text: 'Please verify your email.',
-                                enabled: false)
-                            .show(context);
+                          text: 'Please verify your email.',
+                        ).show(context);
                       }
                     },
                   ),

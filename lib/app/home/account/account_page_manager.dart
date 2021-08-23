@@ -5,8 +5,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_time_tracker/app/home/account/reset_password_page.dart';
 import 'package:my_time_tracker/app/home/home_app.dart';
 import 'package:my_time_tracker/app/sign_in/components/time_tracker_logo.dart';
-import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/models_and_managers/models/custom_user_model.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:my_time_tracker/common_widgets/show_snack_bar.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
@@ -147,10 +147,9 @@ class AccountPageManager {
             Navigator.pop(context);
             if (userProviderId == 'facebook.com') {
               MyCustomSnackBar(
-                      text:
-                          'Please log in again with Facebook to verify user action.',
-                      enabled: false)
-                  .show(context);
+                text:
+                    'Please log in again with Facebook to verify user action.',
+              ).show(context);
               await Future.delayed(Duration(seconds: 3))
                   .whenComplete(() => _delete(context));
             } else {

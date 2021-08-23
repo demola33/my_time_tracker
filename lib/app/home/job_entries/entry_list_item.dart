@@ -3,7 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:my_time_tracker/app/home/job_entries/format.dart';
 import 'package:my_time_tracker/app/home/models/entry.dart';
 import 'package:my_time_tracker/app/home/models/job.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:provider/provider.dart';
 
 class EntryListItem extends StatelessWidget {
@@ -48,11 +48,11 @@ class EntryListItem extends StatelessWidget {
     final endDate = format.date(entry.end);
     final startTime = TimeOfDay.fromDateTime(entry.start).format(context);
     final endTime = TimeOfDay.fromDateTime(entry.end).format(context);
-    final durationFormatted = Duration(hours: entry.durationInHours.toInt());
-    formatDuration(Duration d) => d.toString().split('.').first.padLeft(8, "0");
+    final duration = double.parse(entry.durationInHours.toStringAsFixed(2));
+    final durationFormatted = format.time(duration);
 
     final pay = job.ratePerHour * entry.durationInHours;
-    final payFormatted = format.currency(pay.toDouble());
+    final payFormatted = format.currency(pay);
     Size size = MediaQuery.of(context).size;
 
     return Column(
@@ -67,13 +67,21 @@ class EntryListItem extends StatelessWidget {
             SizedBox(width: size.height * 0.01),
             Text(
               '$startDate - $endDate',
-              style: CustomTextStyles.textStyleBold(),
+              style: CustomTextStyles.textStyleBold(
+                color: Colors.black,
+              ),
             ),
             if (job.ratePerHour > 0.0) ...<Widget>[
               Expanded(child: Container()),
-              Text(
-                truncateLabel(payFormatted),
-                style: CustomTextStyles.textStyleBold(color: Colors.green[700]),
+              GestureDetector(
+                onTap: () {
+                  print('Tapped');
+                },
+                child: Text(
+                  truncateLabel(payFormatted),
+                  style: CustomTextStyles.textStyleExtraBold(
+                      color: Colors.green[700]),
+                ),
               ),
             ],
           ],
@@ -82,18 +90,20 @@ class EntryListItem extends StatelessWidget {
           SizedBox(width: size.height * 0.06),
           Text(
             '$startTime - $endTime',
-            style: CustomTextStyles.textStyleNormal(color: Colors.black),
+            style: CustomTextStyles.textStyleBold(
+              color: Colors.black,
+              fontSize: 14,
+            ),
           ),
           Expanded(child: Container()),
           Text(
-            formatDuration(durationFormatted),
-            style: CustomTextStyles.textStyleNormal(color: Colors.black),
+            durationFormatted,
+            style: CustomTextStyles.textStyleExtraBold(),
           ),
         ]),
         Row(
           children: [
             if (entry.comment.isNotEmpty) ...<Widget>[
-              SizedBox(width: size.height * 0.06),
               Card(
                 color: Colors.teal,
                 child: Padding(

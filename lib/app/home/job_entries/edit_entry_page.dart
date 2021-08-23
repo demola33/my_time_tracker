@@ -6,10 +6,12 @@ import 'package:my_time_tracker/app/home/models/entry.dart';
 import 'package:my_time_tracker/app/home/models/job.dart';
 import 'package:my_time_tracker/app/sign_in/components/validators.dart';
 import 'package:my_time_tracker/common_widgets/custom_text_field.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:my_time_tracker/common_widgets/show_snack_bar.dart';
+import 'package:my_time_tracker/common_widgets/true_or_false_switch.dart';
+import 'package:my_time_tracker/services/connectivity_provider.dart';
 import 'package:my_time_tracker/services/database.dart';
 import 'package:provider/provider.dart';
 
@@ -17,25 +19,42 @@ class EditEntryPage extends StatefulWidget {
   const EditEntryPage({
     @required this.database,
     @required this.job,
+    @required this.onSwitch,
+    @required this.isConnected,
     this.entry,
   });
   final Job job;
   final Entry entry;
   final Database database;
+  final TrueOrFalseSwitch onSwitch;
+  final bool isConnected;
 
-  static Future<void> show(
+  static Future<bool> show(
       {BuildContext context,
       Database database,
       Job job,
       Entry entry,
       Format format}) async {
-    await Navigator.of(context, rootNavigator: true).push(
+    final bool result = await Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
-        builder: (context) =>
-            EditEntryPage(database: database, job: job, entry: entry),
+        builder: (context) {
+          return ChangeNotifierProvider<TrueOrFalseSwitch>(
+            create: (_) => TrueOrFalseSwitch(),
+            child: Consumer2<TrueOrFalseSwitch, ConnectivityProvider>(
+              builder: (_, _onSwitch, _isConnected, __) => EditEntryPage(
+                database: database,
+                job: job,
+                entry: entry,
+                onSwitch: _onSwitch,
+                isConnected: _isConnected.online,
+              ),
+            ),
+          );
+        },
         fullscreenDialog: true,
       ),
     );
+    return result;
   }
 
   @override
@@ -48,9 +67,9 @@ class _EditEntryPageState extends State<EditEntryPage> {
   DateTime _endDate;
   TimeOfDay _endTime;
   String _comment;
-  bool isLoading = false;
   FocusNode _commentFieldNode, _submitButtonNode;
   final _formKey = GlobalKey<FormState>();
+  TrueOrFalseSwitch get onSwitch => widget.onSwitch;
 
   String get scaffoldContent {
     if (widget.entry != null) {
@@ -99,26 +118,41 @@ class _EditEntryPageState extends State<EditEntryPage> {
   }
 
   Future<void> _setEntryAndDismiss(BuildContext context) async {
+    bool undo;
+    List<Entry> allEntries =
+        await widget.database.entriesStream(job: widget.job).first;
     if (_formKey.currentState.validate()) {
-      try {
-        setState(() {
-          isLoading = true;
-        });
-        final entry = _entryFromState();
-        await widget.database.setEntry(entry);
-        print('PASSED22222!!!!');
-        Navigator.of(context).pop();
+      onSwitch.toggle();
+      final entry = _entryFromState();
+      if (widget.isConnected) {
+        allEntries.add(entry);
         MyCustomSnackBar(
-            enabled: widget.entry == null ? true : false,
             text: scaffoldContent,
-            onPressed: () => widget.database.deleteEntry(entry)).show(context);
-      } catch (e) {
-        setState(() {
-          isLoading = false;
+            onPressed: () {
+              undo = allEntries.remove(entry);
+            }).showPlusUndo(context).closed.whenComplete(() async {
+          if (undo != true) {
+            try {
+              await widget.database.setEntry(entry);
+            } catch (e) {
+              undo = allEntries.remove(entry);
+              onSwitch.toggle();
+              print('ERROR: ${e.toString()}');
+              PlatformExceptionAlertDialog(
+                title: 'Operation failed',
+                exception: e,
+              ).show(context);
+            }
+          }
+        }).then((value) {
+          onSwitch.toggle();
+          Navigator.of(context).pop(undo == true);
         });
-        PlatformExceptionAlertDialog(
-          title: 'Operation failed',
-          exception: e,
+      } else {
+        onSwitch.toggle();
+        MyCustomSnackBar(
+          //enabled: false,
+          text: 'No internet connection!',
         ).show(context);
       }
     }
@@ -130,9 +164,6 @@ class _EditEntryPageState extends State<EditEntryPage> {
 
   @override
   Widget build(BuildContext context) {
-    //Size size = MediaQuery.of(context).size;
-    //double height = size.height;
-
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.teal),
@@ -173,8 +204,9 @@ class _EditEntryPageState extends State<EditEntryPage> {
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.62,
                     child: FormSubmitButton(
-                      onPressed:
-                          isLoading ? null : () => _setEntryAndDismiss(context),
+                      onPressed: onSwitch.value
+                          ? null
+                          : () => _setEntryAndDismiss(context),
                       text: widget.entry != null ? 'Update' : 'Create',
                       focusNode: _submitButtonNode,
                     ),
@@ -191,7 +223,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
 
   Widget _buildStartDate() {
     return DateTimePicker(
-      enabled: isLoading == false,
+      enabled: !onSwitch.value,
       labelText: 'Start',
       selectedDate: _startDate,
       selectedTime: _startTime,
@@ -202,7 +234,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
 
   Widget _buildEndDate() {
     return DateTimePicker(
-      enabled: isLoading == false,
+      enabled: !onSwitch.value,
       labelText: 'End',
       selectedDate: _endDate,
       selectedTime: _endTime,
@@ -214,15 +246,23 @@ class _EditEntryPageState extends State<EditEntryPage> {
   Widget _buildDuration() {
     final format = Provider.of<Format>(context);
     final currentEntry = _entryFromState();
-    final durationFormatted = format.hours(currentEntry.durationInHours);
+    final durationFormatted = format.time(currentEntry.durationInHours);
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
-        Text(
-          'Duration: $durationFormatted',
-          style: CustomTextStyles.textStyleBold(color: Colors.teal),
+        RichText(
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+          text: TextSpan(
+            text: 'Duration: ',
+            style: CustomTextStyles.textStyleBold(color: Colors.teal[600]),
+            children: [
+              TextSpan(
+                text: durationFormatted,
+                style: CustomTextStyles.textStyleExtraBold(),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -235,7 +275,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
       child: CustomTextField(
         focusNode: _commentFieldNode,
         labelText: 'Add a comment',
-        enabled: isLoading == false,
+        enabled: !onSwitch.value,
         textInputAction: TextInputAction.done,
         keyboardType: TextInputType.text,
         maxLength: 40,

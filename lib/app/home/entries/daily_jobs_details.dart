@@ -20,11 +20,11 @@ class DailyJobsDetails {
   final List<JobDetails> jobsDetails;
 
   double get pay => jobsDetails
-      .map((jobDuration) => jobDuration.pay)
+      .map((jobDetail) => jobDetail.pay)
       .reduce((value, element) => value + element);
 
   double get duration => jobsDetails
-      .map((jobDuration) => jobDuration.durationInHours)
+      .map((jobDetail) => jobDetail.durationInHours)
       .reduce((value, element) => value + element);
 
   /// splits all entries into separate groups by date

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/home/job_entries/format.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:provider/provider.dart';
 import 'package:my_time_tracker/app/home/entries/entries_bloc.dart';
 import 'package:my_time_tracker/app/home/entries/entries_list_tile.dart';
@@ -8,6 +8,9 @@ import 'package:my_time_tracker/app/home/jobs/list_items_builder.dart';
 import 'package:my_time_tracker/services/database.dart';
 
 class EntriesPage extends StatelessWidget {
+
+  final Color uniqueEntriesPageColor = Color.fromRGBO(0, 88, 72, 0.5);
+
   static Widget create(BuildContext context) {
     final database = Provider.of<Database>(context);
     return Provider<EntriesBloc>(
@@ -24,7 +27,7 @@ class EntriesPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.teal),
-        backgroundColor: Color.fromRGBO(0, 88, 72, 0.5),
+        backgroundColor: uniqueEntriesPageColor,
         title: Text(
           'Entries',
           style: CustomTextStyles.textStyleTitle(),
@@ -33,7 +36,7 @@ class EntriesPage extends StatelessWidget {
         elevation: 5.0,
       ),
       body: Container(
-        color: Color.fromRGBO(0, 88, 72, 0.1),
+        color: uniqueEntriesPageColor.withOpacity(0.1),
         child: _buildContents(context),
       ),
     );
@@ -47,6 +50,7 @@ class EntriesPage extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(top: 8.0),
           child: ListItemsBuilder<EntriesListTileModel>(
+            scrollBarColor: uniqueEntriesPageColor,
             snapshot: snapshot,
             itemBuilder: (context, model) => EntriesListTile(model: model),
           ),

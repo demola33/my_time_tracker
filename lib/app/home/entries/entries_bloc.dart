@@ -55,21 +55,20 @@ class EntriesBloc {
       EntriesListTileModel(
           leadingText: 'All Entries',
           middleText: format.currency(totalPay),
-          trailingText: format.hours(totalDuration.truncateToDouble()),
+          trailingText: format.time(totalDuration),
           isMainHeader: true),
       for (DailyJobsDetails dailyJobsDetails in allDailyJobsDetails) ...[
         EntriesListTileModel(
           isHeader: true,
           leadingText: format.date(dailyJobsDetails.date),
           middleText: format.currency(dailyJobsDetails.pay),
-          trailingText: format.hours(dailyJobsDetails.duration.roundToDouble()),
+          trailingText: format.time(dailyJobsDetails.duration),
         ),
         for (JobDetails jobDuration in dailyJobsDetails.jobsDetails)
           EntriesListTileModel(
             leadingText: jobDuration.name,
             middleText: format.currency(jobDuration.pay),
-            trailingText:
-                format.hours(jobDuration.durationInHours.roundToDouble()),
+            trailingText: format.time(jobDuration.durationInHours),
           ),
       ]
     ];

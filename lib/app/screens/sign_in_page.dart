@@ -1,60 +1,33 @@
-import 'package:my_time_tracker/app/screens/email_sign_in_screen.dart';
-import 'package:my_time_tracker/app/sign_in/components/time_tracker_logo.dart';
-import 'package:my_time_tracker/app/sign_in/components/social_sign_in_button.dart';
-import 'package:my_time_tracker/app/sign_in/components/sign_in_button.dart';
-import 'package:my_time_tracker/app/sign_in/components/time_tracker_sign_in_title.dart';
-import 'package:my_time_tracker/blocs/sign_in/sign-in-manager.dart';
-import 'package:my_time_tracker/common_widgets/or_divider.dart';
-import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
-import 'package:my_time_tracker/services/auth_base.dart';
-import 'package:my_time_tracker/services/connectivity_provider.dart';
+import '../../services/auth_base.dart';
+import '../../common_widgets/or_divider.dart';
+import '../../models_and_managers/managers/sign_in_page_manager.dart';
+import '../../app/screens/email_sign_in_screen.dart';
+import '../../common_widgets/true_or_false_switch.dart';
+import '../../app/sign_in/components/sign_in_button.dart';
+import '../../app/sign_in/components/time_tracker_logo.dart';
+import '../../app/sign_in/components/social_sign_in_button.dart';
+import '../../common_widgets/platform_exception_alert_dialog.dart';
+import '../../app/sign_in/components/time_tracker_sign_in_title.dart';
 
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
-class SignInPage extends StatefulWidget {
+class SignInPage extends StatelessWidget {
   final SignInManager manager;
-  final bool isLoading;
-  final bool isConnected;
 
-  const SignInPage(
-      {Key key,
-      @required this.isLoading,
-      @required this.manager,
-      @required this.isConnected})
-      : super(key: key);
+  const SignInPage({Key key, @required this.manager}) : super(key: key);
 
   static Widget create(BuildContext context) {
     final auth = Provider.of<AuthBase>(context);
-    final connectivity = Provider.of<ConnectivityProvider>(context).online;
-
-    return ChangeNotifierProvider<ValueNotifier<bool>>(
-      create: (BuildContext context) => ValueNotifier<bool>(false),
-      child: Consumer<ValueNotifier<bool>>(
-        builder: (_, isLoading, __) => Provider(
-          create: (_) => SignInManager(auth: auth, isLoading: isLoading),
-          child: Consumer<SignInManager>(
-            builder: (context, bloc, _) => SignInPage(
-              manager: bloc,
-              isLoading: isLoading.value,
-              isConnected: connectivity,
-            ),
-          ),
+    return Provider(
+      create: (_) => SignInManager(auth: auth, context: context),
+      child: Consumer<SignInManager>(
+        builder: (context, manager, _) => SignInPage(
+          manager: manager,
         ),
       ),
     );
-  }
-
-  @override
-  _SignInPageState createState() => _SignInPageState();
-}
-
-class _SignInPageState extends State<SignInPage> {
-  @override
-  void initState() {
-    super.initState();
-    Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
   }
 
   void _showSignInError(BuildContext context, PlatformException exception) {
@@ -66,7 +39,7 @@ class _SignInPageState extends State<SignInPage> {
 
   Future<void> _signInAnonymously(BuildContext context) async {
     try {
-      await widget.manager.signInAnonymously();
+      await manager.signInAnonymously();
     } on PlatformException catch (e) {
       _showSignInError(context, e);
     }
@@ -74,7 +47,7 @@ class _SignInPageState extends State<SignInPage> {
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
-      await widget.manager.signInWithGoogle();
+      await manager.signInWithGoogle();
     } on PlatformException catch (e) {
       if (e.code != "ERROR_ABORTED_BY_USER") {
         print(e.toString());
@@ -85,7 +58,7 @@ class _SignInPageState extends State<SignInPage> {
 
   Future<void> _signInWithFacebook(BuildContext context) async {
     try {
-      await widget.manager.signInWithFacebook();
+      await manager.signInWithFacebook();
     } catch (e) {
       if (e.code != "CANCELLED_BY_USER") {
         _showSignInError(context, e);
@@ -94,7 +67,7 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void _signInWithEmail(BuildContext context) {
-    Navigator.of(context).push(
+    Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
         fullscreenDialog: false,
         builder: (context) => EmailSignInPage(),
@@ -103,43 +76,45 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Scaffold portraitScaffold(BuildContext context, bool isLoading) {
-    // final connect = Provider.of<ConnectivityProvider>(context).online;
-    // print('connected: $connect');
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Color.fromRGBO(37, 165, 159, 0.6),
-      body: ListView(
+      body: Column(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+          Expanded(
+            flex: 2,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Color.fromRGBO(66, 150, 152, 0.8),
+                    Color.fromRGBO(255, 228, 115, 1),
+                  ],
+                ),
               ),
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                colors: [
-                  Color.fromRGBO(66, 150, 152, 0.8),
-                  Color.fromRGBO(255, 228, 115, 1),
+              width: size.width,
+              child: Column(
+                children: [
+                  SizedBox(height: size.height * 0.085),
+                  _buildLogo(context),
+                  _buildSignInTitle(context),
                 ],
               ),
             ),
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(height: 20),
-                _buildLogo(context),
-                _buildSignInTitle(context),
-              ],
-            ),
           ),
-          Container(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
+          Expanded(
+            flex: 1,
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: _content(context, isLoading),
               ),
             ),
@@ -150,41 +125,45 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Scaffold landScapeScaffold(BuildContext context, bool isLoading) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Color.fromRGBO(37, 165, 159, 0.6),
-      body: ListView(
+      body: Column(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+          Expanded(
+            flex: 2,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Color.fromRGBO(66, 150, 152, 0.8),
+                    Color.fromRGBO(255, 228, 115, 1),
+                  ],
+                ),
               ),
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                colors: [
-                  Color.fromRGBO(66, 150, 152, 0.8),
-                  Color.fromRGBO(255, 228, 115, 1),
+              width: size.width,
+              child: Column(
+                children: [
+                  SizedBox(height: size.height * 0.085),
+                  _buildLogo(context),
+                  _buildSignInTitle(context),
                 ],
               ),
             ),
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                _buildLogo(context),
-                _buildSignInTitle(context),
-              ],
-            ),
           ),
-          Container(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
+          Expanded(
+            flex: 1,
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: _content(context, isLoading),
               ),
             ),
@@ -196,28 +175,31 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = Provider.of<ValueNotifier<bool>>(context);
-    print('initStatus: ${widget.isConnected}');
-    if (MediaQuery.of(context).orientation == Orientation.portrait) {
-      return portraitScaffold(context, isLoading.value);
-    } else {
-      return landScapeScaffold(context, isLoading.value);
-    }
+    return SafeArea(
+      child: Consumer<TrueOrFalseSwitch>(builder: (context, _isLoading, child) {
+        if (MediaQuery.of(context).orientation == Orientation.portrait) {
+          return portraitScaffold(context, _isLoading.value);
+        } else {
+          return landScapeScaffold(context, _isLoading.value);
+        }
+      }),
+    );
   }
 
   Widget _buildLogo(context) {
     return Container(
-      padding: EdgeInsets.all(10.0),
       child: SizedBox(
-        child: TimeTrackerLogo(),
+        child: TimeTrackerLogo(
+          topPadding: 30,
+        ),
         width: 200,
         height: 200,
       ),
     );
   }
 
-  Widget showProgressIndicator() {
-    if (widget.isLoading == true) {
+  Widget showProgressIndicator(bool isLoading) {
+    if (isLoading) {
       return Center(
         child: LinearProgressIndicator(
           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -229,16 +211,18 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Widget _buildSignInTitle(context) {
-    return Container(
-      padding: EdgeInsets.all(10.0),
-      child: TimeTrackerSignInTitle(),
+    return Expanded(
+      child: Container(
+        alignment: Alignment.bottomCenter,
+        child: TimeTrackerSignInTitle(),
+      ),
     );
   }
 
   List<Widget> _content(BuildContext context, bool isLoading) {
     Size size = MediaQuery.of(context).size;
     return [
-      showProgressIndicator(),
+      showProgressIndicator(isLoading),
       SizedBox(height: 4.0),
       SignInButton(
         text: 'Sign in with Email',

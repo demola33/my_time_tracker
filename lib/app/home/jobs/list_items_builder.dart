@@ -1,5 +1,5 @@
 import 'package:empty_widget/empty_widget.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/home/jobs/empty_content.dart';
 
@@ -12,10 +12,12 @@ class ListItemsBuilder<T> extends StatefulWidget {
     Key key,
     @required this.snapshot,
     @required this.itemBuilder,
+    @required this.scrollBarColor,
   }) : super(key: key);
 
   final AsyncSnapshot<List<T>> snapshot;
   final ItemWidgetBuilder<T> itemBuilder;
+  final Color scrollBarColor;
 
   @override
   _ListItemsBuilderState<T> createState() => _ListItemsBuilderState<T>();
@@ -44,16 +46,24 @@ class _ListItemsBuilderState<T> extends State<ListItemsBuilder<T>> {
   }
 
   Widget _buildContent(List<T> items) {
-    return Scrollbar(
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(
-          horizontal: _horizontalPadding,
-        ),
-        physics: const ClampingScrollPhysics(),
-        itemCount: items.length,
-        itemBuilder: (context, index) => Card(
-          elevation: 2.0,
-          child: widget.itemBuilder(context, items[index]),
+    return Theme(
+      data: Theme.of(context).copyWith(
+          scrollbarTheme: ScrollbarThemeData(
+              thumbColor: MaterialStateProperty.all(widget.scrollBarColor))),
+      child: Scrollbar(
+        thickness: 10.0,
+        radius: Radius.circular(8.0),
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(
+            horizontal: _horizontalPadding,
+          ),
+          physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics()),
+          itemCount: items.length,
+          itemBuilder: (context, index) => Card(
+            elevation: 2.0,
+            child: widget.itemBuilder(context, items[index]),
+          ),
         ),
       ),
     );

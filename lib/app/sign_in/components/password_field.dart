@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 
 class PasswordField extends StatefulWidget {
   const PasswordField({
@@ -10,36 +10,37 @@ class PasswordField extends StatefulWidget {
     this.maxLength,
     this.autofocus: false,
     this.fillColor: Colors.white,
-    //this.onSaved,
+    this.onSaved,
     this.onEditingComplete,
     this.validator,
     this.onChanged,
+    this.keyboardType,
     this.onFieldSubmitted,
     @required this.focusNode,
     this.passwordController,
-    this.enabled,
+    this.enabled: true,
     this.textInputAction,
     this.helperText,
     @required this.labelText,
-    //@required this.reTypePassword,
   }) : super(key: key);
 
   final String restorationId;
   //final Key fieldKey;
   final String labelText;
   final int maxLength;
-  final Function(String) onChanged;
+  final void Function(String) onChanged;
+  final void Function(String) onSaved;
   final String errorText;
   final bool enabled;
   final Color fillColor;
   final bool autofocus;
+  final TextInputType keyboardType;
   final TextInputAction textInputAction;
   final void Function() onEditingComplete;
   final String helperText;
   final FormFieldValidator<String> validator;
   final ValueChanged<String> onFieldSubmitted;
   final FocusNode focusNode;
-  //final bool reTypePassword;
   final TextEditingController passwordController;
 
   @override
@@ -68,9 +69,11 @@ class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
       autofocus: widget.autofocus,
       obscureText: _obscureText.value,
       maxLength: widget.maxLength,
-
+      onSaved: widget.onSaved,
+      keyboardType: widget.keyboardType,
       textInputAction: widget.textInputAction,
       onChanged: widget.onChanged,
+      onFieldSubmitted: widget.onFieldSubmitted,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onEditingComplete: widget.onEditingComplete,
       decoration: InputDecoration(

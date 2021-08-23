@@ -10,6 +10,10 @@ class EditJobPageManager with ErrorText {
     return validator;
   }
 
+  OrganizationNameValidator get organizationNameValidator {
+    return OrganizationNameValidator(errorText: organizationNameError);
+  }
+
   JobRateValidator get jobRateValidator {
     return JobRateValidator(errorText: jobRateError);
   }

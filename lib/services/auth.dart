@@ -231,20 +231,19 @@ class Auth implements AuthBase {
     @required String isoCode,
     int token,
   }) async {
-    void _showVerifyPhoneNumberError(
-        BuildContext context, PlatformException exception) {
+    void _showVerifyPhoneNumberError({
+      BuildContext context,
+      PlatformException exception,
+    }) {
       PlatformExceptionAlertDialog(
         title: 'Verification failed',
         exception: exception,
-        onPressOk: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            fullscreenDialog: false,
-            builder: (context) => PhonePage(
-              number: number,
-              isoCode: isoCode,
-              editNumberCallback: false,
-            ),
-          ),
+        onPressOk: () => PhonePage.show(
+          context: context,
+          phone: number,
+          isoCode: isoCode,
+          token: token,
+          editNumberCallback: true,
         ),
       ).show(context);
     }
@@ -252,23 +251,27 @@ class Auth implements AuthBase {
     final PhoneVerificationCompleted verificationCompleted =
         (PhoneAuthCredential credential) async {
       User user = _firebaseAuth.currentUser;
+      bool error = false;
       try {
-        await user
-            .updatePhoneNumber(credential)
-            .then((value) => FocusScope.of(context).requestFocus(FocusNode()))
-            .whenComplete(() => FirestoreDatabase(uid: user.uid)
-                .updateUserDataOnFirestore(
-                    {'phone': '$number', 'countryCode': '$isoCode'}))
-            .catchError((e) {
+        FocusScope.of(context).requestFocus(FocusNode());
+        await user.updatePhoneNumber(credential).catchError((e) {
+          error = true;
           throw PlatformException(
             code: e.code,
             message: e.message,
           );
+        }).whenComplete(() {
+          if (error == false) {
+            FirestoreDatabase(uid: user.uid).updateUserDataOnFirestore(
+                {'phone': '$number', 'countryCode': '$isoCode'});
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          }
         });
-        //await Future.delayed(Duration(milliseconds: 100));
-        Navigator.of(context).popUntil((route) => route.isFirst);
       } catch (e) {
-        _showVerifyPhoneNumberError(context, e);
+        _showVerifyPhoneNumberError(
+          context: context,
+          exception: e,
+        );
       }
     };
     final PhoneVerificationFailed verificationFailed =
@@ -281,17 +284,21 @@ class Auth implements AuthBase {
       } catch (e) {
         print(e.code);
         print(e.message);
-        _showVerifyPhoneNumberError(context, e);
+        _showVerifyPhoneNumberError(
+          context: context,
+          exception: e,
+        );
       }
     };
     final PhoneCodeSent codeSent =
         (String verificationId, int resendToken) async {
       OTPPage.show(
-          context: context,
-          number: number,
-          verificationId: verificationId,
-          isoCode: isoCode,
-          resendToken: resendToken);
+        context: context,
+        number: number,
+        verificationId: verificationId,
+        isoCode: isoCode,
+        resendToken: resendToken,
+      );
     };
     await _firebaseAuth.verifyPhoneNumber(
       phoneNumber: number,
@@ -315,17 +322,14 @@ class Auth implements AuthBase {
     String isoCode,
   }) async {
     try {
+      FocusScope.of(context).requestFocus(FocusNode());
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
           verificationId: verificationId, smsCode: otp);
 
       User user = _firebaseAuth.currentUser;
-      await user
-          .updatePhoneNumber(credential)
-          .whenComplete(() => FocusScope.of(context).requestFocus(FocusNode()))
-          .then((value) => FirestoreDatabase(uid: user.uid)
-              .updateUserDataOnFirestore(
-                  {'phone': '$number', 'countryCode': '$isoCode'}));
-      //await Future.delayed(Duration(milliseconds: 100));
+      await user.updatePhoneNumber(credential).then((value) =>
+          FirestoreDatabase(uid: user.uid).updateUserDataOnFirestore(
+              {'phone': '$number', 'countryCode': '$isoCode'}));
       Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
       print(e.code);

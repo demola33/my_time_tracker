@@ -31,8 +31,8 @@ class PlatformExceptionAlertDialog extends PlatformAlertDialog {
     'no-such-provider': 'This phone number is not linked with your account.',
     "ERROR_MISSING_GOOGLE_AUTH TOKEN": 'Missing Google Auth Token',
     "ERROR_ABORTED_BY_USER": 'sign in aborted by user',
-    'failed_to_recover_auth': 'An error has occured.',
-    'user_recoverable_auth': 'An error has occured.',
+    'failed_to_recover_auth': 'An error has occurred.',
+    'user_recoverable_auth': 'An error has occurred.',
     'sign_in_canceled': 'Canceled by user.',
     'sign_in_required': 'Please sign in using your google credentials.',
     'network_error':

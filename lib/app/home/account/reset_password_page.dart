@@ -1,13 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:my_time_tracker/app/home/home_app.dart';
 import 'package:my_time_tracker/app/sign_in/components/password_field.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/form_submit_button.dart';
 import 'package:my_time_tracker/common_widgets/show_snack_bar.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:provider/provider.dart';
 
 class ResetPassword extends StatefulWidget {
-  ResetPassword({Key key}) : super(key: key);
+  ResetPassword({
+    Key key,
+    @required this.auth,
+    this.deleteAccount,
+  }) : super(key: key);
+  final bool deleteAccount;
+  final AuthBase auth;
+
+  static void show(BuildContext context, bool deleteAccount) {
+    final auth = Provider.of<AuthBase>(context, listen: false);
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (context) => ResetPassword(
+          auth: auth,
+          deleteAccount: deleteAccount,
+        ),
+      ),
+    );
+  }
 
   @override
   _ResetPasswordState createState() => _ResetPasswordState();
@@ -16,12 +36,17 @@ class ResetPassword extends StatefulWidget {
 class _ResetPasswordState extends State<ResetPassword> {
   final _formKey = GlobalKey<FormState>();
   bool checkCurrentPasswordValid = true;
-  FocusNode _currentPasswordNode, _newPasswordNode, _submitButtonNode;
+  FocusNode _currentPasswordNode,
+      _newPasswordNode,
+      _submitButtonNode,
+      _deleteButtonNode;
   final TextEditingController _currentPasswordController =
       TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   bool isLoading = false;
   bool validate = false;
+  bool get deleteAccount => widget.deleteAccount;
+  AuthBase get auth => widget.auth;
 
   @override
   void initState() {
@@ -29,6 +54,7 @@ class _ResetPasswordState extends State<ResetPassword> {
     _currentPasswordNode = FocusNode();
     _newPasswordNode = FocusNode();
     _submitButtonNode = FocusNode();
+    _deleteButtonNode = FocusNode();
   }
 
   @override
@@ -47,17 +73,29 @@ class _ResetPasswordState extends State<ResetPassword> {
     FocusScope.of(context).requestFocus(_submitButtonNode);
   }
 
+  void _onDeletePasswordEditingComplete() {
+    FocusScope.of(context).requestFocus(_deleteButtonNode);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.clear_sharp),
+          onPressed: () async {
+            FocusScope.of(context).requestFocus(FocusNode());
+            await Future.delayed(Duration(milliseconds: 100));
+            Navigator.of(context).pop();
+          },
+        ),
         iconTheme: IconThemeData(
           color: Colors.teal,
         ),
         automaticallyImplyLeading: true,
         backgroundColor: Colors.white,
         title: Text(
-          'Change Password',
+          deleteAccount ? 'Delete Account' : 'Change Password',
           style: CustomTextStyles.textStyleTitle(color: Colors.teal),
         ),
         centerTitle: true,
@@ -82,6 +120,17 @@ class _ResetPasswordState extends State<ResetPassword> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (deleteAccount)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    'Permanently delete your account and all of your content.',
+                    style:
+                        CustomTextStyles.textStyleExtraBold(color: Colors.red),
+                  ),
+                ),
+              ),
             SizedBox(
               height: 15.0,
             ),
@@ -89,14 +138,20 @@ class _ResetPasswordState extends State<ResetPassword> {
             SizedBox(
               height: 10.0,
             ),
-            _buildNewPassword(),
+            if (deleteAccount == false) _buildNewPassword(),
             Padding(
               padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
-              child: FormSubmitButton(
-                onPressed: isLoading ? null : _submit,
-                text: 'Update password',
-                focusNode: _submitButtonNode,
-              ),
+              child: deleteAccount
+                  ? FormSubmitButton(
+                      onPressed: isLoading ? null : _delete,
+                      text: 'Delete',
+                      focusNode: _deleteButtonNode,
+                    )
+                  : FormSubmitButton(
+                      onPressed: isLoading ? null : _submit,
+                      text: 'Update password',
+                      focusNode: _submitButtonNode,
+                    ),
             ),
           ],
         ),
@@ -119,11 +174,11 @@ class _ResetPasswordState extends State<ResetPassword> {
         }
         return null;
       },
-      // errorText:
-      //     checkCurrentPasswordValid ? null : 'Current password is invalid',
       autofocus: true,
       textInputAction: TextInputAction.next,
-      onEditingComplete: _onCurrentPasswordEditingComplete,
+      onEditingComplete: deleteAccount
+          ? _onDeletePasswordEditingComplete
+          : _onCurrentPasswordEditingComplete,
     );
   }
 
@@ -153,7 +208,6 @@ class _ResetPasswordState extends State<ResetPassword> {
     setState(() {
       isLoading = true;
     });
-    final auth = Provider.of<AuthBase>(context, listen: false);
     checkCurrentPasswordValid =
         await auth.validateCurrentPassword(_currentPasswordController.text);
     setState(() {});
@@ -162,9 +216,30 @@ class _ResetPasswordState extends State<ResetPassword> {
         auth.updatePassword(_newPasswordController.text);
         Navigator.pop(context);
         MyCustomSnackBar(
-          enabled: false,
-          text: 'Password updated succesfully',
+          text: 'Password updated successfully',
         ).show(context);
+      }
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _delete() async {
+    setState(() {
+      isLoading = true;
+    });
+    checkCurrentPasswordValid =
+        await auth.validateCurrentPassword(_currentPasswordController.text);
+    setState(() {});
+    if (_formKey.currentState.validate()) {
+      if (checkCurrentPasswordValid) {
+        // After deleting account, Set the current tab back
+        // to the jobsPage
+        HomeAppState.currentTab = 0;
+        auth.deleteUserAccount();
+        Navigator.of(context).pop();
       }
     } else {
       setState(() {
