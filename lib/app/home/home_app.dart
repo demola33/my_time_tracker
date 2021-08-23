@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/home/account/account_page.dart';
+import 'package:my_time_tracker/app/home/account/account_page_manager.dart';
 import 'package:my_time_tracker/app/home/bottom_navigation.dart';
 import 'package:my_time_tracker/app/home/entries/entries_page.dart';
 import 'package:my_time_tracker/app/home/jobs/jobs_page.dart';
-import 'package:my_time_tracker/blocs/models/custom_user_model.dart';
+import 'package:my_time_tracker/models_and_managers/models/custom_user_model.dart';
 import 'package:my_time_tracker/app/home/tab_item.dart';
+import 'package:my_time_tracker/services/connectivity_provider.dart';
 import 'package:my_time_tracker/services/database.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +26,7 @@ class HomeAppState extends State<HomeApp>
   @override
   void initState() {
     super.initState();
+    Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
     _faders = tabs.map<AnimationController>((TabItem tabItem) {
       return AnimationController(
           vsync: this, duration: Duration(milliseconds: 200));
@@ -55,7 +58,9 @@ class HomeAppState extends State<HomeApp>
     TabItem(
       label: 'Account',
       icon: Icons.account_circle,
-      page: (_) => AccountPage(),
+      page: (_) => AccountPage(
+        manager: AccountPageManager(),
+      ),
       backgroundColor: Color.fromRGBO(0, 144, 144, 0.5),
     )
   ];
@@ -90,6 +95,7 @@ class HomeAppState extends State<HomeApp>
         return isFirstRouteInCurrentTab;
       },
       child: StreamProvider<CustomUser>.value(
+        initialData: null,
         value: database.userProfileStream(),
         child: Scaffold(
           extendBody: true,

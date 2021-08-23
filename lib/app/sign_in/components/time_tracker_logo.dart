@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class TimeTrackerLogo extends StatelessWidget {
-  const TimeTrackerLogo();
+  const TimeTrackerLogo({this.topPadding: 60});
+  final double topPadding;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       //color: Colors.blue,
       child: Padding(
-        padding: EdgeInsets.only(top: 60),
+        padding: EdgeInsets.only(top: topPadding),
         child: ExcludeSemantics(
           child: SvgPicture.asset(
             'images/Time_tracker/time_tracker_logo.svg',
@@ -21,18 +22,5 @@ class TimeTrackerLogo extends StatelessWidget {
         ),
       ),
     );
-    // return Positioned(
-    //   left: 50.0,
-    //   right: 50.0,
-    //   //height: 200.0,
-    //   top: MediaQuery.of(context).size.height / 6,
-    //   child: SvgPicture.asset(
-    //     'images/Time_tracker/time_tracker_logo.svg',
-    //     // width: 200.0,
-    //     // height: 200.0,
-    //     fit: BoxFit.cover,
-    //     placeholderBuilder: (context) => CircularProgressIndicator(),
-    //   ),
-    // );
   }
 }

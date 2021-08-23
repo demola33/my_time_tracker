@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:pinput/pin_put/pin_put.dart';
 
 class OTPInputBox extends StatelessWidget {

@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_time_tracker/app/home/account/Phone_page.dart';
 import 'package:my_time_tracker/app/home/account/components/otp_input_box.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
+import 'package:my_time_tracker/common_widgets/true_or_false_switch.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:provider/provider.dart';
 
@@ -46,7 +47,6 @@ class OTPPage extends StatefulWidget {
 }
 
 class _OTPPageState extends State<OTPPage> {
-  bool enabled = true;
   final TextEditingController _pinPutController = TextEditingController();
 
   void _showVerifyNumberError(
@@ -70,19 +70,11 @@ class _OTPPageState extends State<OTPPage> {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthBase>(context);
     return Scaffold(
-      //resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
             icon: Icon(Icons.cancel),
             onPressed: () =>
-                Navigator.of(context).popUntil((route) => route.isFirst)
-            //     // Navigator.of(context).push(
-            //     //   MaterialPageRoute(
-            //     //     fullscreenDialog: true,
-            //     //     builder: (context) => PhonePage(),
-            //     //   ),
-            //     // ),
-            ),
+                Navigator.of(context).popUntil((route) => route.isFirst)),
         elevation: 0.0,
         automaticallyImplyLeading: false,
         iconTheme: IconThemeData(
@@ -144,6 +136,7 @@ class _OTPPageState extends State<OTPPage> {
                             number: widget.number,
                             isoCode: widget.isoCode,
                             token: widget.resendToken,
+                            editNumberCallback: true,
                           ),
                         ),
                       );
@@ -154,34 +147,32 @@ class _OTPPageState extends State<OTPPage> {
               ),
             ),
             SizedBox(height: 12),
-            Container(
-              margin: const EdgeInsets.all(20.0),
-              padding: const EdgeInsets.all(20.0),
-              child: OTPInputBox(
-                enabled: enabled,
-                controller: _pinPutController,
-                onSubmit: (String pin) async {
-                  setState(() {
-                    enabled = false;
-                  });
-                  String _otp = pin;
-                  await auth
-                      .phoneCredential(
-                    context: context,
-                    otp: _otp,
-                    verificationId: widget.verificationId,
-                    number: widget.number,
-                    isoCode: widget.isoCode,
-                  )
-                      .catchError((e) {
-                    _showVerifyNumberError(context, e);
-                  }).then((value) {
-                    setState(() {
+            Consumer<TrueOrFalseSwitch>(
+              builder: (_, _onSwitch, __) => Container(
+                margin: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20.0),
+                child: OTPInputBox(
+                  enabled: !_onSwitch.value,
+                  controller: _pinPutController,
+                  onSubmit: (String pin) async {
+                    _onSwitch.toggle();
+                    String _otp = pin;
+                    await auth
+                        .phoneCredential(
+                      context: context,
+                      otp: _otp,
+                      verificationId: widget.verificationId,
+                      number: widget.number,
+                      isoCode: widget.isoCode,
+                    )
+                        .catchError((e) {
+                      _showVerifyNumberError(context, e);
+                    }).then((value) {
                       _pinPutController.clear();
-                      enabled = true;
+                      _onSwitch.toggle();
                     });
-                  });
-                },
+                  },
+                ),
               ),
             ),
             ArgonTimerButton(
@@ -190,7 +181,6 @@ class _OTPPageState extends State<OTPPage> {
               width: MediaQuery.of(context).size.width * 0.45,
               minWidth: MediaQuery.of(context).size.width * 0.30,
               disabledColor: Colors.teal[600],
-
               borderRadius: 4.0,
               splashColor: Colors.deepOrangeAccent,
               child: Text(
@@ -205,7 +195,6 @@ class _OTPPageState extends State<OTPPage> {
                 if (btnState == ButtonState.Idle) {
                   startTimer(20);
                   resendOTP(widget.resendToken, auth);
-                  print('token: ${widget.resendToken}');
                 }
               },
             ),

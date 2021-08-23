@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/home/home_app.dart';
 import 'package:my_time_tracker/app/home/tab_item.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 
 class BottomNavigation extends StatelessWidget {
   const BottomNavigation(
