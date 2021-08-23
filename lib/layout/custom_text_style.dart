@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_time_tracker/layout/letter_spacing.dart';
 
 class CustomTextStyles {
   static String _fontFamily = 'SourceSansPro';
+  static double letterSpacing = 1.0;
 
   static TextStyle textStyleBold({
     final Color color,
@@ -11,7 +11,7 @@ class CustomTextStyles {
     final double fontSize: 15.0,
   }) {
     return TextStyle(
-      letterSpacing: letterSpacingOrNone(1.0),
+      letterSpacing: letterSpacing,
       fontFamily: _fontFamily,
       fontWeight: fontWeight,
       fontSize: fontSize,
@@ -25,7 +25,7 @@ class CustomTextStyles {
     final double fontSize: 12.5,
   }) {
     return TextStyle(
-      letterSpacing: letterSpacingOrNone(1.0),
+      letterSpacing: letterSpacing,
       fontFamily: _fontFamily,
       fontWeight: fontWeight,
       fontSize: fontSize,
@@ -41,7 +41,7 @@ class CustomTextStyles {
     return TextStyle(
         fontFamily: _fontFamily,
         fontWeight: fontWeight,
-        letterSpacing: letterSpacingOrNone(1.0),
+        letterSpacing: letterSpacing,
         fontSize: fontSize,
         color: color);
   }
@@ -55,7 +55,7 @@ class CustomTextStyles {
       fontFamily: _fontFamily,
       fontWeight: fontWeight,
       fontSize: fontSize,
-      letterSpacing: letterSpacingOrNone(1.0),
+      letterSpacing: letterSpacing,
       color: color,
     );
   }
@@ -68,7 +68,7 @@ class CustomTextStyles {
     return TextStyle(
       fontFamily: _fontFamily,
       fontWeight: fontWeight,
-      letterSpacing: letterSpacingOrNone(1.0),
+      letterSpacing: letterSpacing,
       fontSize: fontSize,
       color: color,
     );

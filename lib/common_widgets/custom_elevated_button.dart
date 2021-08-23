@@ -21,8 +21,9 @@ class CustomElevatedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
     return SizedBox(
-      height: height,
+      height: height * 0.066 ?? this.height,
       child: ElevatedButton(
         style: ButtonStyle(
           elevation: MaterialStateProperty.resolveWith<double>(
@@ -38,11 +39,13 @@ class CustomElevatedButton extends StatelessWidget {
               (Set<MaterialState> states) => Colors.deepOrangeAccent),
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed))
-                return Theme.of(context).colorScheme.primary.withOpacity(0.5);
-              else if (states.contains(MaterialState.disabled))
-                return disabledColor;
-              return disabledColor;
+              Color stateColor;
+              if (states.contains(MaterialState.disabled)) {
+                stateColor = disabledColor;
+              } else {
+                stateColor = color;
+              }
+              return stateColor;
             },
           ),
         ),

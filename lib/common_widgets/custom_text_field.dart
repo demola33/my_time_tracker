@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
@@ -39,7 +39,7 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //Size size = MediaQuery.of(context).size;
+    Size size = MediaQuery.of(context).size;
 
     return TextFormField(
       textCapitalization: textCapitalization,
@@ -65,7 +65,7 @@ class CustomTextField extends StatelessWidget {
         hintStyle: CustomTextStyles.textStyleBold(),
         labelStyle: CustomTextStyles.textStyleBold(),
         errorStyle: CustomTextStyles.textStyleNormal(
-            fontSize: 11, color: Colors.redAccent),
+            fontSize: size.height * 0.018, color: Colors.redAccent),
         errorText: errorText,
         enabled: enabled,
       ),

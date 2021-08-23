@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:my_time_tracker/layout/letter_spacing.dart';
 
 class CancelAndSignInButtons extends StatelessWidget {
@@ -25,7 +25,11 @@ class CancelAndSignInButtons extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(4.0)),
                 ),
               ),
-              onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+              onPressed: () async{
+                FocusScope.of(context).requestFocus(FocusNode());
+                await Future.delayed(Duration(milliseconds: 100));
+                Navigator.of(context, rootNavigator: true).pop();
+                },
               child: Padding(
                 padding: buttonTextPadding,
                 child: Text(

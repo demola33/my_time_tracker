@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_time_tracker/common_widgets/custom_text_style.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'custom_elevated_button.dart';
 
 class FormSubmitButton extends CustomElevatedButton {
@@ -13,7 +13,6 @@ class FormSubmitButton extends CustomElevatedButton {
               style: CustomTextStyles.textStyleBold(fontSize: 15),
             ),
             color: Colors.teal[600],
-            height: 40.0,
             onPressed: onPressed,
             disabledColor: Colors.teal[600],
             focusNode: focusNode);
