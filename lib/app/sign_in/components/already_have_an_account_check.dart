@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 
 class AlreadyHaveAnAccountCheck extends StatelessWidget {
   final bool isMember;
   final Function press;
+  final buttonTextPadding = EdgeInsets.zero;
 
   const AlreadyHaveAnAccountCheck({
     @required this.isMember,
@@ -13,26 +15,21 @@ class AlreadyHaveAnAccountCheck extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Text(
-          isMember ? "Already have an Account ?" : "Don't Have an account ?",
-          style: TextStyle(
-            fontFamily: 'SourceSansPro',
-            color: Colors.teal[900],
-          ),
-        ),
-        GestureDetector(
-          onTap: press,
-          child: Text(
-            isMember ? "  Sign In" : "  Sign Up",
-            style: TextStyle(
-              decoration: TextDecoration.underline,
-              decorationThickness: 2.0,
-              fontFamily: 'SourceSansPro',
-              fontWeight: FontWeight.w900,
-              color: Colors.teal[900],
+        Text(isMember ? "Already have an Account? " : "Don't Have an account? ",
+            style: CustomTextStyles.textStyleBold(
+                color: Colors.black, fontSize: 13)),
+        TextButton(
+          onPressed: press,
+          child: Padding(
+            padding: buttonTextPadding,
+            child: Text(
+              isMember ? "SIGN IN" : "SIGN UP",
+              style: CustomTextStyles.textStyleBold(
+                color: Colors.deepOrangeAccent.shade700,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ),

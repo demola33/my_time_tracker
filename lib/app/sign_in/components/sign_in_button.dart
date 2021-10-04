@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:my_time_tracker/common_widgets/custom_raised_button.dart';
+import 'package:my_time_tracker/common_widgets/custom_elevated_button.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 
-class SignInButton extends CustomRaisedButton {
-  SignInButton({
+class SignInButton extends CustomElevatedButton {
+  SignInButton({Key key,
     @required String text,
+    FocusNode focusNode,
     Color color,
     Color textColor,
-    Function onPressed,
+    VoidCallback onPressed,
   })  : assert(text != null),
-        super(
+        super(key: key,
           child: Text(
             text,
-            style: TextStyle(
-              fontFamily: 'SourceSansPro',
+            style: CustomTextStyles.textStyleBold(
               color: textColor,
-              fontSize: 15.0,
             ),
           ),
+          disabledColor: color,
           color: color,
           onPressed: onPressed,
+          focusNode: focusNode,
         );
 }

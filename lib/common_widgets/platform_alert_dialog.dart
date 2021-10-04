@@ -2,24 +2,29 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:my_time_tracker/layout/custom_text.dart';
+import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/platform_widget.dart';
-
-import 'custom_bold_text_style.dart';
 
 class PlatformAlertDialog extends PlatformWidget {
   final String title;
-  final String content;
+  final dynamic content;
   final String defaultActionText;
   final String cancelActionText;
+  final VoidCallback onPressOk;
+  final VoidCallback onPressCancel;
 
-  PlatformAlertDialog({
+   const PlatformAlertDialog({Key key,
     @required this.title,
     @required this.content,
+    this.onPressOk,
+    this.onPressCancel,
     this.cancelActionText,
     @required this.defaultActionText,
+    exception,
   })  : assert(title != null),
         assert(content != null),
-        assert(defaultActionText != null);
+        assert(defaultActionText != null), super(key: key);
 
   Future<bool> show(BuildContext context) async {
     return Platform.isIOS
@@ -37,8 +42,14 @@ class PlatformAlertDialog extends PlatformWidget {
   @override
   Widget buildCupertinoWidget(BuildContext context) {
     return CupertinoAlertDialog(
-      title: Text(title),
-      content: Text(content),
+      title: Text(
+        title,
+        style: CustomTextStyles.textStyleTitle(color: Colors.redAccent),
+      ),
+      content: Text(
+        content,
+        style: CustomTextStyles.textStyleBold(),
+      ),
       actions: _buildActions(context),
     );
   }
@@ -46,8 +57,18 @@ class PlatformAlertDialog extends PlatformWidget {
   @override
   Widget buildMaterialWidget(BuildContext context) {
     return AlertDialog(
-      title: Text(title),
-      content: Text(content),
+      title: Text(
+        title,
+        style: CustomTextStyles.textStyleTitle(color: Colors.redAccent),
+      ),
+      content: Text(
+        content,
+        style: CustomTextStyles.textStyleBold(
+          fontSize: 14.0,
+          color: Colors.black54,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
       actions: _buildActions(context),
     );
   }
@@ -56,15 +77,16 @@ class PlatformAlertDialog extends PlatformWidget {
     final actions = <Widget>[];
     if (cancelActionText != null) {
       actions.add(PlatformAlertDialogAction(
-        press: () => Navigator.of(context).pop(false),
-        child: CustomBoldTextStyle(
+        press: onPressCancel ?? () => Navigator.of(context).pop(false),
+        child: CustomText(
           text: cancelActionText,
         ),
       ));
     }
     actions.add(PlatformAlertDialogAction(
-      press: () => Navigator.of(context).pop(true),
-      child: CustomBoldTextStyle(
+      press:
+          onPressOk ?? () => Navigator.of(context).pop(true),
+      child: CustomText(
         text: defaultActionText,
       ),
     ));
@@ -76,10 +98,10 @@ class PlatformAlertDialogAction extends PlatformWidget {
   final Widget child;
   final VoidCallback press;
 
-  PlatformAlertDialogAction({
+  const PlatformAlertDialogAction({Key key,
     @required this.child,
     @required this.press,
-  });
+  }) : super(key: key);
 
   @override
   Widget buildCupertinoWidget(BuildContext context) {
@@ -91,7 +113,7 @@ class PlatformAlertDialogAction extends PlatformWidget {
 
   @override
   Widget buildMaterialWidget(BuildContext context) {
-    return FlatButton(
+    return TextButton(
       child: child,
       onPressed: press,
     );
