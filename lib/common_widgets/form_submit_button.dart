@@ -3,11 +3,11 @@ import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'custom_elevated_button.dart';
 
 class FormSubmitButton extends CustomElevatedButton {
-  FormSubmitButton({
+  FormSubmitButton({Key key,
     @required String text,
     @required FocusNode focusNode,
     VoidCallback onPressed,
-  }) : super(
+  }) : super(key: key,
             child: Text(
               text,
               style: CustomTextStyles.textStyleBold(fontSize: 15),

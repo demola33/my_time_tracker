@@ -29,7 +29,7 @@ class HomeAppState extends State<HomeApp>
     Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
     _faders = tabs.map<AnimationController>((TabItem tabItem) {
       return AnimationController(
-          vsync: this, duration: Duration(milliseconds: 200));
+          vsync: this, duration: const Duration(milliseconds: 200));
     }).toList();
     _faders[currentTab].value = 1.0;
     _tabItemKeys =
@@ -38,7 +38,9 @@ class HomeAppState extends State<HomeApp>
 
   @override
   void dispose() {
-    for (AnimationController controller in _faders) controller.dispose();
+    for (AnimationController controller in _faders) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -46,14 +48,14 @@ class HomeAppState extends State<HomeApp>
     TabItem(
       label: 'Jobs',
       icon: Icons.work,
-      page: (_) => JobsPage(),
-      backgroundColor: Color.fromRGBO(0, 195, 111, 0.5),
+      page: (_) => const JobsPage(),
+      backgroundColor: const Color.fromRGBO(0, 195, 111, 0.5),
     ),
     TabItem(
       label: 'Entries',
       icon: Icons.view_headline,
       page: (context) => EntriesPage.create(context),
-      backgroundColor: Color.fromRGBO(0, 88, 72, 0.5),
+      backgroundColor: const Color.fromRGBO(0, 88, 72, 0.5),
     ),
     TabItem(
       label: 'Account',
@@ -61,7 +63,7 @@ class HomeAppState extends State<HomeApp>
       page: (_) => AccountPage(
         manager: AccountPageManager(),
       ),
-      backgroundColor: Color.fromRGBO(0, 144, 144, 0.5),
+      backgroundColor: const Color.fromRGBO(0, 144, 144, 0.5),
     )
   ];
 

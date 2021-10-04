@@ -1,7 +1,7 @@
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:my_time_tracker/app/sign_in/components/validators.dart';
 
-class EditJobPageManager with ErrorText {
+class EditJobPageViewModel with ErrorText {
   MultiValidator get firstNameValidator {
     final validator = MultiValidator([
       RequiredValidator(errorText: requiredJobNameError),

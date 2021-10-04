@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class SocialSignInButton extends StatelessWidget {
-  SocialSignInButton({
+  const SocialSignInButton({Key key,
     @required this.assetName,
     this.press,
-  }) : assert(assetName != null);
+  }) : assert(assetName != null), super(key: key);
 
   final String assetName;
   final Function press;
@@ -16,9 +16,9 @@ class SocialSignInButton extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: press,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 10.0),
+        margin: const EdgeInsets.symmetric(horizontal: 10.0),
         decoration: BoxDecoration(
-          color: Color.fromRGBO(240, 240, 240, 1),
+          color: const Color.fromRGBO(240, 240, 240, 1),
           border: Border.all(
             width: 2.0,
             color: Colors.deepOrangeAccent,

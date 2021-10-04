@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomText extends StatelessWidget {
   const CustomText({
     @required this.text,
-    this.color: Colors.black,
+    this.color = Colors.black,
     this.fontWeight,
     this.heightRatio,
     Key key,

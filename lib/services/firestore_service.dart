@@ -54,15 +54,14 @@ class FirestoreService {
 
   Future<void> deleteData({@required String path}) async {
     final reference = FirebaseFirestore.instance.doc(path);
-    print('delete: $path');
     await reference.delete();
   }
 
   Stream<List<T>> collectionStream<T>({
     @required String path,
-    @required T builder(Map<String, dynamic> data, String documentID),
-    Query queryBuilder(Query query),
-    int sort(T lhs, T rhs),
+    T Function(Map<String, dynamic> data, String documentID) builder,
+    Query Function(Query query) queryBuilder,
+    int Function(T lhs, T rhs) sort,
   }) {
     Query query = FirebaseFirestore.instance.collection(path);
     if (queryBuilder != null) {
@@ -84,9 +83,9 @@ class FirestoreService {
 
   Future<List<T>> collectionList<T>({
     @required String path,
-    @required T builder(Map<String, dynamic> data, String documentID),
-    Query queryBuilder(Query query),
-    int sort(T lhs, T rhs),
+    T Function(Map<String, dynamic> data, String documentID) builder,
+    Query Function(Query query) queryBuilder,
+    int Function(T lhs, T rhs) sort,
   }) async {
     Query query = FirebaseFirestore.instance.collection(path);
     if (queryBuilder != null) {
@@ -106,7 +105,7 @@ class FirestoreService {
 
   Stream<T> documentStream<T>({
     @required String path,
-    @required T builder(Map<String, dynamic> data, String documentID),
+    T Function(Map<String, dynamic> data, String documentID) builder,
   }) {
     final DocumentReference reference = FirebaseFirestore.instance.doc(path);
     final Stream<DocumentSnapshot> snapshots = reference.snapshots();

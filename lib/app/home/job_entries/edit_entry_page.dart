@@ -16,13 +16,13 @@ import 'package:my_time_tracker/services/database.dart';
 import 'package:provider/provider.dart';
 
 class EditEntryPage extends StatefulWidget {
-  const EditEntryPage({
+   const EditEntryPage({Key key,
     @required this.database,
     @required this.job,
     @required this.onSwitch,
     @required this.isConnected,
     this.entry,
-  });
+  }) : super(key: key);
   final Job job;
   final Entry entry;
   final Database database;
@@ -137,7 +137,6 @@ class _EditEntryPageState extends State<EditEntryPage> {
             } catch (e) {
               undo = allEntries.remove(entry);
               onSwitch.toggle();
-              print('ERROR: ${e.toString()}');
               PlatformExceptionAlertDialog(
                 title: 'Operation failed',
                 exception: e,
@@ -166,7 +165,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.teal),
+        iconTheme: const IconThemeData(color: Colors.teal),
         elevation: 0.0,
         title: Text(
           widget.job.name ?? 'Job name not found',
@@ -184,7 +183,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
     double height = size.height;
     return SingleChildScrollView(
       child: Container(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Card(
           elevation: 5.0,
           child: Padding(

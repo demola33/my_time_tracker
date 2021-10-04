@@ -9,7 +9,7 @@ import 'package:open_mail_app/open_mail_app.dart';
 import 'package:provider/provider.dart';
 
 class EmailVerificationPage extends StatelessWidget {
-  const EmailVerificationPage(this.email);
+   const EmailVerificationPage(this.email, {Key key}) : super(key: key);
 
   final String email;
 
@@ -18,8 +18,8 @@ class EmailVerificationPage extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Open Mail App"),
-          content: Text("No mail apps installed"),
+          title: const Text("Open Mail App"),
+          content: const Text("No mail apps installed"),
           actions: <Widget>[
             FormSubmitButton(
               focusNode: null,
@@ -40,7 +40,7 @@ class EmailVerificationPage extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
@@ -50,14 +50,14 @@ class EmailVerificationPage extends StatelessWidget {
               ],
             ),
           ),
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
                     'Email Verification',
                     style: CustomTextStyles.textStyleBold(
@@ -67,7 +67,7 @@ class EmailVerificationPage extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: RichText(
                     text: TextSpan(
                       text: 'A verification link has been sent to ',
@@ -84,7 +84,7 @@ class EmailVerificationPage extends StatelessWidget {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        TextSpan(
+                        const TextSpan(
                           text:
                               '. Please Click on the link in email to activate your account.',
                         ),

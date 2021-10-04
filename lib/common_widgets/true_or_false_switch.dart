@@ -5,7 +5,6 @@ class TrueOrFalseSwitch with ChangeNotifier {
 
   void toggle() {
     value = !value;
-    print('Toggled');
     notifyListeners();
   }
 }

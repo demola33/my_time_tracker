@@ -11,7 +11,7 @@ class CustomIconTextField extends StatelessWidget {
     this.iconColor,
     this.suffixIcon,
     this.validator,
-    this.border: const OutlineInputBorder(),
+    this.border = const OutlineInputBorder(),
     //this.initialValue,
     this.errorText,
     @required this.focusNode,
@@ -21,10 +21,10 @@ class CustomIconTextField extends StatelessWidget {
     this.onChanged,
     this.onEditingComplete,
     this.onSaved,
-    this.enabled: true,
+    this.enabled = true,
     this.helperText,
     this.maxLength,
-    this.textCapitalization: TextCapitalization.none,
+    this.textCapitalization = TextCapitalization.none,
   }) : super(key: key);
 
   final String labelText;

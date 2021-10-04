@@ -16,9 +16,9 @@ class CustomTextField extends StatelessWidget {
     this.onChanged,
     this.onEditingComplete,
     this.onSaved,
-    this.enabled: true,
+    this.enabled = true,
     this.maxLength,
-    this.textCapitalization: TextCapitalization.none,
+    this.textCapitalization = TextCapitalization.none,
   }) : super(key: key);
 
   final String labelText;
@@ -59,7 +59,7 @@ class CustomTextField extends StatelessWidget {
         isDense: true,
         filled: true,
         fillColor: Colors.black12,
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         labelText: labelText,
         hintText: hint,
         hintStyle: CustomTextStyles.textStyleBold(),

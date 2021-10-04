@@ -5,7 +5,7 @@ import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:flutter/foundation.dart';
 
 class ConnectivityProvider with ChangeNotifier {
-  Connectivity _connectivity = Connectivity();
+  final Connectivity _connectivity = Connectivity();
   bool _isOnline;
   bool get online => _isOnline;
   StreamController<bool> connectivityStatusController =

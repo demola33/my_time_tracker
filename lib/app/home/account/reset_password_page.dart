@@ -8,7 +8,7 @@ import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:provider/provider.dart';
 
 class ResetPassword extends StatefulWidget {
-  ResetPassword({
+  const ResetPassword({
     Key key,
     @required this.auth,
     this.deleteAccount,
@@ -82,14 +82,14 @@ class _ResetPasswordState extends State<ResetPassword> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.clear_sharp),
+          icon: const Icon(Icons.clear_sharp),
           onPressed: () async {
             FocusScope.of(context).requestFocus(FocusNode());
-            await Future.delayed(Duration(milliseconds: 100));
+            await Future.delayed(const Duration(milliseconds: 100));
             Navigator.of(context).pop();
           },
         ),
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.teal,
         ),
         automaticallyImplyLeading: true,
@@ -104,7 +104,7 @@ class _ResetPasswordState extends State<ResetPassword> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            padding: EdgeInsets.only(top: 30, right: 16, left: 16.0),
+            padding: const EdgeInsets.only(top: 30, right: 16, left: 16.0),
             color: Colors.white,
             child: _buildContent(),
           ),
@@ -114,47 +114,45 @@ class _ResetPasswordState extends State<ResetPassword> {
   }
 
   Widget _buildContent() {
-    return Container(
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (deleteAccount)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: Text(
-                    'Permanently delete your account and all of your content.',
-                    style:
-                        CustomTextStyles.textStyleExtraBold(color: Colors.red),
-                  ),
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (deleteAccount)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                child: Text(
+                  'Permanently delete your account and all of your content.',
+                  style:
+                      CustomTextStyles.textStyleExtraBold(color: Colors.red),
                 ),
               ),
-            SizedBox(
-              height: 15.0,
             ),
-            _buildCurrentPassword(),
-            SizedBox(
-              height: 10.0,
-            ),
-            if (deleteAccount == false) _buildNewPassword(),
-            Padding(
-              padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
-              child: deleteAccount
-                  ? FormSubmitButton(
-                      onPressed: isLoading ? null : _delete,
-                      text: 'Delete',
-                      focusNode: _deleteButtonNode,
-                    )
-                  : FormSubmitButton(
-                      onPressed: isLoading ? null : _submit,
-                      text: 'Update password',
-                      focusNode: _submitButtonNode,
-                    ),
-            ),
-          ],
-        ),
+          const SizedBox(
+            height: 15.0,
+          ),
+          _buildCurrentPassword(),
+          const SizedBox(
+            height: 10.0,
+          ),
+          if (deleteAccount == false) _buildNewPassword(),
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+            child: deleteAccount
+                ? FormSubmitButton(
+                    onPressed: isLoading ? null : _delete,
+                    text: 'Delete',
+                    focusNode: _deleteButtonNode,
+                  )
+                : FormSubmitButton(
+                    onPressed: isLoading ? null : _submit,
+                    text: 'Update password',
+                    focusNode: _submitButtonNode,
+                  ),
+          ),
+        ],
       ),
     );
   }

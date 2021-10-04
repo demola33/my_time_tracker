@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 class LandingPage extends StatelessWidget {
   final Database Function(String) databaseBuilder;
 
-  LandingPage({Key key, @required this.databaseBuilder}) : super(key: key);
+  const LandingPage({Key key, @required this.databaseBuilder}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class LandingPage extends StatelessWidget {
                 create: (_) => databaseBuilder(user.uid),
               )
             ],
-            child: HomeApp(),
+            child: const HomeApp(),
           );
         } else {
           return SignInPage.create(context);

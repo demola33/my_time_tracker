@@ -9,9 +9,9 @@ class EmptyContent extends StatelessWidget {
 
   const EmptyContent({
     Key key,
-    this.title: 'Nothing here',
-    this.message: 'Add a new item to get started',
-    this.packageImage: PackageImage.Image_2,
+    this.title = 'Nothing here',
+    this.message = 'Add a new item to get started',
+    this.packageImage = PackageImage.Image_2,
   }) : super(key: key);
 
   @override

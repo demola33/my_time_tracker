@@ -12,21 +12,21 @@ import '../../../app/screens/email_verification_screen.dart';
 import '../../../common_widgets/custom_icon_text_field.dart';
 import '../../../app/sign_in/components/password_field.dart';
 import '../../../app/sign_in/components/forgot_password.dart';
-import '../../../models_and_managers/models/email_sign_in_model.dart';
+import '../../../models_and_managers/managers/email_sign_in_view_model.dart';
 import '../../../common_widgets/cancel_and_sign_in_buttons.dart';
 import '../../../common_widgets/platform_exception_alert_dialog.dart';
 
 class EmailSignInFormChangeNotifierBased extends StatefulWidget {
-  final EmailSignInModel model;
-  EmailSignInFormChangeNotifierBased({
+  final EmailSignInViewModel model;
+  const EmailSignInFormChangeNotifierBased({
     Key key,
     this.model,
   }) : super(key: key);
 
   static Widget create(BuildContext context) {
-    return ChangeNotifierProvider<EmailSignInModel>(
-      create: (_) => EmailSignInModel(),
-      child: Consumer<EmailSignInModel>(
+    return ChangeNotifierProvider<EmailSignInViewModel>(
+      create: (_) => EmailSignInViewModel(),
+      child: Consumer<EmailSignInViewModel>(
         builder: (context, model, _) =>
             EmailSignInFormChangeNotifierBased(model: model),
       ),
@@ -73,7 +73,7 @@ class _EmailSignInFormChangeNotifierBasedState
     FocusScope.of(context).requestFocus(_signInButtonNode);
   }
 
-  EmailSignInModel get model => widget.model;
+  EmailSignInViewModel get model => widget.model;
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +127,7 @@ class _EmailSignInFormChangeNotifierBasedState
                 child: SizedBox(
                   height: size * 0.028,
                   width: size * 0.028,
-                  child: CircularProgressIndicator(
+                  child: const CircularProgressIndicator(
                     backgroundColor: Colors.deepOrangeAccent,
                   ),
                 ),
@@ -159,14 +159,12 @@ class _EmailSignInFormChangeNotifierBasedState
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
-        child: Container(
-          child: Column(
-            children: [
-              _buildEmail(isLoading),
-              SizedBox(height: size.height * 0.02),
-              _buildPassword(isLoading),
-            ],
-          ),
+        child: Column(
+          children: [
+            _buildEmail(isLoading),
+            SizedBox(height: size.height * 0.02),
+            _buildPassword(isLoading),
+          ],
         ),
       ),
     );
@@ -231,7 +229,7 @@ class _EmailSignInFormChangeNotifierBasedState
       context,
       MaterialPageRoute(
         builder: (context) {
-          return EmailSignUpPage();
+          return const EmailSignUpPage();
         },
       ),
     );

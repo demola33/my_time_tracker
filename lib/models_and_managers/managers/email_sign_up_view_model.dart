@@ -6,7 +6,7 @@ import 'package:form_field_validator/form_field_validator.dart';
 import '../../services/auth_base.dart';
 import '../../app/sign_in/components/validators.dart';
 
-class EmailSignUpModel with ErrorText, ChangeNotifier {
+class EmailSignUpViewModel with ErrorText, ChangeNotifier {
   String email;
   String firstName;
   String lastName;
@@ -14,13 +14,13 @@ class EmailSignUpModel with ErrorText, ChangeNotifier {
   String confirmPassword;
   bool submitted;
 
-  EmailSignUpModel({
-    this.email: '',
-    this.firstName: '',
-    this.lastName: '',
-    this.password: '',
-    this.confirmPassword: '',
-    this.submitted: false,
+  EmailSignUpViewModel({
+    this.email = '',
+    this.firstName = '',
+    this.lastName = '',
+    this.password = '',
+    this.confirmPassword = '',
+    this.submitted = false,
   });
 
   Future<void> submit(BuildContext context) async {
@@ -42,7 +42,7 @@ class EmailSignUpModel with ErrorText, ChangeNotifier {
   }
 
   MultiValidator get passValidator {
-    final String _pattern = r'(?=.*?[#?!@$%^&*-])';
+    const String _pattern = r'(?=.*?[#?!@$%^&*-])';
     final passValidator = MultiValidator([
       RequiredValidator(errorText: requiredPasswordError),
       MinLengthValidator(8, errorText: minLengthError),

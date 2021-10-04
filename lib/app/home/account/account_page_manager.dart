@@ -96,7 +96,7 @@ class AccountPageManager {
           onPressed: () async {
             await _signOut(context);
           },
-          leading: Icon(
+          leading: const Icon(
             Icons.logout,
             size: 25,
             color: Colors.red,
@@ -150,13 +150,13 @@ class AccountPageManager {
                 text:
                     'Please log in again with Facebook to verify user action.',
               ).show(context);
-              await Future.delayed(Duration(seconds: 3))
+              await Future.delayed(const Duration(seconds: 3))
                   .whenComplete(() => _delete(context));
             } else {
               _delete(context);
             }
           },
-          leading: Icon(
+          leading: const Icon(
             Icons.delete_forever,
             size: 25,
             color: Colors.red,
@@ -213,7 +213,7 @@ class AccountPageManager {
             ),
           ),
           onPressed: null,
-          leading: TimeTrackerLogo(
+          leading: const TimeTrackerLogo(
             topPadding: 0,
           ),
         ),
@@ -225,7 +225,7 @@ class AccountPageManager {
     await showAdaptiveActionSheet(
       context: context,
       actions: <BottomSheetAction>[
-        BottomSheetAction(title: SizedBox(), onPressed: null),
+        BottomSheetAction(title: const SizedBox(), onPressed: null),
         BottomSheetAction(
           title: Text(
             'Help',
@@ -271,7 +271,7 @@ class AccountPageManager {
             Navigator.pop(context);
             await _confirmSignOut(context);
           },
-          leading: Icon(
+          leading: const Icon(
             Icons.logout,
             size: 25,
             color: Colors.red,
@@ -310,7 +310,6 @@ class AccountPageManager {
     switch (userProviderId) {
       case 'facebook.com':
         result = await auth.reAuthenticateFacebookUser().catchError((onError) {
-          print('ErrorCaught: $onError');
           if (onError.code != "CANCELLED_BY_USER") {
             PlatformExceptionAlertDialog(
               title: 'Sign in failed',
@@ -321,7 +320,6 @@ class AccountPageManager {
         break;
       case 'google.com':
         result = await auth.reAuthenticateGoogleUser().catchError((onError) {
-          print('ErrorCaught: $onError');
           PlatformExceptionAlertDialog(
             title: 'Sign in failed',
             exception: onError,

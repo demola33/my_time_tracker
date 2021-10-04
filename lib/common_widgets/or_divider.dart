@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:my_time_tracker/layout/custom_text_style.dart';
 
 class OrDivider extends StatelessWidget {
+  const OrDivider({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return Container(
+    return SizedBox(
       width: size.width * 0.8,
       child: Row(
         children: [

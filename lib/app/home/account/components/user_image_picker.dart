@@ -7,13 +7,13 @@ import 'package:my_time_tracker/common_widgets/avatar.dart';
 import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:my_time_tracker/common_widgets/true_or_false_switch.dart';
 import 'package:my_time_tracker/services/auth_base.dart';
-import 'package:my_time_tracker/services/firebase-storage_services.dart';
+import 'package:my_time_tracker/services/firebase_storage_services.dart';
 import 'package:provider/provider.dart';
 
 class UserImagePicker extends StatefulWidget {
   final CustomUser user;
 
-  const UserImagePicker(this.user);
+   const UserImagePicker(this.user, {Key key}) : super(key: key);
 
   @override
   _UserImagePickerState createState() => _UserImagePickerState();
@@ -21,6 +21,7 @@ class UserImagePicker extends StatefulWidget {
 
 class _UserImagePickerState extends State<UserImagePicker> {
   final _service = FirebaseStorageServices.instance;
+  final ImagePicker _picker = ImagePicker();
   File _pickedImage;
 
   void _pickImage(CustomUser user, TrueOrFalseSwitch onSwitch) {
@@ -40,7 +41,7 @@ class _UserImagePickerState extends State<UserImagePicker> {
                   onTap: () async {
                     onSwitch.toggle();
                     final pickedImageFile =
-                        await ImagePicker.pickImage(source: ImageSource.camera);
+                        await _picker.pickImage(source: ImageSource.camera);
                     _pickedImage = File(pickedImageFile.path);
                     Navigator.pop(context);
 
@@ -51,8 +52,8 @@ class _UserImagePickerState extends State<UserImagePicker> {
                   splashColor: Colors.teal[600],
                   child: Row(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
+                      const Padding(
+                        padding: EdgeInsets.all(10.0),
                         child: Icon(Icons.camera_alt),
                       ),
                       Text('Camera', style: CustomTextStyles.textStyleBold())
@@ -62,8 +63,8 @@ class _UserImagePickerState extends State<UserImagePicker> {
                 InkWell(
                   onTap: () async {
                     onSwitch.toggle();
-                    final pickedImageFile = await ImagePicker.pickImage(
-                        source: ImageSource.gallery);
+                    final pickedImageFile = await _picker.pickImage(
+                        source: ImageSource.gallery,);
                     _pickedImage = File(pickedImageFile.path);
                     Navigator.pop(context);
                     final imageURL = await uploadImage(_pickedImage);
@@ -74,8 +75,8 @@ class _UserImagePickerState extends State<UserImagePicker> {
                   splashColor: Colors.teal[600],
                   child: Row(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
+                      const Padding(
+                        padding: EdgeInsets.all(10.0),
                         child: Icon(Icons.image),
                       ),
                       Text('Gallery', style: CustomTextStyles.textStyleBold())
@@ -84,15 +85,15 @@ class _UserImagePickerState extends State<UserImagePicker> {
                 ),
                 InkWell(
                   onTap: () async {
-                    final imageURL = '';
+                    const imageURL = '';
                     await auth.updateUserImageURL(imageURL);
                     Navigator.pop(context);
                   },
                   splashColor: Colors.teal[600],
                   child: Row(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
+                      const Padding(
+                        padding: EdgeInsets.all(10.0),
                         child: Icon(Icons.remove_circle),
                       ),
                       Text(
@@ -138,13 +139,13 @@ class _UserImagePickerState extends State<UserImagePicker> {
           bottom: 10,
           left: 80,
           child: RawMaterialButton(
-            fillColor: Color.fromRGBO(0, 144, 144, 1.0),
-            child: Icon(
+            fillColor: const Color.fromRGBO(0, 144, 144, 1.0),
+            child: const Icon(
               Icons.add_a_photo_sharp,
               size: 25,
             ),
-            padding: EdgeInsets.all(8.0),
-            shape: CircleBorder(),
+            padding: const EdgeInsets.all(8.0),
+            shape: const CircleBorder(),
             onPressed: onSwitch.value ? null : onPressed,
           ),
         ),

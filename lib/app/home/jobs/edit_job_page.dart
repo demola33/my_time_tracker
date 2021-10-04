@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../app/home/jobs/edit_job_page_manager.dart';
+import 'edit_job_page_view_model.dart';
 import '../../../common_widgets/custom_icon_text_field.dart';
 import '../../../layout/custom_text_style.dart';
 import '../../../common_widgets/form_submit_button.dart';
@@ -51,7 +51,7 @@ class EditJobPage extends StatefulWidget {
 }
 
 class _EditJobPageState extends State<EditJobPage> {
-  EditJobPageManager get model => EditJobPageManager();
+  EditJobPageViewModel get model => EditJobPageViewModel();
   final _formKey = GlobalKey<FormState>();
   TrueOrFalseSwitch get onSwitch => widget.onSwitch;
 
@@ -132,7 +132,7 @@ class _EditJobPageState extends State<EditJobPage> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.teal),
+        iconTheme: const IconThemeData(color: Colors.teal),
         title: Text(
           widget.job == null ? 'New Job' : 'Edit Job',
           style: CustomTextStyles.textStyleTitle(
@@ -238,7 +238,7 @@ class _EditJobPageState extends State<EditJobPage> {
       validator: model.jobRateValidator,
       helperText: 'Rate must be an integer.',
       keyboardType:
-          TextInputType.numberWithOptions(decimal: false, signed: false),
+          const TextInputType.numberWithOptions(decimal: false, signed: false),
       textInputAction: TextInputAction.done,
       onSaved: (value) => _ratePerHour = int.tryParse(value) ?? 0,
       onEditingComplete: _jobRateEditingComplete,
@@ -259,7 +259,7 @@ class _EditJobPageState extends State<EditJobPage> {
       }
       if (jobNames.contains(_name) &&
           jobOrganizations.contains(_organization)) {
-        PlatformAlertDialog(
+        const PlatformAlertDialog(
           title: 'Job already exist',
           content: 'Please use a different job name.',
           defaultActionText: 'Ok',
@@ -287,7 +287,6 @@ class _EditJobPageState extends State<EditJobPage> {
               } catch (e) {
                 undo = allJobs.remove(job);
                 onSwitch.toggle();
-                print('ERROR: ${e.toString()}');
                 if (e.code == "permission-denied") {
                   PlatformExceptionAlertDialog(
                           title: 'Operation Failed', exception: e)

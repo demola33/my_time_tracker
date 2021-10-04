@@ -4,10 +4,12 @@ import 'package:my_time_tracker/app/sign_in/components/time_tracker_logo.dart';
 import 'package:my_time_tracker/layout/custom_text_style.dart';
 
 class SplashScreen extends StatelessWidget {
+  const SplashScreen({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(0, 84, 48, 1),
+      backgroundColor: const Color.fromRGBO(0, 84, 48, 1),
       body: Center(
         child: _buildLogo(context),
       ),
@@ -22,7 +24,7 @@ class SplashScreen extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
                   colors: [
@@ -32,7 +34,7 @@ class SplashScreen extends StatelessWidget {
                     Color.fromRGBO(255, 228, 115, 1),
                   ],
                 ),
-                color: Color.fromRGBO(0, 84, 48, 0.5),
+                color: const Color.fromRGBO(0, 84, 48, 0.5),
                 borderRadius: BorderRadius.circular(50),
                 boxShadow: [
                   BoxShadow(
@@ -41,20 +43,20 @@ class SplashScreen extends StatelessWidget {
                     spreadRadius: 5,
                   )
                 ]),
-            padding: EdgeInsets.all(10.0),
-            child: SizedBox(
+            padding: const EdgeInsets.all(10.0),
+            child: const SizedBox(
               child: TimeTrackerLogo(topPadding: 20),
               width: 200,
               height: 200,
             ),
           ),
-          SizedBox(height: 50),
+          const SizedBox(height: 50),
           TextLiquidFill(
             text: 'TIME TRACKER',
             waveColor: Colors.deepOrangeAccent,
             waveDuration: const Duration(seconds: 1),
             loadDuration: const Duration(seconds: 2),
-            boxBackgroundColor: Color.fromRGBO(0, 84, 48, 1),
+            boxBackgroundColor: const Color.fromRGBO(0, 84, 48, 1),
             textStyle: CustomTextStyles.textStyleExtraBold(
               fontSize: 40.0,
             ),

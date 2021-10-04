@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/home/job_entries/job_entries_page.dart';
 import 'package:my_time_tracker/app/home/jobs/job_list_tile.dart';
-import 'package:my_time_tracker/app/home/jobs/customListBuilder.dart';
+import 'package:my_time_tracker/app/home/jobs/custom_list_builder.dart';
 import 'package:my_time_tracker/app/home/models/job.dart';
 import 'package:my_time_tracker/common_widgets/custom_icon_text_field.dart';
 import 'package:my_time_tracker/layout/custom_text_style.dart';
@@ -16,6 +16,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'edit_job_page.dart';
 
 class JobsPage extends StatefulWidget {
+  const JobsPage({Key key}) : super(key: key);
+
   @override
   _JobsPageState createState() => _JobsPageState();
 }
@@ -23,7 +25,7 @@ class JobsPage extends StatefulWidget {
 class _JobsPageState extends State<JobsPage> {
   final TextEditingController _searchController = TextEditingController();
   FocusNode _searchNode;
-  final Color uniqueJobsPageColor = Color.fromRGBO(0, 195, 111, 0.5);
+  final Color uniqueJobsPageColor = const Color.fromRGBO(0, 195, 111, 0.5);
   List<Job> _allJobsList = [];
   List<Job> _displayedResultsList = [];
   Future<void> resultLoaded;
@@ -34,6 +36,7 @@ class _JobsPageState extends State<JobsPage> {
     super.initState();
     _searchNode = FocusNode();
     _searchController.addListener(onSearchChanged);
+    resultLoaded = getAllList();
   }
 
   @override
@@ -42,12 +45,6 @@ class _JobsPageState extends State<JobsPage> {
     _searchController.removeListener(onSearchChanged);
     _searchController.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    resultLoaded = getAllList();
   }
 
   void onSearchChanged() {
@@ -83,7 +80,7 @@ class _JobsPageState extends State<JobsPage> {
   }
 
   Future<void> _confirmDelete(BuildContext context, Job job) async {
-    final didRequestDelete = await PlatformAlertDialog(
+    final didRequestDelete = await const PlatformAlertDialog(
       title: 'Delete',
       content: 'Would you like to delete this job?',
       cancelActionText: 'Cancel',
@@ -129,7 +126,7 @@ class _JobsPageState extends State<JobsPage> {
       BuildContext context, ConnectivityProvider isConnected) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.white,
         ),
         automaticallyImplyLeading: false,
@@ -142,7 +139,7 @@ class _JobsPageState extends State<JobsPage> {
         elevation: 5.0,
         actions: [
           IconButton(
-            icon: Icon(Icons.search_sharp),
+            icon: const Icon(Icons.search_sharp),
             tooltip: 'Search Job',
             iconSize: 30.0,
             onPressed: () {
@@ -153,7 +150,7 @@ class _JobsPageState extends State<JobsPage> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             tooltip: 'Add Job',
             iconSize: 30.0,
             onPressed: () => _navigateAndDisplayResult(context),
@@ -167,7 +164,7 @@ class _JobsPageState extends State<JobsPage> {
             children: [
               if (showSearchBar)
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.white,
@@ -209,7 +206,7 @@ class _JobsPageState extends State<JobsPage> {
           Job job = _displayedResultsList[index];
           return Slidable(
             key: Key('job:${job.id}'),
-            actionPane: SlidableDrawerActionPane(),
+            actionPane: const SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             child: JobListTile(
               job: job,

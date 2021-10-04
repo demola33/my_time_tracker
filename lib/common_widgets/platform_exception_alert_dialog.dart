@@ -1,17 +1,16 @@
 import 'dart:ui';
-
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'platform_alert_dialog.dart';
 import 'package:meta/meta.dart';
 
 class PlatformExceptionAlertDialog extends PlatformAlertDialog {
-  PlatformExceptionAlertDialog({
+  PlatformExceptionAlertDialog({Key key,
     @required String title,
     @required PlatformException exception,
     VoidCallback onPressOk,
     VoidCallback onPressCancel,
-  }) : super(
+  }) : super(key: key,
           title: title,
           content: _message(exception),
           defaultActionText: 'OK',
@@ -23,7 +22,7 @@ class PlatformExceptionAlertDialog extends PlatformAlertDialog {
     return _errors[exception.code] ?? exception.message;
   }
 
-  static Map<String, String> _errors = {
+  static final Map<String, String> _errors = {
     'invalid-email': "Please use a valid email address",
     'invalid-verification-code': 'Please use a valid verification code.',
     'network-request-failed':

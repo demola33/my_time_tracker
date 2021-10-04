@@ -12,7 +12,7 @@ class FirebaseStorageServices {
         .ref()
         .child('user_image')
         .child(fileName + '.jpg');
-    await ref.putFile(image).whenComplete(() => CircularProgressIndicator());
+    await ref.putFile(image).whenComplete(() => const CircularProgressIndicator());
     final url = await ref.getDownloadURL();
     return url;
   }

@@ -3,7 +3,7 @@ import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:pinput/pin_put/pin_put.dart';
 
 class OTPInputBox extends StatelessWidget {
-  OTPInputBox(
+  const OTPInputBox(
       {Key key,
       @required this.onSubmit,
       @required this.controller,
@@ -26,11 +26,11 @@ class OTPInputBox extends StatelessWidget {
     return PinPut(
       fieldsCount: 6,
       onSubmit: onSubmit,
-      onSaved: (String pin) => print('OnSaved: $pin'),
+      onSaved: (String pin) {},
       enabled: enabled,
       autofocus: true,
       textStyle: CustomTextStyles.textStyleBold(),
-      preFilledWidget: Icon(
+      preFilledWidget: const Icon(
         Icons.emoji_objects_rounded,
         color: Colors.teal,
       ),

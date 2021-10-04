@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class UnusedSplashScreen extends StatefulWidget {
+  const UnusedSplashScreen({Key key}) : super(key: key);
+
   @override
   _UnusedSplashScreenState createState() => _UnusedSplashScreenState();
 }
@@ -33,9 +35,9 @@ class _UnusedSplashScreenState extends State<UnusedSplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(237, 235, 173, 1),
+      backgroundColor: const Color.fromRGBO(237, 235, 173, 1),
       body: Center(
-        child: Container(
+        child: SizedBox(
           height: animation.value,
           width: animation.value,
           child: Image.asset("images/Time_tracker/1.png"),

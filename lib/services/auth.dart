@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:my_time_tracker/app/home/account/Phone_page.dart';
+import 'package:my_time_tracker/app/home/account/phone_page.dart';
 import 'package:my_time_tracker/app/home/account/otp_page.dart';
 import 'package:my_time_tracker/models_and_managers/models/custom_user_model.dart';
 import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.dart';
@@ -42,10 +42,16 @@ class Auth implements AuthBase {
       return _userFromFirebase(user);
     } catch (e) {
       print('ErrorCode: ${e.code}');
-      throw PlatformException(
-        code: e.code,
-        message: e.message,
-      );
+      if (e.message.toString().contains('com.google.firebase')){
+        throw PlatformException(
+          code: 'network-request-failed',
+        );
+      } else {
+        throw PlatformException(
+          code: e.code,
+          message: e.message,
+        );
+      }
     }
   }
 
@@ -67,7 +73,7 @@ class Auth implements AuthBase {
           email: email, password: password);
       User user = userCredential.user;
 
-      String displayName = '$lastName' + ' ' + '$firstName';
+      String displayName = lastName + ' ' + firstName;
 
       CustomUser userProfile = CustomUser(
         displayName: displayName ?? '',
@@ -86,10 +92,16 @@ class Auth implements AuthBase {
       }).catchError((onError) {});
       return userProfile;
     } catch (e) {
-      throw PlatformException(
-        code: e.code,
-        message: e.message,
-      );
+      if (e.message.toString().contains('com.google.firebase')){
+        throw PlatformException(
+          code: 'network-request-failed',
+        );
+      } else {
+        throw PlatformException(
+          code: e.code,
+          message: e.message,
+        );
+      }
     }
   }
 
@@ -97,7 +109,7 @@ class Auth implements AuthBase {
   Future<CustomUser> signInWithFacebook() async {
     final facebookLogin = FacebookLogin();
     facebookLogin.logOut();
-    facebookLogin.loginBehavior = FacebookLoginBehavior.webViewOnly;
+    facebookLogin.loginBehavior = FacebookLoginBehavior.webOnly;
     final FacebookLoginResult result =
         await facebookLogin.logIn(['public_profile']);
     CustomUser userProfile;
@@ -130,10 +142,16 @@ class Auth implements AuthBase {
       }
       return userProfile;
     } catch (e) {
-      throw PlatformException(
-        code: e.code,
-        message: e.message,
-      );
+      if (e.message.toString().contains('com.google.firebase')){
+        throw PlatformException(
+          code: 'network-request-failed',
+        );
+      } else {
+        throw PlatformException(
+          code: e.code,
+          message: e.message,
+        );
+      }
     }
   }
 
@@ -196,11 +214,17 @@ class Auth implements AuthBase {
           .writeUserDataToFirestore(userProfile);
       return userProfile;
     } catch (e) {
-      print(e.code);
-      throw PlatformException(
-        code: e.code,
-        message: e.message,
-      );
+      if (e.message.toString().contains('com.google.firebase')){
+        throw PlatformException(
+          code: 'network-request-failed',
+        );
+      } else {
+        throw PlatformException(
+          code: e.code,
+          message: e.message,
+        );
+      }
+
     }
   }
 
@@ -263,7 +287,7 @@ class Auth implements AuthBase {
         }).whenComplete(() {
           if (error == false) {
             FirestoreDatabase(uid: user.uid).updateUserDataOnFirestore(
-                {'phone': '$number', 'countryCode': '$isoCode'});
+                {'phone': number, 'countryCode': isoCode});
             Navigator.of(context).popUntil((route) => route.isFirst);
           }
         });
@@ -329,15 +353,20 @@ class Auth implements AuthBase {
       User user = _firebaseAuth.currentUser;
       await user.updatePhoneNumber(credential).then((value) =>
           FirestoreDatabase(uid: user.uid).updateUserDataOnFirestore(
-              {'phone': '$number', 'countryCode': '$isoCode'}));
+              {'phone': number, 'countryCode': isoCode}));
       Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
-      print(e.code);
-      print(e.message);
-      throw PlatformException(
-        code: e.code,
-        message: e.message,
-      );
+      print(e.toString());
+      if (e.message.toString().contains('com.google.firebase')){
+        throw PlatformException(
+          code: 'network-request-failed',
+        );
+      } else {
+        throw PlatformException(
+          code: e.code,
+          message: e.message,
+        );
+      }
     }
   }
 
@@ -385,12 +414,17 @@ class Auth implements AuthBase {
     try {
       await _firebaseAuth.sendPasswordResetEmail(email: email);
     } catch (e) {
-      print(e.code);
-      print(e.message);
-      throw PlatformException(
-        code: e.code,
-        message: e.message,
-      );
+      print(e.toString());
+      if (e.message.toString().contains('com.google.firebase')){
+        throw PlatformException(
+          code: 'network-request-failed',
+        );
+      } else {
+        throw PlatformException(
+          code: e.code,
+          message: e.message,
+        );
+      }
     }
   }
 
@@ -426,7 +460,7 @@ class Auth implements AuthBase {
           print('Delete my account');
           accessToken = currentAccessToken;
         } else {
-          facebookLogin.loginBehavior = FacebookLoginBehavior.webViewOnly;
+          facebookLogin.loginBehavior = FacebookLoginBehavior.webOnly;
           result = await facebookLogin.logIn(['public_profile']);
 
           if (result.status == FacebookLoginStatus.loggedIn) {

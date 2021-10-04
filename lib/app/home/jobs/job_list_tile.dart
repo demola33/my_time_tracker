@@ -20,7 +20,7 @@ class JobListTile extends StatelessWidget {
         job.organization,
         style: CustomTextStyles.textStyleBold(fontSize: size.height * 0.02),
       ),
-      trailing: Icon(Icons.chevron_right),
+      trailing: const Icon(Icons.chevron_right),
       dense: true,
       onTap: onTap,
     );

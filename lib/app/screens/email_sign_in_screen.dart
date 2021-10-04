@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:my_time_tracker/app/sign_in/email_sign_in/email_sign_in_form_change_notifier_based.dart';
 
 class EmailSignInPage extends StatelessWidget {
+  const EmailSignInPage({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(37, 165, 159, 0.6),
+      backgroundColor: const Color.fromRGBO(37, 165, 159, 0.6),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(30),
                 bottomRight: Radius.circular(30),

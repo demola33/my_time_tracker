@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_time_tracker/app/home/account/Phone_page.dart';
+import 'package:my_time_tracker/app/home/account/phone_page.dart';
 import 'package:my_time_tracker/app/home/account/account_page_manager.dart';
 import 'package:my_time_tracker/app/home/account/components/user_image_picker.dart';
 import 'package:my_time_tracker/app/home/account/reset_password_page.dart';
@@ -23,12 +23,12 @@ class AccountPage extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        toolbarHeight: size * 0.35,
+        toolbarHeight: 50,
         automaticallyImplyLeading: false,
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.white,
         ),
-        backgroundColor: Color.fromRGBO(0, 144, 144, 0.5),
+        backgroundColor: const Color.fromRGBO(0, 144, 144, 0.5),
         title: Text(
           'Account',
           style: CustomTextStyles.textStyleTitle(),
@@ -38,13 +38,13 @@ class AccountPage extends StatelessWidget {
         actions: [
           IconButton(
             iconSize: 30.0,
-            icon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
             tooltip: 'Settings',
             onPressed: () => manager.showSettings(context),
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(180),
+          preferredSize: Size.fromHeight(size * 0.3),
           child: Container(
             child: _buildUserInfo(user),
           ),
@@ -61,12 +61,14 @@ class AccountPage extends StatelessWidget {
   Widget _buildContent(BuildContext context, CustomUser user) {
     if (user != null) {
       double size = MediaQuery.of(context).size.height;
-      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
         Card(
           elevation: 5.0,
-          color: Color.fromRGBO(0, 144, 144, 0.5),
+          color: const Color.fromRGBO(0, 144, 144, 0.5),
           child: Container(
-            margin: EdgeInsets.only(top: 8.0),
+            margin: const EdgeInsets.only(top: 8.0),
             alignment: Alignment.center,
             height: size * 0.066,
             child: Text(
@@ -81,13 +83,13 @@ class AccountPage extends StatelessWidget {
         Expanded(
           child: Container(
             //color: Colors.blue,
-            margin: EdgeInsets.all(8.0),
+            margin: const EdgeInsets.all(8.0),
             child: _accountInformation(context, user),
           ),
         ),
       ]);
     } else {
-      return Center(
+      return const Center(
         child: CircularProgressIndicator(),
       );
     }
@@ -97,7 +99,7 @@ class AccountPage extends StatelessWidget {
     return Column(
       children: [
         UserImagePicker(user),
-        SizedBox(
+        const SizedBox(
           height: 10.0,
         )
       ],
@@ -117,7 +119,7 @@ class AccountPage extends StatelessWidget {
         onTap: onTap,
         dense: true,
         enabled: enabled,
-        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
         leading: Icon(
           icon,
           color: enabled ? Colors.grey[700] : null,
@@ -138,7 +140,7 @@ class AccountPage extends StatelessWidget {
                 ),
               ),
               if (showChevronIcon == true)
-                Icon(Icons.chevron_right, size: 40.0),
+                const Icon(Icons.chevron_right, size: 40.0),
             ],
           ),
         ),
@@ -159,7 +161,7 @@ class AccountPage extends StatelessWidget {
               ? 'Display name not found'
               : user.displayName,
         ),
-        Divider(
+        const Divider(
           thickness: 2.0,
         ),
         _buildListTile(
@@ -169,7 +171,7 @@ class AccountPage extends StatelessWidget {
           icon: Icons.email,
           label: user.email == '' ? 'Anonymous@email.com' : user.email,
         ),
-        Divider(
+        const Divider(
           thickness: 2.0,
         ),
         _buildListTile(
@@ -185,7 +187,7 @@ class AccountPage extends StatelessWidget {
           icon: Icons.phone,
           label: user.phone == '' ? 'Add phone  ' : user.phone,
         ),
-        Divider(
+        const Divider(
           thickness: 2.0,
         ),
         _buildListTile(
@@ -198,7 +200,7 @@ class AccountPage extends StatelessWidget {
           icon: Icons.lock,
           label: '',
         ),
-        Divider(
+        const Divider(
           thickness: 2.0,
         ),
       ],

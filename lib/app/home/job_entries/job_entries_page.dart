@@ -1,4 +1,4 @@
-import 'package:my_time_tracker/app/home/jobs/customListBuilder.dart';
+import 'package:my_time_tracker/app/home/jobs/custom_list_builder.dart';
 import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:my_time_tracker/app/home/job_entries/entry_list_item.dart';
 import 'package:my_time_tracker/app/home/job_entries/edit_entry_page.dart';
@@ -17,7 +17,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 class JobEntriesPage extends StatefulWidget {
-  JobEntriesPage({@required this.database, @required this.job});
+  const JobEntriesPage({Key key, @required this.database, @required this.job}) : super(key: key);
 
   final Database database;
   final Job job;
@@ -37,14 +37,14 @@ class JobEntriesPage extends StatefulWidget {
 }
 
 class _JobEntriesPageState extends State<JobEntriesPage> {
-  final Color uniqueJobsEntriesPageColor = Color.fromRGBO(0, 195, 111, 0.5);
+  final Color uniqueJobsEntriesPageColor = const Color.fromRGBO(0, 195, 111, 0.5);
   List<Entry> _allEntriesList = [];
   // ignore: unused_field
   Future<void> _resultLoaded;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState(){
+    super.initState();
     _resultLoaded = _getAllEntries();
   }
 
@@ -67,7 +67,7 @@ class _JobEntriesPageState extends State<JobEntriesPage> {
   }
 
   Future<void> _confirmDelete(BuildContext context, Entry entry) async {
-    final didRequestDelete = await PlatformAlertDialog(
+    final didRequestDelete = await const PlatformAlertDialog(
       title: 'Delete',
       content: 'Would you like to delete this entry?',
       cancelActionText: 'Cancel',
@@ -99,7 +99,7 @@ class _JobEntriesPageState extends State<JobEntriesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: uniqueJobsEntriesPageColor,
         elevation: 5.0,
         title: Text(
@@ -108,7 +108,7 @@ class _JobEntriesPageState extends State<JobEntriesPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             tooltip: 'Add Entry',
             iconSize: 30.0,
             onPressed: () {
@@ -137,7 +137,7 @@ class _JobEntriesPageState extends State<JobEntriesPage> {
               Entry entry = _allEntriesList[index];
               return Slidable(
                 key: Key('entry:${entry.id}'),
-                actionPane: SlidableDrawerActionPane(),
+                actionPane: const SlidableDrawerActionPane(),
                 actionExtentRatio: 0.25,
                 child: Container(
                     color: Colors.white,

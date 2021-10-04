@@ -24,11 +24,13 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey =
-      new GlobalKey<NavigatorState>();
+      GlobalKey<NavigatorState>();
+
+  MyApp({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     Timer(
-      Duration(seconds: 8),
+      const Duration(seconds: 8),
       () => navigatorKey.currentState.pushReplacement(
         MaterialPageRoute(
           builder: (BuildContext context) => LandingPage(
@@ -53,7 +55,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.teal,
         ),
-        home: SplashScreen(),
+        home: const SplashScreen(),
       ),
     );
   }

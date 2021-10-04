@@ -150,33 +150,34 @@ class _PhonePageState extends State<PhonePage> {
           elevation: 0.0,
           automaticallyImplyLeading: false,
           leading: IconButton(
-            icon: Icon(Icons.clear_sharp),
+            icon: const Icon(Icons.clear_sharp),
             onPressed: () async {
               FocusScope.of(context).requestFocus(FocusNode());
-              await Future.delayed(Duration(milliseconds: 100)).then((value) =>
+              await Future.delayed(const Duration(milliseconds: 100)).then((value) =>
                   Navigator.of(context).popUntil((route) => route.isFirst));
             },
           ),
-          iconTheme: IconThemeData(
+          iconTheme: const IconThemeData(
             color: Colors.teal,
           ),
           backgroundColor: Colors.white,
         ),
-        body: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(20.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          child: Center(
+        
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Center(
                             child: Text(
                               widget.number == ''
                                   ? 'Enter a phone number'
@@ -185,74 +186,74 @@ class _PhonePageState extends State<PhonePage> {
                                   fontSize: 20.0, fontWeight: FontWeight.w900),
                             ),
                           ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(8.0),
-                          child: Center(
-                            child: Text(
-                              'You will receive a text message with a verification code.',
-                              style: CustomTextStyles.textStyleBold(
-                                fontSize: 12.0,
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w800,
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Text(
+                                'You will receive a text message with a verification code.',
+                                style: CustomTextStyles.textStyleBold(
+                                  fontSize: 12.0,
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                  InternationalPhoneNumberInput(
-                    onInputChanged: (PhoneNumber number) {},
-                    inputDecoration: InputDecoration(
-                      isDense: true,
-                      hintText: 'Enter your phone number',
-                      hintStyle: CustomTextStyles.textStyleNormal(),
-                      labelText: 'PHONE NUMBER',
-                      labelStyle:
-                          CustomTextStyles.textStyleBold(color: Colors.teal[600]),
-                      border: OutlineInputBorder(),
+                    InternationalPhoneNumberInput(
+                      onInputChanged: (PhoneNumber number) {},
+                      inputDecoration: InputDecoration(
+                        isDense: true,
+                        hintText: 'Enter your phone number',
+                        hintStyle: CustomTextStyles.textStyleNormal(),
+                        labelText: 'PHONE NUMBER',
+                        labelStyle:
+                            CustomTextStyles.textStyleBold(color: Colors.teal[600]),
+                        border: const OutlineInputBorder(),
+                      ),
+                      autoFocus: true,
+                      onInputValidated: (bool value) {
+                        if (value == true) {
+                          setState(() {
+                            validate = value;
+                          });
+                        } else {
+                          setState(() {
+                            validate = value;
+                          });
+                        }
+                      },
+                      selectorConfig: const SelectorConfig(
+                        selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                      ),
+                      initialValue: _number,
+                      textFieldController: controller,
+                      formatInput: true,
+                      keyboardAction: TextInputAction.next,
+                      keyboardType: const TextInputType.numberWithOptions(
+                          signed: true, decimal: true),
+                      onSaved: (PhoneNumber number) {
+                        _number = number;
+                      },
+                      onSubmit: _phoneNumberEditingComplete,
                     ),
-                    autoFocus: true,
-                    onInputValidated: (bool value) {
-                      if (value == true) {
-                        setState(() {
-                          validate = value;
-                        });
-                      } else {
-                        setState(() {
-                          validate = value;
-                        });
-                      }
-                    },
-                    selectorConfig: SelectorConfig(
-                      selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                    ),
-                    initialValue: _number,
-                    textFieldController: controller,
-                    formatInput: true,
-                    keyboardAction: TextInputAction.next,
-                    keyboardType: TextInputType.numberWithOptions(
-                        signed: true, decimal: true),
-                    onSaved: (PhoneNumber number) {
-                      _number = number;
-                    },
-                    onSubmit: _phoneNumberEditingComplete,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: FormSubmitButton(
-                      onPressed: validate ? _submit : null,
-                      text: 'Next',
-                      focusNode: _submitButtonNode,
-                    ),
-                  ),
-                  if (widget.number != '' && editNumberCallback == false)
                     Container(
-                      padding: EdgeInsets.all(5),
-                      child: _buildRemoveNumberButton(),
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: FormSubmitButton(
+                        onPressed: validate ? _submit : null,
+                        text: 'Next',
+                        focusNode: _submitButtonNode,
+                      ),
                     ),
-                ],
+                    if (widget.number != '' && editNumberCallback == false)
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        child: _buildRemoveNumberButton(),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),

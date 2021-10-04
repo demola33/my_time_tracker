@@ -14,7 +14,7 @@ class PlatformAlertDialog extends PlatformWidget {
   final VoidCallback onPressOk;
   final VoidCallback onPressCancel;
 
-  PlatformAlertDialog({
+   const PlatformAlertDialog({Key key,
     @required this.title,
     @required this.content,
     this.onPressOk,
@@ -24,7 +24,7 @@ class PlatformAlertDialog extends PlatformWidget {
     exception,
   })  : assert(title != null),
         assert(content != null),
-        assert(defaultActionText != null);
+        assert(defaultActionText != null), super(key: key);
 
   Future<bool> show(BuildContext context) async {
     return Platform.isIOS
@@ -77,9 +77,7 @@ class PlatformAlertDialog extends PlatformWidget {
     final actions = <Widget>[];
     if (cancelActionText != null) {
       actions.add(PlatformAlertDialogAction(
-        press: onPressCancel == null
-            ? () => Navigator.of(context).pop(false)
-            : onPressCancel,
+        press: onPressCancel ?? () => Navigator.of(context).pop(false),
         child: CustomText(
           text: cancelActionText,
         ),
@@ -87,7 +85,7 @@ class PlatformAlertDialog extends PlatformWidget {
     }
     actions.add(PlatformAlertDialogAction(
       press:
-          onPressOk == null ? () => Navigator.of(context).pop(true) : onPressOk,
+          onPressOk ?? () => Navigator.of(context).pop(true),
       child: CustomText(
         text: defaultActionText,
       ),
@@ -100,10 +98,10 @@ class PlatformAlertDialogAction extends PlatformWidget {
   final Widget child;
   final VoidCallback press;
 
-  PlatformAlertDialogAction({
+  const PlatformAlertDialogAction({Key key,
     @required this.child,
     @required this.press,
-  });
+  }) : super(key: key);
 
   @override
   Widget buildCupertinoWidget(BuildContext context) {

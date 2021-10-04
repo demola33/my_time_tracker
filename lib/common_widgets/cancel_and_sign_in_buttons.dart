@@ -4,15 +4,15 @@ import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:my_time_tracker/layout/letter_spacing.dart';
 
 class CancelAndSignInButtons extends StatelessWidget {
-  const CancelAndSignInButtons(
-      {@required this.text, this.onPressed, this.focusNode});
+   const CancelAndSignInButtons(
+      {Key key, @required this.text, this.onPressed, this.focusNode}) : super(key: key);
   final VoidCallback onPressed;
   final String text;
   final FocusNode focusNode;
 
   @override
   Widget build(BuildContext context) {
-    final buttonTextPadding = EdgeInsets.zero;
+    const buttonTextPadding = EdgeInsets.zero;
 
     return Wrap(
       children: [
@@ -27,7 +27,7 @@ class CancelAndSignInButtons extends StatelessWidget {
               ),
               onPressed: () async{
                 FocusScope.of(context).requestFocus(FocusNode());
-                await Future.delayed(Duration(milliseconds: 100));
+                await Future.delayed(const Duration(milliseconds: 100));
                 Navigator.of(context, rootNavigator: true).pop();
                 },
               child: Padding(
@@ -46,7 +46,7 @@ class CancelAndSignInButtons extends StatelessWidget {
                 overlayColor: MaterialStateProperty.resolveWith<Color>(
                     (Set<MaterialState> states) => Colors.deepOrangeAccent),
                 shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
-                  (Set<MaterialState> states) => RoundedRectangleBorder(
+                  (Set<MaterialState> states) => const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
                       Radius.circular(4.0),
                     ),
@@ -54,13 +54,14 @@ class CancelAndSignInButtons extends StatelessWidget {
                 ),
                 backgroundColor: MaterialStateProperty.resolveWith<Color>(
                   (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.pressed))
+                    if (states.contains(MaterialState.pressed)) {
                       return Theme.of(context)
                           .colorScheme
                           .primary
                           .withOpacity(0.5);
-                    else if (states.contains(MaterialState.disabled))
+                    } else if (states.contains(MaterialState.disabled)) {
                       return Colors.teal[600];
+                    }
                     return null;
                   },
                 ),

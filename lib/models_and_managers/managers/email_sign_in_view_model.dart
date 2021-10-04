@@ -10,15 +10,13 @@ import 'package:my_time_tracker/common_widgets/platform_exception_alert_dialog.d
 import 'package:my_time_tracker/services/auth_base.dart';
 import 'package:provider/provider.dart';
 
-class EmailSignInModel with ErrorText, ChangeNotifier {
-  EmailSignInModel({
-    this.email: '',
-    this.password: '',
-    this.error: false,
+class EmailSignInViewModel with ErrorText, ChangeNotifier {
+  EmailSignInViewModel({
+    this.email = '',
+    this.password = '',
   });
   String email;
   String password;
-  bool error;
 
   MultiValidator get emailValidator {
     final validator = MultiValidator([
@@ -54,9 +52,10 @@ class EmailSignInModel with ErrorText, ChangeNotifier {
     @required String email,
   }) async {
     final auth = Provider.of<AuthBase>(context, listen: false);
+    bool error = false;
     try {
       await auth.sendPasswordResetEmail(email).catchError((e) {
-        updateWith(error: true);
+        error = true;
         _showResetPasswordError(context, e);
       });
       if (error == false) {
@@ -78,7 +77,6 @@ class EmailSignInModel with ErrorText, ChangeNotifier {
     bool error,
   }) {
     this.email = email ?? this.email;
-    this.error = error ?? this.error;
     this.password = password ?? this.password;
     notifyListeners();
   }

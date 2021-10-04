@@ -1,7 +1,7 @@
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:my_time_tracker/app/home/account/Phone_page.dart';
+import 'package:my_time_tracker/app/home/account/phone_page.dart';
 import 'package:my_time_tracker/app/home/account/components/otp_input_box.dart';
 import 'package:my_time_tracker/common_widgets/platform_alert_dialog.dart';
 import 'package:my_time_tracker/layout/custom_text_style.dart';
@@ -51,14 +51,13 @@ class _OTPPageState extends State<OTPPage> {
   final TextEditingController _pinPutController = TextEditingController();
 
   Future<void> _onBackButtonPressed(BuildContext context) async {
-    final didRequestExit = await PlatformAlertDialog(
+    final didRequestExit = await const PlatformAlertDialog(
       title: 'Warning',
       content: 'Do you really want to exit the phone verification process?',
       cancelActionText: 'No',
       defaultActionText: 'Yes',
     ).show(context);
     if (didRequestExit == true) {
-      print('EXITED');
       Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
@@ -89,12 +88,12 @@ class _OTPPageState extends State<OTPPage> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(Icons.clear_sharp),
+            icon: const Icon(Icons.clear_sharp),
             onPressed: () => _onBackButtonPressed(context),
           ),
           elevation: 0.0,
           automaticallyImplyLeading: false,
-          iconTheme: IconThemeData(
+          iconTheme: const IconThemeData(
             color: Colors.teal,
           ),
           backgroundColor: Colors.white,
@@ -105,62 +104,58 @@ class _OTPPageState extends State<OTPPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                child: Center(
-                  child: Text(
-                    'Verify Your Number',
-                    style: CustomTextStyles.textStyleBold(
-                        fontSize: 20.0, fontWeight: FontWeight.w900),
-                  ),
+              Center(
+                child: Text(
+                  'Verify Your Number',
+                  style: CustomTextStyles.textStyleBold(
+                      fontSize: 20.0, fontWeight: FontWeight.w900),
                 ),
               ),
-              Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Center(
-                        child: RichText(
-                          text: TextSpan(
-                            text: 'Enter the 6 digit code we sent to ',
-                            style: CustomTextStyles.textStyleBold(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Center(
+                      child: RichText(
+                        text: TextSpan(
+                          text: 'Enter the 6 digit code we sent to ',
+                          style: CustomTextStyles.textStyleBold(
+                              fontSize: 12.0,
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w800),
+                          children: [
+                            TextSpan(
+                              text: widget.number,
+                              style: CustomTextStyles.textStyleBold(
                                 fontSize: 12.0,
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w800),
-                            children: [
-                              TextSpan(
-                                text: widget.number,
-                                style: CustomTextStyles.textStyleBold(
-                                  fontSize: 12.0,
-                                  color: Colors.teal[600],
-                                  fontWeight: FontWeight.w800,
-                                ),
+                                color: Colors.teal[600],
+                                fontWeight: FontWeight.w800,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    // SizedBox(
-                    //   width: 5.0,
-                    // ),
-                    InkWell(
-                      onTap: () {
-                        PhonePage.show(
-                          context: context,
-                          phone: widget.number,
-                          isoCode: widget.isoCode,
-                          token: widget.resendToken,
-                          editNumberCallback: true,
-                        );
-                      },
-                      child: Icon(Icons.edit),
-                    )
-                  ],
-                ),
+                  ),
+                  // SizedBox(
+                  //   width: 5.0,
+                  // ),
+                  InkWell(
+                    onTap: () {
+                      PhonePage.show(
+                        context: context,
+                        phone: widget.number,
+                        isoCode: widget.isoCode,
+                        token: widget.resendToken,
+                        editNumberCallback: true,
+                      );
+                    },
+                    child: const Icon(Icons.edit),
+                  )
+                ],
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Consumer<TrueOrFalseSwitch>(
                 builder: (_, _onSwitch, __) => Container(
                   margin: const EdgeInsets.all(20.0),

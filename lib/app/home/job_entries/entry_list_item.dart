@@ -7,10 +7,10 @@ import 'package:my_time_tracker/layout/custom_text_style.dart';
 import 'package:provider/provider.dart';
 
 class EntryListItem extends StatelessWidget {
-  const EntryListItem({
+   const EntryListItem({Key key,
     @required this.entry,
     @required this.job,
-  });
+  }) : super(key: key);
 
   final Entry entry;
   final Job job;
@@ -28,13 +28,13 @@ class EntryListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Row(
           children: <Widget>[
             Expanded(
               child: _buildContents(context),
             ),
-            Icon(Icons.chevron_right, color: Colors.grey),
+            const Icon(Icons.chevron_right, color: Colors.grey),
           ],
         ),
       ),
@@ -73,15 +73,10 @@ class EntryListItem extends StatelessWidget {
             ),
             if (job.ratePerHour > 0.0) ...<Widget>[
               Expanded(child: Container()),
-              GestureDetector(
-                onTap: () {
-                  print('Tapped');
-                },
-                child: Text(
-                  truncateLabel(payFormatted),
-                  style: CustomTextStyles.textStyleExtraBold(
-                      color: Colors.green[700]),
-                ),
+              Text(
+                truncateLabel(payFormatted),
+                style: CustomTextStyles.textStyleExtraBold(
+                    color: Colors.green[700]),
               ),
             ],
           ],
@@ -128,10 +123,10 @@ class EntryListItem extends StatelessWidget {
 }
 
 class DismissibleEntryListItem extends StatelessWidget {
-  const DismissibleEntryListItem(
-      {this.key, this.entry, this.job, this.onDelete, this.onTap, this.onEdit});
+   const DismissibleEntryListItem(
+      {Key key,  this.entry, this.job, this.onDelete, this.onTap, this.onEdit}) : super(key: key);
 
-  final Key key;
+
   final Entry entry;
   final Job job;
   final VoidCallback onDelete;
@@ -141,7 +136,7 @@ class DismissibleEntryListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Slidable(
-      actionPane: SlidableDrawerActionPane(),
+      actionPane: const SlidableDrawerActionPane(),
       key: key,
       actionExtentRatio: 0.25,
       child: Container(

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 class CustomElevatedButton extends StatelessWidget {
-  CustomElevatedButton({
+  const CustomElevatedButton({Key key,
     this.child,
     this.color,
     this.disabledColor,
-    this.borderRadius: 4.0,
-    this.height: 40.0,
+    this.borderRadius = 4.0,
+    this.height = 40.0,
     this.onPressed,
     this.focusNode,
   })  : assert(borderRadius != null),
-        assert(height != null);
+        assert(height != null), super(key: key);
   final Widget child;
   final Color color;
   final Color disabledColor;
@@ -29,7 +29,7 @@ class CustomElevatedButton extends StatelessWidget {
           elevation: MaterialStateProperty.resolveWith<double>(
               (Set<MaterialState> states) => 10.0),
           shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
-            (Set<MaterialState> states) => RoundedRectangleBorder(
+            (Set<MaterialState> states) => const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
                 Radius.circular(4.0),
               ),

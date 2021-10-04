@@ -40,7 +40,7 @@ class Format {
       timeList.add(match);
     }
     String myTime =
-        '${timeList[0]}h' + ':' + '${timeList[1]}m' + ':' + '${timeList[2]}s';
+        '${timeList[0]}h : ${timeList[1]}m : ${timeList[2]}s';
     return myTime;
   }
 

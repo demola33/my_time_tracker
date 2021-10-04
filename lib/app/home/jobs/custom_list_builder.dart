@@ -28,7 +28,7 @@ class _CustomListBuilderState<T> extends State<CustomListBuilder<T>> {
       final List<T> items = widget.customList;
       return _buildContent(items);
     } else {
-      return EmptyContent();
+      return const EmptyContent();
     }
   }
 
@@ -39,7 +39,7 @@ class _CustomListBuilderState<T> extends State<CustomListBuilder<T>> {
               thumbColor: MaterialStateProperty.all(widget.scrollBarColor))),
       child: Scrollbar(
         thickness: 10.0,
-        radius: Radius.circular(8.0),
+        radius: const Radius.circular(8.0),
         child: ListView.builder(
           padding: const EdgeInsets.symmetric(
             horizontal: _horizontalPadding,

@@ -6,24 +6,24 @@ import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
 import '../components/already_have_an_account_check.dart';
 import '../../../common_widgets/platform_exception_alert_dialog.dart';
 import '../../../common_widgets/cancel_and_sign_in_buttons.dart';
-import '../../../models_and_managers/models/email_sign_up_model.dart';
+import '../../../models_and_managers/managers/email_sign_up_view_model.dart';
 import '../../../app/screens/email_verification_screen.dart';
 import '../../../app/sign_in/components/password_field.dart';
 import '../../../common_widgets/custom_icon_text_field.dart';
 import '../../../app/screens/email_sign_in_screen.dart';
 
 class EmailSignUpFormChangeNotifierBased extends StatefulWidget {
-  final EmailSignUpModel model;
+  final EmailSignUpViewModel model;
 
-  EmailSignUpFormChangeNotifierBased({
+  const EmailSignUpFormChangeNotifierBased({
     Key key,
     this.model,
   }) : super(key: key);
 
   static Widget create(BuildContext context) {
-    return ChangeNotifierProvider<EmailSignUpModel>(
-      create: (_) => EmailSignUpModel(),
-      child: Consumer<EmailSignUpModel>(
+    return ChangeNotifierProvider<EmailSignUpViewModel>(
+      create: (_) => EmailSignUpViewModel(),
+      child: Consumer<EmailSignUpViewModel>(
         builder: (context, model, _) => EmailSignUpFormChangeNotifierBased(
           model: model,
         ),
@@ -49,7 +49,7 @@ class _EmailSignUpFormChangeNotifierBasedState
   final _formKey = GlobalKey<FormState>();
 
   final ValueChanged<bool> onChanged;
-  EmailSignUpModel get model => widget.model;
+  EmailSignUpViewModel get model => widget.model;
 
   FocusNode _firstNameNode,
       _lastNameNode,
@@ -224,7 +224,7 @@ class _EmailSignUpFormChangeNotifierBasedState
       MaterialPageRoute(
         fullscreenDialog: false,
         builder: (context) {
-          return EmailSignInPage();
+          return const EmailSignInPage();
         },
       ),
     );
@@ -261,7 +261,6 @@ class _EmailSignUpFormChangeNotifierBasedState
           ),
         );
       } on PlatformException catch (e) {
-        print('ERROR Code: ${e.code}');
         progressDialog.dismiss();
         PlatformExceptionAlertDialog(
           title: 'Sign in Failed',

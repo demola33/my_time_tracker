@@ -8,8 +8,8 @@ import 'package:my_time_tracker/app/home/models/entry.dart';
 import 'package:my_time_tracker/app/home/models/job.dart';
 import 'package:my_time_tracker/services/database.dart';
 
-class EntriesBloc {
-  EntriesBloc({
+class EntriesViewModel {
+  EntriesViewModel({
     @required this.database,
     @required this.format,
   });

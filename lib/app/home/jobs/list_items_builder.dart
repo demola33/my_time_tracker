@@ -31,16 +31,16 @@ class _ListItemsBuilderState<T> extends State<ListItemsBuilder<T>> {
       if (items.isNotEmpty) {
         return _buildContent(items);
       } else {
-        return EmptyContent();
+        return const EmptyContent();
       }
     } else if (widget.snapshot.hasError) {
-      return EmptyContent(
+      return const EmptyContent(
         title: 'Something went wrong',
         message: 'Can\'t load items right now',
         packageImage: PackageImage.Image_4,
       );
     }
-    return Center(
+    return const Center(
       child: CircularProgressIndicator(),
     );
   }
@@ -52,7 +52,7 @@ class _ListItemsBuilderState<T> extends State<ListItemsBuilder<T>> {
               thumbColor: MaterialStateProperty.all(widget.scrollBarColor))),
       child: Scrollbar(
         thickness: 10.0,
-        radius: Radius.circular(8.0),
+        radius: const Radius.circular(8.0),
         child: ListView.builder(
           padding: const EdgeInsets.symmetric(
             horizontal: _horizontalPadding,

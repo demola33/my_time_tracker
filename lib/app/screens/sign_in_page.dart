@@ -50,7 +50,6 @@ class SignInPage extends StatelessWidget {
       await manager.signInWithGoogle();
     } on PlatformException catch (e) {
       if (e.code != "ERROR_ABORTED_BY_USER") {
-        print(e.toString());
         _showSignInError(context, e);
       }
     }
@@ -70,7 +69,7 @@ class SignInPage extends StatelessWidget {
     Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
         fullscreenDialog: false,
-        builder: (context) => EmailSignInPage(),
+        builder: (context) => const EmailSignInPage(),
       ),
     );
   }
@@ -78,13 +77,13 @@ class SignInPage extends StatelessWidget {
   Scaffold portraitScaffold(BuildContext context, bool isLoading) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Color.fromRGBO(37, 165, 159, 0.6),
+      backgroundColor: const Color.fromRGBO(37, 165, 159, 0.6),
       body: Column(
         children: [
           Expanded(
             flex: 2,
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30),
@@ -111,7 +110,7 @@ class SignInPage extends StatelessWidget {
           Expanded(
             flex: 1,
             child: Container(
-              margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -127,13 +126,13 @@ class SignInPage extends StatelessWidget {
   Scaffold landScapeScaffold(BuildContext context, bool isLoading) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Color.fromRGBO(37, 165, 159, 0.6),
+      backgroundColor: const Color.fromRGBO(37, 165, 159, 0.6),
       body: Column(
         children: [
           Expanded(
             flex: 2,
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30),
@@ -160,7 +159,7 @@ class SignInPage extends StatelessWidget {
           Expanded(
             flex: 1,
             child: Container(
-              margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -187,20 +186,18 @@ class SignInPage extends StatelessWidget {
   }
 
   Widget _buildLogo(context) {
-    return Container(
-      child: SizedBox(
-        child: TimeTrackerLogo(
-          topPadding: 30,
-        ),
-        width: 200,
-        height: 200,
+    return const SizedBox(
+      child: TimeTrackerLogo(
+        topPadding: 30,
       ),
+      width: 200,
+      height: 200,
     );
   }
 
   Widget showProgressIndicator(bool isLoading) {
     if (isLoading) {
-      return Center(
+      return const Center(
         child: LinearProgressIndicator(
           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
         ),
@@ -214,7 +211,7 @@ class SignInPage extends StatelessWidget {
     return Expanded(
       child: Container(
         alignment: Alignment.bottomCenter,
-        child: TimeTrackerSignInTitle(),
+        child: const TimeTrackerSignInTitle(),
       ),
     );
   }
@@ -223,7 +220,7 @@ class SignInPage extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return [
       showProgressIndicator(isLoading),
-      SizedBox(height: 4.0),
+      const SizedBox(height: 4.0),
       SignInButton(
         text: 'Sign in with Email',
         textColor: Colors.white,
@@ -233,11 +230,11 @@ class SignInPage extends StatelessWidget {
       SizedBox(height: size.height * 0.01),
       SignInButton(
         text: 'Go Anonymously',
-        textColor: Color.fromRGBO(19, 66, 76, 1.0),
+        textColor: const Color.fromRGBO(19, 66, 76, 1.0),
         color: Colors.lime[300],
         onPressed: isLoading ? null : () => _signInAnonymously(context),
       ),
-      OrDivider(),
+      const OrDivider(),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

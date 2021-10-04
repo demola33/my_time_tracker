@@ -4,8 +4,8 @@ import 'package:my_time_tracker/app/home/tab_item.dart';
 import 'package:my_time_tracker/layout/custom_text_style.dart';
 
 class BottomNavigation extends StatelessWidget {
-  const BottomNavigation(
-      {this.onSelectTab, this.tabs, @required this.currentIndex});
+    const BottomNavigation(
+      {Key key, this.onSelectTab, this.tabs, @required this.currentIndex}) : super(key: key);
   final ValueChanged<int> onSelectTab;
   final List<TabItem> tabs;
   final int currentIndex;
@@ -34,7 +34,7 @@ class BottomNavigation extends StatelessWidget {
 
   Color _tabColor({int index}) {
     return HomeAppState.currentTab == index
-        ? Color.fromRGBO(241, 71, 23, 1)
+        ? const Color.fromRGBO(241, 71, 23, 1)
         : Colors.grey[560];
   }
 
