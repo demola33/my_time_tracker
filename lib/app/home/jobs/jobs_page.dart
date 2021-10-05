@@ -24,6 +24,7 @@ class JobsPage extends StatefulWidget {
 
 class _JobsPageState extends State<JobsPage> {
   final TextEditingController _searchController = TextEditingController();
+  final SlidableController slidableController = SlidableController();
   FocusNode _searchNode;
   final Color uniqueJobsPageColor = const Color.fromRGBO(0, 195, 111, 0.5);
   List<Job> _allJobsList = [];
@@ -157,39 +158,37 @@ class _JobsPageState extends State<JobsPage> {
           )
         ],
       ),
-      body: SafeArea(
-        child: Container(
-          color: uniqueJobsPageColor.withOpacity(0.1),
-          child: Column(
-            children: [
-              if (showSearchBar)
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.white,
-                    border: Border.all(
-                      color: uniqueJobsPageColor,
-                      width: 4,
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: CustomIconTextField(
-                    iconColor: Colors.deepOrangeAccent,
-                    border: InputBorder.none,
-                    icon: Icons.search_sharp,
-                    focusNode: _searchNode,
-                    textInputAction: TextInputAction.search,
-                    keyboardType: TextInputType.text,
-                    labelText: 'Search your job here',
-                    controller: _searchController,
+      body: Container(
+        color: uniqueJobsPageColor.withOpacity(0.1),
+        child: Column(
+          children: [
+            if (showSearchBar)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.white,
+                  border: Border.all(
+                    color: uniqueJobsPageColor,
+                    width: 4,
                   ),
                 ),
-              Expanded(
-                child: _buildContents(context, isConnected),
-              )
-            ],
-          ),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: CustomIconTextField(
+                  iconColor: Colors.deepOrangeAccent,
+                  border: InputBorder.none,
+                  icon: Icons.search_sharp,
+                  focusNode: _searchNode,
+                  textInputAction: TextInputAction.search,
+                  keyboardType: TextInputType.text,
+                  labelText: 'Search your job here',
+                  controller: _searchController,
+                ),
+              ),
+            Expanded(
+              child: _buildContents(context, isConnected),
+            )
+          ],
         ),
       ),
     );
@@ -206,11 +205,15 @@ class _JobsPageState extends State<JobsPage> {
           Job job = _displayedResultsList[index];
           return Slidable(
             key: Key('job:${job.id}'),
+            controller: slidableController,
             actionPane: const SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
-            child: JobListTile(
-              job: job,
-              onTap: () => JobEntriesPage.show(context, job),
+            child: Container(
+              color: Colors.white,
+              child: JobListTile(
+                job: job,
+                onTap: () => JobEntriesPage.show(context, job),
+              ),
             ),
             secondaryActions: [
               IconSlideAction(

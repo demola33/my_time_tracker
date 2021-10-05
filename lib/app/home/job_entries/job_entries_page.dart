@@ -38,6 +38,7 @@ class JobEntriesPage extends StatefulWidget {
 
 class _JobEntriesPageState extends State<JobEntriesPage> {
   final Color uniqueJobsEntriesPageColor = const Color.fromRGBO(0, 195, 111, 0.5);
+  final SlidableController slidableController = SlidableController();
   List<Entry> _allEntriesList = [];
   // ignore: unused_field
   Future<void> _resultLoaded;
@@ -137,6 +138,7 @@ class _JobEntriesPageState extends State<JobEntriesPage> {
               Entry entry = _allEntriesList[index];
               return Slidable(
                 key: Key('entry:${entry.id}'),
+                controller: slidableController,
                 actionPane: const SlidableDrawerActionPane(),
                 actionExtentRatio: 0.25,
                 child: Container(
